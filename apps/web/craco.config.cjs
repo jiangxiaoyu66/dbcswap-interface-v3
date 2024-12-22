@@ -6,8 +6,10 @@ const { readFileSync } = require('fs')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const path = require('path')
 const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin')
-const { IgnorePlugin, ProvidePlugin } = require('webpack')
+const { IgnorePlugin, ProvidePlugin, DefinePlugin } = require('webpack')
 const { RetryChunkLoadPlugin } = require('webpack-retry-chunk-load-plugin')
+const { codeInspectorPlugin } = require('code-inspector-plugin');
+
 
 const commitHash = execSync('git rev-parse HEAD').toString().trim()
 const isProduction = process.env.NODE_ENV === 'production'
@@ -88,6 +90,29 @@ module.exports = {
         retryDelay: `function(retryAttempt) {
           return 2 ** (retryAttempt - 1) * 500;
         }`,
+        maxRetries: 3,
+      }),
+
+      codeInspectorPlugin({
+        bundler: 'webpack',
+      }),
+      new DefinePlugin({
+        __DEV__: !isProduction,
+      }),
+      // Webpack 5 does not polyfill node globals, so we do so for those necessary:
+      new ProvidePlugin({
+        // - react-markdown requires process.cwd
+        process: 'process/browser.js',
+      }),
+      new VanillaExtractPlugin(),
+      new RetryChunkLoadPlugin({
+        cacheBust: `function() {
+            return 'cache-bust=' + Date.now();
+          }`,
+        // Retries with exponential backoff (500ms, 1000ms, 2000ms).
+        retryDelay: `function(retryAttempt) {
+            return 2 ** (retryAttempt - 1) * 500;
+          }`,
         maxRetries: 3,
       }),
     ],
@@ -213,9 +238,9 @@ module.exports = {
         webpackConfig.optimization,
         isProduction
           ? {
-              // Optimize over all chunks, instead of async chunks (the default), so that initial chunks are also included.
-              splitChunks: { chunks: 'all' },
-            }
+            // Optimize over all chunks, instead of async chunks (the default), so that initial chunks are also included.
+            splitChunks: { chunks: 'all' },
+          }
           : {}
       )
 
