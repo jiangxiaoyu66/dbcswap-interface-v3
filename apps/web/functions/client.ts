@@ -1,5 +1,5 @@
 import { ApolloClient, InMemoryCache } from '@apollo/client'
-const GRAPHQL_ENDPOINT = 'https://interface-gateway.ubeswap.org/v1/graphql'
+const GRAPHQL_ENDPOINT = 'http://8.214.55.62:8022/subgraphs/name/ianlapham/uniswap-v3-test'
 
 //TODO: Figure out how to make ApolloClient global variable
 export default new ApolloClient({

@@ -13,31 +13,58 @@ import { didUserReject } from 'utils/swapErrorToUserReadableMessage'
 const MAX_ALLOWANCE = MaxUint256.toString()
 
 export function useTokenAllowance(
-  token?: Token,
-  owner?: string,
-  spender?: string
+  token?: Token,    // [1] 代币合约对象
+  owner?: string,   // [2] 授权的所有者地址
+  spender?: string  // [3] 被授权的花费者地址
 ): {
-  tokenAllowance?: CurrencyAmount<Token>
-  isSyncing: boolean
+  tokenAllowance?: CurrencyAmount<Token>  // [4] 返回授权额度
+  isSyncing: boolean                      // [5] 返回是否正在同步状态
 } {
+  // [6] 获取代币合约实例
   const contract = useTokenContract(token?.address, false)
+  // [7] 缓存 allowance 方法的入参
   const inputs = useMemo(() => [owner, spender], [owner, spender])
 
-  // If there is no allowance yet, re-check next observed block.
-  // This guarantees that the tokenAllowance is marked isSyncing upon approval and updated upon being synced.
-  const [blocksPerFetch, setBlocksPerFetch] = useState<1>()
-  const { result, syncing: isSyncing } = useSingleCallResult(contract, 'allowance', inputs, { blocksPerFetch }) as {
-    result?: Awaited<ReturnType<NonNullable<typeof contract>['allowance']>>
-    syncing: boolean
-  }
+  // [8] 调试日志：输出基本参数信息
+  console.log('Debug useTokenAllowance:', {
+    contractAddress: token?.address,
+    hasContract: !!contract,
+    owner,
+    spender,
+    inputs
+  })
 
-  const rawAmount = result?.toString() // convert to a string before using in a hook, to avoid spurious rerenders
+  // [9] 调试日志：检查合约方法是否存在
+  console.log('Debug contract methods:', {
+    hasAllowanceMethod: contract?.allowance ? 'yes' : 'no',
+    contractMethods: contract ? Object.keys(contract.functions) : []
+  })
+
+  // [10] 控制区块查询频率的状态
+  const [blocksPerFetch, setBlocksPerFetch] = useState<1>()
+  // [11] RPC调用：通过 multicall 获取授权额度
+  const singleCallResult = useSingleCallResult(contract, 'allowance', inputs, { blocksPerFetch })
+  
+  // [12] 调试日志：输出调用结果详情
+  console.log('Debug allowance call details:', singleCallResult)
+
+  // [13] 解构调用结果
+  const { result, syncing: isSyncing, error } = singleCallResult
+
+  // [14] 将结果转换为字符串，避免不必要的重渲染
+  const rawAmount = result?.toString()
+  // [15] 将原始数值转换为 CurrencyAmount 对象
   const allowance = useMemo(
     () => (token && rawAmount ? CurrencyAmount.fromRawAmount(token, rawAmount) : undefined),
     [token, rawAmount]
   )
+  // [16] 当授权额度为0时，每个区块都重新检查
   useEffect(() => setBlocksPerFetch(allowance?.equalTo(0) ? 1 : undefined), [allowance])
 
+  // [17] 调试日志：输出最终结果
+  console.log("useTokenAllowance",{ tokenAllowance: allowance, isSyncing }, token, owner, spender, allowance);
+  
+  // [18] 返回缓存的结果对象
   return useMemo(() => ({ tokenAllowance: allowance, isSyncing }), [allowance, isSyncing])
 }
 

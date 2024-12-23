@@ -75,6 +75,8 @@ export const ID_TO_CHAIN_ID = (id: number): ChainId => {
       return ChainId.BASE
     case 84531:
       return ChainId.BASE_GOERLI
+    case 19850818:
+      return ChainId.DBC
     default:
       throw new Error(`Unknown chain id: ${id}`)
   }
@@ -98,6 +100,7 @@ export enum ChainName {
   AVALANCHE = 'avalanche-mainnet',
   BASE = 'base-mainnet',
   BASE_GOERLI = 'base-goerli',
+  DBC = 'dbc-mainnet',
 }
 
 export enum NativeCurrencyName {
@@ -185,6 +188,8 @@ export const ID_TO_NETWORK_NAME = (id: number): ChainName => {
       return ChainName.BASE
     case 84531:
       return ChainName.BASE_GOERLI
+    case 19850818:
+      return ChainName.DBC
     default:
       throw new Error(`Unknown chain id: ${id}`)
   }

@@ -112,7 +112,7 @@ fs.readFile('./public/nfts-sitemap.xml', 'utf8', async (err, data) => {
       })
     }
 
-    const nftResponse = await fetch('https://interface-gateway.ubeswap.org/v1/graphql', {
+    const nftResponse = await fetch('http://8.214.55.62:8022/subgraphs/name/ianlapham/uniswap-v3-test', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -29,6 +29,10 @@ export function useApproveCallback(
   amountToApprove?: CurrencyAmount<Currency>,
   spender?: string
 ): [ApprovalState, () => Promise<void>] {
+  console.log("useApproveCallback", amountToApprove, spender);
   const [approval, getApproval] = useApproval(amountToApprove, spender, useHasPendingApproval)
+
+console.log("这里是approvalA或者approvalB", approval);
+
   return [approval, useGetAndTrackApproval(getApproval)]
 }

@@ -1,6 +1,6 @@
-export const UBE_LIST = 'https://unpkg.com/@ubeswap/default-token-list@latest/ubeswap.token-list.json'
+export const UBE_LIST = 'https://raw.githubusercontent.com/jiangxiaoyu66/dbcswap-interface-v3/refs/heads/main/constants/default-token-list/ubeswap.token-list.json'
 export const UBE_EXTENDED_LIST =
-  'https://unpkg.com/@ubeswap/default-token-list@latest/ubeswap-experimental.token-list.json'
+  'https://raw.githubusercontent.com/jiangxiaoyu66/dbcswap-interface-v3/refs/heads/main/constants/default-token-list/ubeswap-experimental.token-list.json'
 const UBESWAP_EXTRA_LIST = 'https://raw.githubusercontent.com/Ubeswap/static/main/ube-extra-tokens.json'
 // const UNI_UNSUPPORTED_LIST = 'https://cloudflare-ipfs.com/ipns/unsupportedtokens.uniswap.org'
 // const AAVE_LIST = 'tokenlist.aave.eth'

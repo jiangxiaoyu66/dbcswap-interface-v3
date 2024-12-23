@@ -129,7 +129,7 @@ export function useV3StakedPositions(
       setTokenIdsLoading(true)
       ;(async () => {
         try {
-          const res = await fetch('https://interface-gateway.ubeswap.org/v1/graphql', {
+          const res = await fetch('http://8.214.55.62:8022/subgraphs/name/ianlapham/uniswap-v3-test', {
             method: 'POST',
             headers: {
               Accept: 'application/json',

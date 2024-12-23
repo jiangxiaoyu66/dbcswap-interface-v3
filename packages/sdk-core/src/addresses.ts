@@ -69,9 +69,29 @@ const CELO_ADDRESSES: ChainAddresses = {
   mixedRouteQuoterV1Address: '0x1f34a843832044A085bB9cAe48cc7294D5478FAA',
 }
 
+
+const DBC_ADDRESSES: ChainAddresses = {
+  "v3CoreFactoryAddress": "0xAc2366109dA0B0aFd28ecC2d2FE171c78594d113",
+  "multicallAddress": "0xE92da0910B224055776E20a61c238C3a3fd2d42c",
+  "quoterAddress": "0xA56C023F150F5Bd69ebB1fF8E59d2894DD6138F1",
+  // "multicall2Address": "0xE92da0910B224055776E20a61c238C3a3fd2d42c",
+  // "proxyAdminAddress": "0xAaffa0Ab0419BE44B838ccCE64e2884283BF5e4F",
+  "tickLensAddress": "0xb2402c70eF790435b71b169825A714434d8E4c71",
+  // "nftDescriptorLibraryAddressV1_3_0": "0x2C528C1985cfed7918cC15854B08934197Fd64DC",
+  // "nonfungibleTokenPositionDescriptorAddressV1_3_0": "0x829D068ac6c8D229abb87FAE0528d6A8CCcE8E88",
+  // "descriptorProxyAddress": "0x15cdaFBBE654CAc11622aa83cDCb38542357A7b3",
+  "nonfungiblePositionManagerAddress": "0xdc8748C1e8d93aBE88B7B77AED4fEb0bAb4fACCE",
+  "v3MigratorAddress": "0x90d2eE2Ec1fF7803d2b072C83f033E523f3a02B6",
+  // "v3StakerAddress": "0x349762bdF5C1444FFE6A2228f1A488b69EE897D0",
+  // "quoterV2Address": "0xA56C023F150F5Bd69ebB1fF8E59d2894DD6138F1",
+  // "swapRouter02": "0x0348B9867862Aa638df274F0F861a677E0462Ea1"
+}
+
+
 export const CHAIN_TO_ADDRESSES_MAP: Record<SupportedChainsType, ChainAddresses> = {
   [ChainId.CELO]: CELO_ADDRESSES,
   [ChainId.CELO_ALFAJORES]: CELO_ADDRESSES,
+  [ChainId.DBC]: DBC_ADDRESSES,
 }
 
 /* V3 Contract Addresses */
@@ -136,6 +156,7 @@ export const QUOTER_ADDRESSES: AddressMap = {
 }
 
 export const NONFUNGIBLE_POSITION_MANAGER_ADDRESSES: AddressMap = {
+
   ...SUPPORTED_CHAINS.reduce<AddressMap>((memo, chainId) => {
     const nonfungiblePositionManagerAddress = CHAIN_TO_ADDRESSES_MAP[chainId].nonfungiblePositionManagerAddress
     if (nonfungiblePositionManagerAddress) {

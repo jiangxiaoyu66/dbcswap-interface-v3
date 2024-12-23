@@ -223,6 +223,8 @@ export const CEUR_CELO_ALFAJORES = new Token(
   'Celo Euro Stablecoin'
 )
 
+export const DBC_DBC = new Token(ChainId.DBC, '0x4300000000000000000000000000000000000004', 18, 'DBC', 'DBC')
+
 export const USDC_BSC = new Token(ChainId.BNB, '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d', 18, 'USDC', 'USDC')
 export const USDT_BSC = new Token(ChainId.BNB, '0x55d398326f99059fF775485246999027B3197955', 18, 'USDT', 'USDT')
 export const ETH_BSC = new Token(ChainId.BNB, '0x2170Ed0880ac9A755fd29B2688956BD959F933F8', 18, 'ETH', 'Ethereum')
@@ -361,6 +363,7 @@ export const WRAPPED_NATIVE_CURRENCY: { [chainId: number]: Token | undefined } =
     'Wrapped AVAX'
   ),
   [ChainId.BLAST]: new Token(ChainId.BLAST, '0x4300000000000000000000000000000000000004', 18, 'WETH', 'Wrapped Ether'),
+  [ChainId.DBC]: new Token(ChainId.DBC, '0x4300000000000000000000000000000000000004', 18, 'WDBC', 'Wrapped DBC'),
 }
 
 export function isCelo(chainId: number): chainId is ChainId.CELO | ChainId.CELO_ALFAJORES {
@@ -527,6 +530,7 @@ const STABLECOINS: { [chainId in ChainId]: Token[] } = {
   [ChainId.ZORA]: [],
   [ChainId.ROOTSTOCK]: [],
   [ChainId.BLAST]: [USDB_BLAST],
+  [ChainId.DBC]: [],
 }
 
 export function isStablecoin(currency?: Currency): boolean {

@@ -6,7 +6,7 @@ import { ClassicTrade, INTERNAL_ROUTER_PREFERENCE_PRICE } from 'state/routing/ty
 import { useRoutingAPITrade } from 'state/routing/useRoutingAPITrade'
 
 import { SupportedInterfaceChain, asSupportedChain } from 'constants/chains'
-import { CUSD_CELO, CUSD_CELO_ALFAJORES, USDC_MAINNET } from '../constants/tokens'
+import { CUSD_CELO, CUSD_CELO_ALFAJORES, DBC_DBC, USDC_MAINNET } from '../constants/tokens'
 
 // Stablecoin amounts used when calculating spot price for a given currency.
 // The amount is large enough to filter low liquidity pairs.
@@ -14,6 +14,7 @@ export const STABLECOIN_AMOUNT_OUT: { [key in SupportedInterfaceChain]: Currency
   [ChainId.MAINNET]: CurrencyAmount.fromRawAmount(USDC_MAINNET, 100_000e6),
   [ChainId.CELO]: CurrencyAmount.fromRawAmount(CUSD_CELO, 10_000e18),
   [ChainId.CELO_ALFAJORES]: CurrencyAmount.fromRawAmount(CUSD_CELO_ALFAJORES, 10_000e6),
+  [ChainId.DBC]: CurrencyAmount.fromRawAmount(DBC_DBC, 10_000e18),
 }
 
 /**

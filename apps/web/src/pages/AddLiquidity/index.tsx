@@ -78,6 +78,7 @@ import { maxAmountSpend } from '../../utils/maxAmountSpend'
 import { Dots } from '../Pool/styled'
 import { Review } from './Review'
 import { DynamicSection, MediumOnly, ResponsiveTwoColumns, ScrollablePage, StyledInput, Wrapper } from './styled'
+import { log } from 'console'
 
 enum PresetType {
   FULL,
@@ -114,7 +115,7 @@ function calculatePresetTickRange(type: PresetType, token0Symbol: string, token1
 const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 const blastRebasingAlertAtom = atomWithStorage<boolean>('shouldShowBlastRebasingAlert', true)
 
-const StyledBodyWrapper = styled(BodyWrapper)<{ $hasExistingPosition: boolean }>`
+const StyledBodyWrapper = styled(BodyWrapper) <{ $hasExistingPosition: boolean }>`
   padding: ${({ $hasExistingPosition }) => ($hasExistingPosition ? '10px' : 0)};
   max-width: 640px;
 `
@@ -259,13 +260,19 @@ function AddLiquidity() {
 
   const argentWalletContract = useArgentWalletContract()
 
-  // check whether the user has approved the router on the tokens
+  // 检查用户是否已经授权路由合约操作代币
+  console.log("NONFUNGIBLE_POSITION_MANAGER_ADDRESSES", NONFUNGIBLE_POSITION_MANAGER_ADDRESSES, chainId);
   const [approvalA, approveACallback] = useApproveCallback(
+    // 如果是 Argent 钱包合约,则传入 undefined
+    // 否则传入代币 A 的数量
     argentWalletContract ? undefined : parsedAmounts[Field.CURRENCY_A],
+    // 传入当前链上的 NFT Position Manager 合约地址
     chainId ? NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId] : undefined
   )
+
+  // 同上,检查代币 B 的授权状态
   const [approvalB, approveBCallback] = useApproveCallback(
-    argentWalletContract ? undefined : parsedAmounts[Field.CURRENCY_B],
+    argentWalletContract ? undefined : parsedAmounts[Field.CURRENCY_B], 
     chainId ? NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId] : undefined
   )
 
@@ -287,18 +294,18 @@ function AddLiquidity() {
       const { calldata, value } =
         hasExistingPosition && tokenId
           ? NonfungiblePositionManager.addCallParameters(position, {
-              tokenId,
-              slippageTolerance: allowedSlippage,
-              deadline: deadline.toString(),
-              useNative,
-            })
+            tokenId,
+            slippageTolerance: allowedSlippage,
+            deadline: deadline.toString(),
+            useNative,
+          })
           : NonfungiblePositionManager.addCallParameters(position, {
-              slippageTolerance: allowedSlippage,
-              recipient: account,
-              deadline: deadline.toString(),
-              useNative,
-              createPool: noLiquidity,
-            })
+            slippageTolerance: allowedSlippage,
+            recipient: account,
+            deadline: deadline.toString(),
+            useNative,
+            createPool: noLiquidity,
+          })
 
       let txn: { to: string; data: string; value: string } = {
         to: NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId],
@@ -469,16 +476,18 @@ function AddLiquidity() {
     useRangeHopCallbacks(baseCurrency ?? undefined, quoteCurrency ?? undefined, feeAmount, tickLower, tickUpper, pool)
 
   // we need an existence check on parsed amounts for single-asset deposits
+
   const showApprovalA =
     !argentWalletContract && approvalA !== ApprovalState.APPROVED && !!parsedAmounts[Field.CURRENCY_A]
+
+  console.log("showApprovalA", showApprovalA, argentWalletContract, approvalA, ApprovalState.APPROVED, parsedAmounts[Field.CURRENCY_A]);
+
   const showApprovalB =
     !argentWalletContract && approvalB !== ApprovalState.APPROVED && !!parsedAmounts[Field.CURRENCY_B]
 
-  const pendingText = `Supplying ${!depositADisabled ? parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) : ''} ${
-    !depositADisabled ? currencies[Field.CURRENCY_A]?.symbol : ''
-  } ${!outOfRange ? 'and' : ''} ${!depositBDisabled ? parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) : ''} ${
-    !depositBDisabled ? currencies[Field.CURRENCY_B]?.symbol : ''
-  }`
+  const pendingText = `Supplying ${!depositADisabled ? parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) : ''} ${!depositADisabled ? currencies[Field.CURRENCY_A]?.symbol : ''
+    } ${!outOfRange ? 'and' : ''} ${!depositBDisabled ? parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) : ''} ${!depositBDisabled ? currencies[Field.CURRENCY_B]?.symbol : ''
+    }`
 
   const [searchParams, setSearchParams] = useSearchParams()
 
@@ -600,7 +609,15 @@ function AddLiquidity() {
       </TraceEvent>
     ) : (
       <AutoColumn gap="md">
-        {(approvalA === ApprovalState.NOT_APPROVED ||
+        <div>showApprovalA:{String(showApprovalA)}</div>
+        <div>showApprovalB:{String(showApprovalB)}</div>
+        <div>approvalA:{String(approvalA)}</div>
+        <div>approvalB:{String(approvalB)}</div>
+        <div>isValid:{String(isValid)}</div>
+
+
+        {
+        (approvalA === ApprovalState.NOT_APPROVED ||
           approvalA === ApprovalState.PENDING ||
           approvalB === ApprovalState.NOT_APPROVED ||
           approvalB === ApprovalState.PENDING) &&
@@ -837,8 +854,7 @@ function AddLiquidity() {
                                 onFieldAInput(formattedAmounts[Field.CURRENCY_B] ?? '')
                               }
                               navigate(
-                                `/add/${currencyIdB as string}/${currencyIdA as string}${
-                                  feeAmount ? '/' + feeAmount : ''
+                                `/add/${currencyIdB as string}/${currencyIdA as string}${feeAmount ? '/' + feeAmount : ''
                                 }`
                               )
                             }}
