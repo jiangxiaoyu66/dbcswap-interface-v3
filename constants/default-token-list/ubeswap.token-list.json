@@ -11,6 +11,14 @@
     "chainId": 19850818,
     "decimals": 18,
     "logoURI": "https://raw.githubusercontent.com/ubeswap/default-token-list/master/assets/asset_UBE.png"
+  },
+  {
+    "address": "0x624EB4E6e8A9ED8CC31b4Bb8d5532C27118A77CB",
+    "name": "SIC",
+    "symbol": "SIC",
+    "chainId": 19850818,
+    "decimals": 18,
+    "logoURI": "https://raw.githubusercontent.com/ubeswap/default-token-list/master/assets/asset_UBE.png"
   }
 
 
