@@ -18,8 +18,17 @@
     "symbol": "SIC",
     "chainId": 19850818,
     "decimals": 18,
-    "logoURI": "https://raw.githubusercontent.com/ubeswap/default-token-list/master/assets/asset_UBE.png"
+    "logoURI": "https://raw.githubusercontent.com/ubeswap/default-token-list/master/bnb-logo.png"
+  },
+  {
+    "address": "0x85B24b3517E3aC7bf72a14516160541A60cFF19d",
+    "name": "WDBC",
+    "symbol": "WDBC",
+    "chainId": 19850818,
+    "decimals": 18,
+    "logoURI": "https://raw.githubusercontent.com/ubeswap/default-token-list/master/bnb-logo.png"
   }
+  
 
 
 ],
