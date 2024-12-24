@@ -26,19 +26,19 @@ export function useTokenAllowance(
   const inputs = useMemo(() => [owner, spender], [owner, spender])
 
   // [8] 调试日志：输出基本参数信息
-  console.log('Debug useTokenAllowance:', {
-    contractAddress: token?.address,
-    hasContract: !!contract,
-    owner,
-    spender,
-    inputs
-  })
+  // console.log('Debug useTokenAllowance:', {
+  //   contractAddress: token?.address,
+  //   hasContract: !!contract,
+  //   owner,
+  //   spender,
+  //   inputs
+  // })
 
   // [9] 调试日志：检查合约方法是否存在
-  console.log('Debug contract methods:', {
-    hasAllowanceMethod: contract?.allowance ? 'yes' : 'no',
-    contractMethods: contract ? Object.keys(contract.functions) : []
-  })
+  // console.log('Debug contract methods:', {
+  //   hasAllowanceMethod: contract?.allowance ? 'yes' : 'no',
+  //   contractMethods: contract ? Object.keys(contract.functions) : []
+  // })
 
   // [10] 控制区块查询频率的状态
   const [blocksPerFetch, setBlocksPerFetch] = useState<1>()
@@ -46,7 +46,7 @@ export function useTokenAllowance(
   const singleCallResult = useSingleCallResult(contract, 'allowance', inputs, { blocksPerFetch })
   
   // [12] 调试日志：输出调用结果详情
-  console.log('Debug allowance call details:', singleCallResult)
+  // console.log('Debug allowance call details:', singleCallResult)
 
   // [13] 解构调用结果
   const { result, syncing: isSyncing, error } = singleCallResult
@@ -62,7 +62,7 @@ export function useTokenAllowance(
   useEffect(() => setBlocksPerFetch(allowance?.equalTo(0) ? 1 : undefined), [allowance])
 
   // [17] 调试日志：输出最终结果
-  console.log("useTokenAllowance",{ tokenAllowance: allowance, isSyncing }, token, owner, spender, allowance);
+  // console.log("useTokenAllowance",{ tokenAllowance: allowance, isSyncing }, token, owner, spender, allowance);
   
   // [18] 返回缓存的结果对象
   return useMemo(() => ({ tokenAllowance: allowance, isSyncing }), [allowance, isSyncing])

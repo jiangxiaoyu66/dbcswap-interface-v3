@@ -223,7 +223,7 @@ export const CEUR_CELO_ALFAJORES = new Token(
   'Celo Euro Stablecoin'
 )
 
-export const DBC_DBC = new Token(ChainId.DBC, '0x4300000000000000000000000000000000000004', 18, 'DBC', 'DBC')
+// export const DBC_USDC = new Token(ChainId.DBC, '0x4300000000000000000000000000000000000004', 18, 'DBC', 'DBC')
 
 export const USDC_BSC = new Token(ChainId.BNB, '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d', 18, 'USDC', 'USDC')
 export const USDT_BSC = new Token(ChainId.BNB, '0x55d398326f99059fF775485246999027B3197955', 18, 'USDT', 'USDT')
@@ -363,7 +363,13 @@ export const WRAPPED_NATIVE_CURRENCY: { [chainId: number]: Token | undefined } =
     'Wrapped AVAX'
   ),
   [ChainId.BLAST]: new Token(ChainId.BLAST, '0x4300000000000000000000000000000000000004', 18, 'WETH', 'Wrapped Ether'),
-  [ChainId.DBC]: new Token(ChainId.DBC, '0x4300000000000000000000000000000000000004', 18, 'WDBC', 'Wrapped DBC'),
+  [ChainId.DBC]: new Token(
+    ChainId.DBC, 
+    '0x4300000000000000000000000000000000000004', // 你的 wrapped 原生币合约地址
+    18, 
+    'WETH', // wrapped token 符号
+    'Wrapped Ether' // wrapped token 名称
+  ),
 }
 
 export function isCelo(chainId: number): chainId is ChainId.CELO | ChainId.CELO_ALFAJORES {
@@ -481,6 +487,8 @@ export function nativeOnChain(chainId: number): NativeCurrency | Token {
     nativeCurrency = new BscNativeCurrency(chainId)
   } else if (isAvalanche(chainId)) {
     nativeCurrency = new AvaxNativeCurrency(chainId)
+  } else if (chainId === ChainId.DBC) {
+    nativeCurrency = new DBCNativeCurrency(chainId)
   } else {
     nativeCurrency = ExtendedEther.onChain(chainId)
   }
@@ -541,3 +549,24 @@ export function isStablecoin(currency?: Currency): boolean {
 
 export const UNKNOWN_TOKEN_SYMBOL = 'UNKNOWN'
 export const UNKNOWN_TOKEN_NAME = 'Unknown Token'
+
+export function isDBC(chainId: number): chainId is ChainId.DBC {
+  return chainId === ChainId.DBC
+}
+
+export class DBCNativeCurrency extends NativeCurrency {
+  equals(other: Currency): boolean {
+    return other.isNative && other.chainId === this.chainId
+  }
+
+  get wrapped(): Token {
+    if (!isDBC(this.chainId)) throw new Error('Not DBC')
+    return this as unknown as Token // 直接使用原生币，不需要 wrapped 版本
+  }
+
+  public constructor(chainId: number) {
+    if (!isDBC(chainId)) throw new Error('Not DBC')
+    super(chainId, 18, 'ETH', 'Ethereum')
+  }
+}
+

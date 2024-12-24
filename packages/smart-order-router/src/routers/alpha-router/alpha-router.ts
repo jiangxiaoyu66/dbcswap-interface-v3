@@ -921,11 +921,11 @@ export class AlphaRouter implements IRouter<AlphaRouterConfig>, ISwapToRatio<Alp
     const tokenIn = currencyIn.wrapped
     const tokenOut = currencyOut.wrapped
 
-    console.log('chainId', this.chainId)
-    console.log('pair', `${tokenIn.symbol}/${tokenOut.symbol}`)
-    console.log('tokenIn', tokenIn.address)
-    console.log('tokenOut', tokenOut.address)
-    console.log('tradeType', tradeType === TradeType.EXACT_INPUT ? 'ExactIn' : 'ExactOut')
+    // console.log('chainId', this.chainId)
+    // console.log('pair', `${tokenIn.symbol}/${tokenOut.symbol}`)
+    // console.log('tokenIn', tokenIn.address)
+    // console.log('tokenOut', tokenOut.address)
+    // console.log('tradeType', tradeType === TradeType.EXACT_INPUT ? 'ExactIn' : 'ExactOut')
 
     metric.putMetric(`QuoteRequestedForChain${this.chainId}`, 1, MetricLoggerUnit.Count)
 

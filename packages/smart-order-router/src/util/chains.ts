@@ -271,6 +271,24 @@ export const WRAPPED_NATIVE_CURRENCY: { [chainId in ChainId]: Token } = {
     'CELO',
     'Celo native asset'
   ),
+  [ChainId.DBC]: new Token(
+    ChainId.DBC,
+    '0x85B24b3517E3aC7bf72a14516160541A60cFF19d',
+    18,
+    'WDBC',
+    'Wrapped DBC'
+  ),
+
+  // {
+  //   networkType: NetworkType.L1,
+  //   blockWaitMsBeforeWarning: ms(`10m`),
+  //   bridge: 'https://bridge.dbc.io/',
+  //   docs: 'https://docs.dbc.io',
+  //   explorer: 'https://explorer.dbc.io/',
+  //   infoLink: 'https://info.ubeswap.org/#/dbc/',
+  //   label: 'DBC',
+  //   nativeCurrency: { name: 'DBC', symbol: 'DBC', decimals: 18 },
+  // },
 }
 
 function isCelo(chainId: number): chainId is ChainId.CELO | ChainId.CELO_ALFAJORES {

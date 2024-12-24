@@ -46,9 +46,8 @@ import {
   V3RouteWithValidQuote,
 } from '../entities/route-with-valid-quote'
 
-// When adding new usd gas tokens, ensure the tokens are ordered
-// from tokens with highest decimals to lowest decimals. For example,
-// DAI_AVAX has 18 decimals and comes before USDC_AVAX which has 6 decimals.
+// 添加新的USD gas代币时,请确保按照代币小数位数从高到低排序
+// 例如: DAI_AVAX有18位小数,应该排在只有6位小数的USDC_AVAX之前
 export const usdGasTokensByChain: { [chainId in ChainId]?: Token[] } = {
   [ChainId.MAINNET]: [DAI_MAINNET, USDC_MAINNET, USDT_MAINNET],
   [ChainId.ARBITRUM_ONE]: [DAI_ARBITRUM, USDC_ARBITRUM, USDT_ARBITRUM],
@@ -66,6 +65,7 @@ export const usdGasTokensByChain: { [chainId in ChainId]?: Token[] } = {
   [ChainId.BNB]: [USDT_BNB, USDC_BNB, DAI_BNB],
   [ChainId.AVALANCHE]: [DAI_AVAX, USDC_AVAX],
   [ChainId.BASE]: [USDC_BASE],
+  [ChainId.DBC]: []
 }
 
 export type L1ToL2GasCosts = {

@@ -24,11 +24,16 @@ const CLIENT_SIDE_ROUTING_ALLOW_LIST = [
   ChainId.BNB,
   ChainId.AVALANCHE,
   ChainId.BASE,
+  ChainId.DBC,
 ]
 const routers = new Map<ChainId, AlphaRouter>()
 export function getRouter(chainId: ChainId): AlphaRouter {
+
+  console.log('getRouter - chainId', chainId)
+
   const router = routers.get(chainId)
   if (router) return router
+
 
   const supportedChainId = asSupportedChain(chainId)
   if (supportedChainId && CLIENT_SIDE_ROUTING_ALLOW_LIST.includes(chainId)) {
@@ -37,6 +42,8 @@ export function getRouter(chainId: ChainId): AlphaRouter {
     routers.set(chainId, router)
     return router
   }
+
+  console.log('getRouter - chainId', chainId, supportedChainId)
 
   throw new Error(`Router does not support this chain (chainId: ${chainId}).`)
 }
