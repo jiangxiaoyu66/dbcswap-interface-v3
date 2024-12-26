@@ -23,6 +23,7 @@ export const UNISWAP_MULTICALL_ADDRESSES: AddressMap = {
   ...constructSameAddressMap('0x1F98415757620B543A52E61c46B32eB19261F984'),
   [ChainId.CELO]: CHAIN_TO_ADDRESSES_MAP[ChainId.CELO].multicallAddress,
   [ChainId.CELO_ALFAJORES]: CHAIN_TO_ADDRESSES_MAP[ChainId.CELO_ALFAJORES].multicallAddress,
+  [ChainId.DBC]: CHAIN_TO_ADDRESSES_MAP[ChainId.DBC].multicallAddress,
   // TODO: Gnosis + Moonbeam contracts to be deployed
 }
 

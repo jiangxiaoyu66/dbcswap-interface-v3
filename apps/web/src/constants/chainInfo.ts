@@ -253,6 +253,16 @@ const CHAIN_INFO: ChainInfoMap = {
     nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
     color: darkTheme.chain_81457,
   },
+  [ChainId.DBC]: {
+    networkType: NetworkType.L1,
+    blockWaitMsBeforeWarning: ms(`10m`),
+    bridge: 'https://bridge.dbc.io/',
+    docs: 'https://docs.dbc.io',
+    explorer: 'https://explorer.dbc.io/',
+    infoLink: 'https://info.ubeswap.org/#/dbc/',
+    label: 'DBC',
+    nativeCurrency: { name: 'DBC', symbol: 'DBC', decimals: 18 },
+  },
 } as const
 
 export function getChainInfo(

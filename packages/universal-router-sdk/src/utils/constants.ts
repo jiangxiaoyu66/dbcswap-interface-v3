@@ -27,6 +27,12 @@ const CHAIN_CONFIGS: { [key: number]: ChainConfig } = {
     weth: WETH_NOT_SUPPORTED_ON_CHAIN,
     creationBlock: 25670593,
   },
+  // dbc
+  [19850818]: {
+    router: '0x8f357B11c890fa638d3ff465833f578499C9382c',
+    weth: '0x85B24b3517E3aC7bf72a14516160541A60cFF19d',
+    creationBlock: 1350391,
+  },
 }
 
 export const UNIVERSAL_ROUTER_ADDRESS = (chainId: number): string => {

@@ -16,6 +16,7 @@ export const CHAIN_IDS_TO_NAMES = {
   [ChainId.AVALANCHE]: 'avalanche',
   [ChainId.BASE]: 'base',
   [ChainId.BLAST]: 'blast',
+  [ChainId.DBC]: 'dbc',
 } as const
 
 // Include ChainIds in this array if they are not supported by the UX yet, but are already in the SDK.

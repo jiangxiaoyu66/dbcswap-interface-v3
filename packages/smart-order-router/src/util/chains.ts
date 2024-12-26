@@ -75,6 +75,8 @@ export const ID_TO_CHAIN_ID = (id: number): ChainId => {
       return ChainId.BASE
     case 84531:
       return ChainId.BASE_GOERLI
+    case 19850818:
+      return ChainId.DBC
     default:
       throw new Error(`Unknown chain id: ${id}`)
   }
@@ -98,6 +100,7 @@ export enum ChainName {
   AVALANCHE = 'avalanche-mainnet',
   BASE = 'base-mainnet',
   BASE_GOERLI = 'base-goerli',
+  DBC = 'dbc-mainnet',
 }
 
 export enum NativeCurrencyName {
@@ -185,6 +188,8 @@ export const ID_TO_NETWORK_NAME = (id: number): ChainName => {
       return ChainName.BASE
     case 84531:
       return ChainName.BASE_GOERLI
+    case 19850818:
+      return ChainName.DBC
     default:
       throw new Error(`Unknown chain id: ${id}`)
   }
@@ -266,6 +271,14 @@ export const WRAPPED_NATIVE_CURRENCY: { [chainId in ChainId]: Token } = {
     'CELO',
     'Celo native asset'
   ),
+  [ChainId.DBC]: new Token(
+    ChainId.DBC,
+    '0x85B24b3517E3aC7bf72a14516160541A60cFF19d',
+    18,
+    'WDBC',
+    'Wrapped DBC'
+  ),
+
 }
 
 function isCelo(chainId: number): chainId is ChainId.CELO | ChainId.CELO_ALFAJORES {

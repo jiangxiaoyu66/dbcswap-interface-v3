@@ -478,7 +478,12 @@ export function nativeOnChain(chainId: number): NativeCurrency | Token {
     nativeCurrency = new BscNativeCurrency(chainId)
   } else if (isAvalanche(chainId)) {
     nativeCurrency = new AvaxNativeCurrency(chainId)
-  } else {
+  }
+
+  else if (chainId === ChainId.DBC) {
+    nativeCurrency = new DBCNativeCurrency(chainId)
+  }
+  else {
     nativeCurrency = ExtendedEther.onChain(chainId)
   }
   return (cachedNativeCurrency[chainId] = nativeCurrency)
@@ -537,3 +542,22 @@ export function isStablecoin(currency?: Currency): boolean {
 
 export const UNKNOWN_TOKEN_SYMBOL = 'UNKNOWN'
 export const UNKNOWN_TOKEN_NAME = 'Unknown Token'
+
+
+
+export function isDBC(chainId: number): chainId is ChainId.DBC {
+  return chainId === ChainId.DBC
+}
+export class DBCNativeCurrency extends NativeCurrency {
+  equals(other: Currency): boolean {
+    return other.isNative && other.chainId === this.chainId
+  }
+  get wrapped(): Token {
+    if (!isDBC(this.chainId)) throw new Error('Not DBC')
+    return this as unknown as Token // 直接使用原生币，不需要 wrapped 版本
+  }
+  public constructor(chainId: number) {
+    if (!isDBC(chainId)) throw new Error('Not DBC')
+    super(chainId, 18, 'ETH', 'Ethereum')
+  }
+}
