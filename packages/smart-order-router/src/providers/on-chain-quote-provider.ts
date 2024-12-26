@@ -284,6 +284,13 @@ export class OnChainQuoteProvider implements IOnChainQuoteProvider {
   ) {}
 
   private getQuoterAddress(useMixedRouteQuoter: boolean): string {
+    console.log('=== getQuoterAddress Debug ===')
+    console.log('Chain ID:', this.chainId)
+    console.log('Using Mixed Route Quoter:', useMixedRouteQuoter)
+    console.log('Quoter Override:', this.quoterAddressOverride)
+    console.log('Available Mixed Route Addresses:', MIXED_ROUTE_QUOTER_V1_ADDRESSES)
+    console.log('Available V2 Addresses:', QUOTER_V2_ADDRESSES)
+
     if (this.quoterAddressOverride) {
       return this.quoterAddressOverride
     }
@@ -292,6 +299,7 @@ export class OnChainQuoteProvider implements IOnChainQuoteProvider {
       : QUOTER_V2_ADDRESSES[this.chainId]
 
     if (!quoterAddress) {
+      console.error('No quoter address found for chain:', this.chainId)
       throw new Error(`No address for the quoter contract on chain id: ${this.chainId}`)
     }
     return quoterAddress

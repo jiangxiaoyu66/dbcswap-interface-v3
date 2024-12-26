@@ -5,12 +5,14 @@ import { NETWORKS_WITH_SAME_UNISWAP_ADDRESSES } from './chains'
 export const V3_CORE_FACTORY_ADDRESSES: AddressMap = {
   [ChainId.CELO]: CHAIN_TO_ADDRESSES_MAP[ChainId.CELO].v3CoreFactoryAddress,
   [ChainId.CELO_ALFAJORES]: CHAIN_TO_ADDRESSES_MAP[ChainId.CELO_ALFAJORES].v3CoreFactoryAddress,
+  [ChainId.DBC]: CHAIN_TO_ADDRESSES_MAP[ChainId.DBC].v3CoreFactoryAddress,
   // TODO: Gnosis + Moonbeam contracts to be deployed
 }
 
 export const QUOTER_V2_ADDRESSES: AddressMap = {
   [ChainId.CELO]: CHAIN_TO_ADDRESSES_MAP[ChainId.CELO].quoterAddress,
   [ChainId.CELO_ALFAJORES]: CHAIN_TO_ADDRESSES_MAP[ChainId.CELO_ALFAJORES].quoterAddress,
+  [ChainId.DBC]: CHAIN_TO_ADDRESSES_MAP[ChainId.DBC].quoterAddress,
   // TODO: Gnosis + Moonbeam contracts to be deployed
 }
 

@@ -426,6 +426,14 @@ export const USDC_BASE = new Token(
   'USD Base Coin'
 )
 
+export const DGC_DBC = new Token(
+  ChainId.DBC,
+  '0xC260ed583545d036ed99AA5C76583a99B7E85D26',
+  18,
+  'DGC',
+  'DGC'
+)
+
 // Base Goerli Tokens
 export const USDC_BASE_GOERLI = new Token(
   ChainId.BASE_GOERLI,

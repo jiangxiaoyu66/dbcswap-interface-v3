@@ -870,6 +870,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@babel/parser@npm:^7.25.3":
+  version: 7.26.3
+  resolution: "@babel/parser@npm:7.26.3"
+  dependencies:
+    "@babel/types": ^7.26.3
+  bin:
+    parser: ./bin/babel-parser.js
+  checksum: e2bff2e9fa6540ee18fecc058bc74837eda2ddcecbe13454667314a93fc0ba26c1fb862c812d84f6d5f225c3bd8d191c3a42d4296e287a882c4e1f82ff2815ff
+  languageName: node
+  linkType: hard
+
 "@babel/parser@npm:^7.25.9, @babel/parser@npm:^7.26.2":
   version: 7.26.2
   resolution: "@babel/parser@npm:7.26.2"
@@ -2325,6 +2336,16 @@ __metadata:
     "@babel/helper-string-parser": ^7.25.9
     "@babel/helper-validator-identifier": ^7.25.9
   checksum: a3dd37dabac693018872da96edb8c1843a605c1bfacde6c3f504fba79b972426a6f24df70aa646356c0c1b19bdd2c722c623c684a996c002381071680602280d
+  languageName: node
+  linkType: hard
+
+"@babel/types@npm:^7.26.3":
+  version: 7.26.3
+  resolution: "@babel/types@npm:7.26.3"
+  dependencies:
+    "@babel/helper-string-parser": ^7.25.9
+    "@babel/helper-validator-identifier": ^7.25.9
+  checksum: 195f428080dcaadbcecc9445df7f91063beeaa91b49ccd78f38a5af6b75a6a58391d0c6614edb1ea322e57889a1684a0aab8e667951f820196901dd341f931e9
   languageName: node
   linkType: hard
 
@@ -13005,6 +13026,7 @@ __metadata:
     buffer: 6.0.3
     cids: 1.1.6
     clsx: 1.2.1
+    code-inspector-plugin: 0.18.3
     concurrently: ^8.0.1
     copy-to-clipboard: 3.3.3
     cypress: 12.12.0
@@ -13671,6 +13693,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@vue/compiler-core@npm:3.5.13":
+  version: 3.5.13
+  resolution: "@vue/compiler-core@npm:3.5.13"
+  dependencies:
+    "@babel/parser": ^7.25.3
+    "@vue/shared": 3.5.13
+    entities: ^4.5.0
+    estree-walker: ^2.0.2
+    source-map-js: ^1.2.0
+  checksum: 9c67d4bcf2bcd758e45778f1d75efcf681154be1c13c5cb1c0b78c77373277a7f6bd69a3b816c17fa157316b989421d420a8d5af4915e89049a27dc7a6d97bcb
+  languageName: node
+  linkType: hard
+
 "@vue/compiler-dom@npm:3.4.23":
   version: 3.4.23
   resolution: "@vue/compiler-dom@npm:3.4.23"
@@ -13678,6 +13713,16 @@ __metadata:
     "@vue/compiler-core": 3.4.23
     "@vue/shared": 3.4.23
   checksum: 53e139dd842e3ce5d90b49203347fd07f7be24659dd6831e10b5da6d23390d1d294a72d3710a17952207b17255d061fd7ba2f40955cb6611844660e8fb80f52c
+  languageName: node
+  linkType: hard
+
+"@vue/compiler-dom@npm:^3.2.47":
+  version: 3.5.13
+  resolution: "@vue/compiler-dom@npm:3.5.13"
+  dependencies:
+    "@vue/compiler-core": 3.5.13
+    "@vue/shared": 3.5.13
+  checksum: 8711fd205613829d685c5969b4ef313ff2ebba54f69b59274f0398424c0ea02ddacf51d450dd653ddbd33c9891bd42955ef8e677c58640535723673adfcf54b8
   languageName: node
   linkType: hard
 
@@ -13712,6 +13757,13 @@ __metadata:
   version: 3.4.23
   resolution: "@vue/shared@npm:3.4.23"
   checksum: 39cb0606314a672ba7e9f13e276a0a41de0ad208e46bfa204daa2e6656ce4849a7ec7f97a419791a439bc593bc9f4887c5decbea37200828f88c2daf68147fe5
+  languageName: node
+  linkType: hard
+
+"@vue/shared@npm:3.5.13":
+  version: 3.5.13
+  resolution: "@vue/shared@npm:3.5.13"
+  checksum: b562499b3f1506fe41d37ecb27af6a35d6585457b6ebc52bd2acae37feea30225280968b36b1121c4ae1056c34d140aa525d9020ae558a4e557445290a31c6a9
   languageName: node
   linkType: hard
 
@@ -15457,6 +15509,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"async@npm:^2.6.4":
+  version: 2.6.4
+  resolution: "async@npm:2.6.4"
+  dependencies:
+    lodash: ^4.17.14
+  checksum: a52083fb32e1ebe1d63e5c5624038bb30be68ff07a6c8d7dfe35e47c93fc144bd8652cbec869e0ac07d57dde387aa5f1386be3559cdee799cb1f789678d88e19
+  languageName: node
+  linkType: hard
+
 "async@npm:^3.2.0, async@npm:^3.2.2, async@npm:^3.2.3":
   version: 3.2.5
   resolution: "async@npm:3.2.5"
@@ -17139,6 +17200,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"chalk@npm:4.1.1":
+  version: 4.1.1
+  resolution: "chalk@npm:4.1.1"
+  dependencies:
+    ansi-styles: ^4.1.0
+    supports-color: ^7.1.0
+  checksum: 036e973e665ba1a32c975e291d5f3d549bceeb7b1b983320d4598fb75d70fe20c5db5d62971ec0fe76cdbce83985a00ee42372416abfc3a5584465005a7855ed
+  languageName: node
+  linkType: hard
+
 "chalk@npm:4.1.2, chalk@npm:^4.0.0, chalk@npm:^4.0.2, chalk@npm:^4.1.0, chalk@npm:^4.1.1, chalk@npm:^4.1.2":
   version: 4.1.2
   resolution: "chalk@npm:4.1.2"
@@ -17737,6 +17808,33 @@ __metadata:
     chalk: ^2.4.1
     q: ^1.1.2
   checksum: 44736914aac2160d3d840ed64432a90a3bb72285a0cd6a688eb5cabdf15d15a85eee0915b3f6f2a4659d5075817b1cb577340d3c9cbb47d636d59ab69f819552
+  languageName: node
+  linkType: hard
+
+"code-inspector-core@npm:0.18.3":
+  version: 0.18.3
+  resolution: "code-inspector-core@npm:0.18.3"
+  dependencies:
+    "@vue/compiler-dom": ^3.2.47
+    chalk: ^4.1.1
+    dotenv: ^16.1.4
+    launch-ide: 1.0.1
+    portfinder: ^1.0.28
+  checksum: cf8a07ad398b2a49a95819fd95e584f35936878c11b5597c2af217d633d7e0c58ab62990371f9cc6dff50202e1a562f8235482310a1722de190658dc79cfc32a
+  languageName: node
+  linkType: hard
+
+"code-inspector-plugin@npm:0.18.3":
+  version: 0.18.3
+  resolution: "code-inspector-plugin@npm:0.18.3"
+  dependencies:
+    chalk: 4.1.1
+    code-inspector-core: 0.18.3
+    dotenv: ^16.3.1
+    esbuild-code-inspector-plugin: 0.18.3
+    vite-code-inspector-plugin: 0.18.3
+    webpack-code-inspector-plugin: 0.18.3
+  checksum: 76b5991887301845dd58baf8588ff94f491bbefda2d7999e3a323db44ee8974661a8ac2b06a16927af61ee2ea3978d9ca554a55ab642330eaa7e74e56fe7a722
   languageName: node
   linkType: hard
 
@@ -20629,6 +20727,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"dotenv@npm:^16.1.4, dotenv@npm:^16.3.1":
+  version: 16.4.7
+  resolution: "dotenv@npm:16.4.7"
+  checksum: c27419b5875a44addcc56cc69b7dc5b0e6587826ca85d5b355da9303c6fc317fc9989f1f18366a16378c9fdd9532d14117a1abe6029cc719cdbbef6eaef2cea4
+  languageName: node
+  linkType: hard
+
 "dset@npm:^3.1.2":
   version: 3.1.3
   resolution: "dset@npm:3.1.3"
@@ -21148,6 +21253,15 @@ __metadata:
   dependencies:
     es6-promise: ^4.0.3
   checksum: fbed9d791598831413be84a5374eca8c24800ec71a16c1c528c43a98e2dadfb99331483d83ae6094ddb9b87e6f799a15d1553cebf756047e0865c753bc346b92
+  languageName: node
+  linkType: hard
+
+"esbuild-code-inspector-plugin@npm:0.18.3":
+  version: 0.18.3
+  resolution: "esbuild-code-inspector-plugin@npm:0.18.3"
+  dependencies:
+    code-inspector-core: 0.18.3
+  checksum: 9ed73cef16e7afa5e7363a37c43b5f3e9a011306b4fc7a8de7518be16b9ff45bfb6ec4a926c89fce6a5a951809ab7268240560b5cca9994b5cebe90b06d812f2
   languageName: node
   linkType: hard
 
@@ -29177,6 +29291,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"launch-ide@npm:1.0.1":
+  version: 1.0.1
+  resolution: "launch-ide@npm:1.0.1"
+  dependencies:
+    chalk: ^4.1.1
+    dotenv: ^16.1.4
+  checksum: 087bfff31cd233823fe0159a1ed7f3ce4092d4d7a8a8b462c109c14caebff96316ac82e1beaaea6ab9d067c06d1da824206fdf63fe1444635de4fb61bc8aef51
+  languageName: node
+  linkType: hard
+
 "lazy-ass@npm:1.6.0, lazy-ass@npm:^1.6.0":
   version: 1.6.0
   resolution: "lazy-ass@npm:1.6.0"
@@ -31303,7 +31427,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mkdirp@npm:0.x, mkdirp@npm:^0.5.1, mkdirp@npm:^0.5.5, mkdirp@npm:~0.5.1":
+"mkdirp@npm:0.x, mkdirp@npm:^0.5.1, mkdirp@npm:^0.5.5, mkdirp@npm:^0.5.6, mkdirp@npm:~0.5.1":
   version: 0.5.6
   resolution: "mkdirp@npm:0.5.6"
   dependencies:
@@ -33729,6 +33853,17 @@ __metadata:
     style-value-types: 5.0.0
     tslib: ^2.1.0
   checksum: 9fe7d03b4ec0e85bfb9dadc23b745147bfe42e16f466ba06e6327197d0e38b72015afc2f918a8051dedc3680310417f346ffdc463be6518e2e92e98f48e30268
+  languageName: node
+  linkType: hard
+
+"portfinder@npm:^1.0.28":
+  version: 1.0.32
+  resolution: "portfinder@npm:1.0.32"
+  dependencies:
+    async: ^2.6.4
+    debug: ^3.2.7
+    mkdirp: ^0.5.6
+  checksum: 116b4aed1b9e16f6d5503823d966d9ffd41b1c2339e27f54c06cd2f3015a9d8ef53e2a53b57bc0a25af0885977b692007353aa28f9a0a98a44335cb50487240d
   languageName: node
   linkType: hard
 
@@ -42372,6 +42507,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"vite-code-inspector-plugin@npm:0.18.3":
+  version: 0.18.3
+  resolution: "vite-code-inspector-plugin@npm:0.18.3"
+  dependencies:
+    code-inspector-core: 0.18.3
+  checksum: fa941a7186f8c87d1363acacbd36194b4db8a45e1dfe5e900333fcf968247ce3dfc8004f8ebbf10c41ee7ac73c7019693bc2ef5318d72ff4ffe1394b9d49294c
+  languageName: node
+  linkType: hard
+
 "vite-node@npm:^1.2.0":
   version: 1.5.0
   resolution: "vite-node@npm:1.5.0"
@@ -42644,6 +42788,15 @@ __metadata:
   version: 6.1.0
   resolution: "webidl-conversions@npm:6.1.0"
   checksum: 1f526507aa491f972a0c1409d07f8444e1d28778dfa269a9971f2e157182f3d496dc33296e4ed45b157fdb3bf535bb90c90bf10c50dcf1dd6caacb2a34cc84fb
+  languageName: node
+  linkType: hard
+
+"webpack-code-inspector-plugin@npm:0.18.3":
+  version: 0.18.3
+  resolution: "webpack-code-inspector-plugin@npm:0.18.3"
+  dependencies:
+    code-inspector-core: 0.18.3
+  checksum: 9032bdef7395af22a088ac4239f1378dbb8ba8d913e47e419fe8aab953b205e9bf1de0cbdebde668fe4c0d35e91f0bed3df2a570db14204891bb0b25d5e7f566
   languageName: node
   linkType: hard
 

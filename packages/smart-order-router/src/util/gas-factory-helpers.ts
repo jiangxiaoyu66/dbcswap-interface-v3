@@ -96,14 +96,14 @@ export async function getHighestLiquidityV3USDPool(
   const wrappedCurrency = WRAPPED_NATIVE_CURRENCY[chainId]!
 
   if (!usdTokens || usdTokens.length === 0) {
-    log.info(`No USD tokens found for chain ${chainId}, using USDC for gas calculations`)
-    // 使用 USDC 的真实地址
+    log.info(`No USD tokens found for chain ${chainId}, using DGC for gas calculations`)
+    
     const mockUSDToken = new Token(
       chainId,
-      '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', // USDC mainnet address
-      6,
-      'USDC',
-      'USD Coin'
+      '0xC260ed583545d036ed99AA5C76583a99B7E85D26', // DGC address
+      18,  // DGC decimals
+      'DGC',
+      'DGC'
     )
     
     const currentTick = 0
