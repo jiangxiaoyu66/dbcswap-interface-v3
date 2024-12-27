@@ -1,15 +1,21 @@
 import { NetworkStatus } from '@apollo/client'
-import { ChainId, Currency, CurrencyAmount, Price, TradeType } from '@ubeswap/sdk-core'
+import { ChainId, Currency, CurrencyAmount, Price, TradeType, Token } from '@ubeswap/sdk-core'
 import { nativeOnChain } from 'constants/tokens'
 import { PollingInterval, chainIdToBackendName, isGqlSupportedChain } from 'graphql/data/util'
-import { useMemo } from 'react'
+import { useMemo, useCallback, useEffect, useState } from 'react'
 import { ClassicTrade, INTERNAL_ROUTER_PREFERENCE_PRICE, TradeState } from 'state/routing/types'
 import { useRoutingAPITrade } from 'state/routing/useRoutingAPITrade'
 import { Chain, useTokenSpotPriceQuery } from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks'
 import { getNativeTokenDBAddress } from 'utils/nativeTokens'
+import { Protocol } from '@uniswap/router-sdk'
 
 import useIsWindowVisible from './useIsWindowVisible'
 import useStablecoinPrice from './useStablecoinPrice'
+import { useDebouncedTrade } from './useDebouncedTrade'
+import { DGC_DBC, SIC_DBC } from '@ubeswap/smart-order-router/src/providers/token-provider'
+import { getClientSideQuote, getRouter } from 'lib/hooks/routing/clientSideSmartOrderRouter'
+
+import { useWDBCStore } from 'store/dbcRatio'
 
 // ETH amounts used when calculating spot price for a given currency.
 // The amount is large enough to filter low liquidity pairs.
@@ -64,6 +70,8 @@ function useETHPrice(currency?: Currency): {
   }, [chainId, currency, isSupported, state, trade])
 }
 
+
+
 export function useUSDPrice(
   currencyAmount?: CurrencyAmount<Currency>,
   prefetchCurrency?: Currency
@@ -71,6 +79,23 @@ export function useUSDPrice(
   data?: number
   isLoading: boolean
 } {
+  console.log('useUSDPrice params:', {
+    amount: currencyAmount?.toExact(),
+    currency: prefetchCurrency?.symbol,
+    decimals: prefetchCurrency?.decimals,
+    currencyAmount: currencyAmount?.toExact(),
+    prefetchCurrency: prefetchCurrency?.symbol,
+  })
+
+//   {
+//     "amount": "1",
+//     "currency": "DGC",
+//     "decimals": 18,
+//     "currencyAmount": "1",
+//     "prefetchCurrency": "DGC"
+// }
+
+
   const currency = currencyAmount?.currency ?? prefetchCurrency
   const chainId = currency?.chainId
   const chain = chainId ? chainIdToBackendName(chainId) : undefined
@@ -81,37 +106,57 @@ export function useUSDPrice(
   // Use ETH-based pricing if available.
   const { data: tokenEthPrice, isLoading: isTokenEthPriceLoading } = useETHPrice(currency)
   const isTokenEthPriced = Boolean(tokenEthPrice || isTokenEthPriceLoading)
-  const { data, networkStatus } = useTokenSpotPriceQuery({
-    variables: { chain: chain ?? Chain.Ethereum, address: getNativeTokenDBAddress(chain ?? Chain.Ethereum) },
-    skip: !isTokenEthPriced || !isWindowVisible,
-    pollInterval: PollingInterval.Normal,
-    notifyOnNetworkStatusChange: true,
-    fetchPolicy: 'cache-first',
-  })
+
+  // console.log('useTokenSpotPriceQuery params:', {
+  //   chain: chain ?? Chain.Ethereum,
+  //   address: getNativeTokenDBAddress(chain ?? Chain.Ethereum),
+  //   skip: !isTokenEthPriced || !isWindowVisible,
+  //   pollInterval: PollingInterval.Normal,
+  //   notifyOnNetworkStatusChange: true,
+  //   fetchPolicy: 'cache-first',
+  // })
+
+  // const { data, networkStatus } = useTokenSpotPriceQuery({
+  //   variables: { chain: chain ?? Chain.Ethereum, address: getNativeTokenDBAddress(chain ?? Chain.Ethereum) },
+  //   // skip: !isTokenEthPriced || !isWindowVisible,
+  //   skip: false,
+  //   pollInterval: PollingInterval.Normal,
+  //   notifyOnNetworkStatusChange: true,
+  //   fetchPolicy: 'cache-first',
+  // })
 
   // Use USDC-based pricing for chains not yet supported by backend (for ETH-based pricing).
   const stablecoinPrice = useStablecoinPrice(isTokenEthPriced ? undefined : currency)
 
+
+
+
+
+  // 新增: 使用getState()获取状态
+  const { pairPriceRatio, isLoadingRatio, wdbcPrice, isLoadingWdbcPrice } = useWDBCStore.getState()
+  const ratioNum = pairPriceRatio?.[currencyAmount?.currency.symbol ?? '']
+
+  console.log('pairPriceRatio1', pairPriceRatio)
+
+  if(pairPriceRatio?.[currencyAmount?.currency.symbol ?? '']) {
+    console.log('pairPriceRatio拿到了', pairPriceRatio)
+  }
+
+
   return useMemo(() => {
-    if (!currencyAmount) {
-      return { data: undefined, isLoading: false }
-    } else if (stablecoinPrice) {
-      return { data: parseFloat(stablecoinPrice.quote(currencyAmount).toSignificant()), isLoading: false }
-    } else {
-      // Otherwise, get the price of the token in ETH, and then multiply by the price of ETH.
-      const ethUSDPrice = data?.token?.project?.markets?.[0]?.price?.value
-      if (ethUSDPrice && tokenEthPrice) {
-        return { data: parseFloat(tokenEthPrice.quote(currencyAmount).toExact()) * ethUSDPrice, isLoading: false }
-      } else {
-        return { data: undefined, isLoading: isTokenEthPriceLoading || networkStatus === NetworkStatus.loading }
+    if (!currencyAmount || !ratioNum || wdbcPrice === undefined) {
+      return {
+        data: undefined,
+        isLoading: isLoadingRatio || isLoadingWdbcPrice
       }
     }
-  }, [
-    currencyAmount,
-    data?.token?.project?.markets,
-    tokenEthPrice,
-    isTokenEthPriceLoading,
-    networkStatus,
-    stablecoinPrice,
-  ])
+
+    // 计算美元价值: 输入金额 * WDBC兑换比例 * WDBC美元价格
+    const usdValue = parseFloat(currencyAmount.toExact()) * ratioNum * wdbcPrice
+
+    return {
+      data: usdValue,
+      isLoading: false
+    }
+  }, [currencyAmount, ratioNum, wdbcPrice, isLoadingRatio, isLoadingWdbcPrice])
 }

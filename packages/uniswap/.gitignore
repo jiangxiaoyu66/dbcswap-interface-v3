@@ -7,4 +7,4 @@ tsconfig.tsbuildinfo
 src/abis/types
 
 # generated graphql files
-src/**/__generated__
+# src/**/__generated__

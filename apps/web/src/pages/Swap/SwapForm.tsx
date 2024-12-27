@@ -44,7 +44,7 @@ import { ArrowDown } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import { Text } from 'rebass'
 import { useAppSelector } from 'state/hooks'
-import { InterfaceTrade, TradeState } from 'state/routing/types'
+import { InterfaceTrade, INTERNAL_ROUTER_PREFERENCE_PRICE, TradeState } from 'state/routing/types'
 import { isClassicTrade } from 'state/routing/utils'
 import {
   queryParametersToCurrencyState,
@@ -66,6 +66,12 @@ import { didUserReject } from 'utils/swapErrorToUserReadableMessage'
 import { CurrencyState } from 'state/swap/types'
 import { getIsReviewableQuote } from '.'
 import { OutputTaxTooltipBody } from './TaxTooltipBody'
+import { getRouter } from 'lib/hooks/routing/clientSideSmartOrderRouter'
+import { getClientSideQuote } from 'lib/hooks/routing/clientSideSmartOrderRouter'
+import { Protocol } from '@uniswap/router-sdk'
+import { DGC_DBC, SIC_DBC } from '@ubeswap/smart-order-router'
+import { useWDBCStore } from 'store/dbcRatio'
+import { calculateWDBCRatio } from 'hooks/useDbcRatio'
 
 const SWAP_FORM_CURRENCY_SEARCH_FILTERS = {
   showCommonBases: true,
@@ -118,18 +124,18 @@ export function SwapForm({ disableTokenInputs = false, onCurrencyChange }: SwapF
     () =>
       urlLoadedTokens && !isEmptyObject(defaultTokens)
         ? urlLoadedTokens
-            .filter((token: Token) => {
-              return !(token.address in defaultTokens)
+          .filter((token: Token) => {
+            return !(token.address in defaultTokens)
+          })
+          .filter((token: Token) => {
+            // Any token addresses that are loaded from the shorthands map do not need to show the import URL
+            const supported = asSupportedChain(chainId)
+            if (!supported) return true
+            return !Object.keys(TOKEN_SHORTHANDS).some((shorthand) => {
+              const shorthandTokenAddress = TOKEN_SHORTHANDS[shorthand][supported]
+              return shorthandTokenAddress && shorthandTokenAddress === token.address
             })
-            .filter((token: Token) => {
-              // Any token addresses that are loaded from the shorthands map do not need to show the import URL
-              const supported = asSupportedChain(chainId)
-              if (!supported) return true
-              return !Object.keys(TOKEN_SHORTHANDS).some((shorthand) => {
-                const shorthandTokenAddress = TOKEN_SHORTHANDS[shorthand][supported]
-                return shorthandTokenAddress && shorthandTokenAddress === token.address
-              })
-            })
+          })
         : [],
     [chainId, defaultTokens, urlLoadedTokens]
   )
@@ -179,18 +185,21 @@ export function SwapForm({ disableTokenInputs = false, onCurrencyChange }: SwapF
     () =>
       showWrap
         ? {
-            [Field.INPUT]: parsedAmount,
-            [Field.OUTPUT]: parsedAmount,
-          }
+          [Field.INPUT]: parsedAmount,
+          [Field.OUTPUT]: parsedAmount,
+        }
         : {
-            [Field.INPUT]: independentField === Field.INPUT ? parsedAmount : trade?.inputAmount,
-            [Field.OUTPUT]: independentField === Field.OUTPUT ? parsedAmount : trade?.outputAmount,
-          },
+          [Field.INPUT]: independentField === Field.INPUT ? parsedAmount : trade?.inputAmount,
+          [Field.OUTPUT]: independentField === Field.OUTPUT ? parsedAmount : trade?.outputAmount,
+        },
     [independentField, parsedAmount, showWrap, trade]
   )
 
   const showFiatValueInput = Boolean(parsedAmounts[Field.INPUT])
   const showFiatValueOutput = Boolean(parsedAmounts[Field.OUTPUT])
+
+
+  // 一个Token等于多少wei
   const getSingleUnitAmount = (currency?: Currency) => {
     if (!currency) return
     return CurrencyAmount.fromRawAmount(currency, JSBI.BigInt(10 ** currency.decimals))
@@ -222,9 +231,9 @@ export function SwapForm({ disableTokenInputs = false, onCurrencyChange }: SwapF
       routeIsSyncing || !isClassicTrade(trade) || showWrap
         ? [undefined, undefined]
         : [
-            computeFiatValuePriceImpact(fiatValueTradeInput.data, fiatValueTradeOutput.data),
-            computeFiatValuePriceImpact(fiatValueTradeInput.data, preTaxFiatValueTradeOutput.data),
-          ],
+          computeFiatValuePriceImpact(fiatValueTradeInput.data, fiatValueTradeOutput.data),
+          computeFiatValuePriceImpact(fiatValueTradeInput.data, preTaxFiatValueTradeOutput.data),
+        ],
     [fiatValueTradeInput, fiatValueTradeOutput, preTaxFiatValueTradeOutput, routeIsSyncing, trade, showWrap]
   )
 
@@ -303,10 +312,10 @@ export function SwapForm({ disableTokenInputs = false, onCurrencyChange }: SwapF
       [dependentField]: showWrap
         ? parsedAmounts[independentField]?.toExact() ?? ''
         : formatCurrencyAmount({
-            amount: parsedAmounts[dependentField],
-            type: NumberType.SwapTradeAmount,
-            placeholder: '',
-          }),
+          amount: parsedAmounts[dependentField],
+          type: NumberType.SwapTradeAmount,
+          placeholder: '',
+        }),
     }),
     [dependentField, formatCurrencyAmount, independentField, parsedAmounts, showWrap, typedValue]
   )
@@ -318,9 +327,9 @@ export function SwapForm({ disableTokenInputs = false, onCurrencyChange }: SwapF
   const maximumAmountIn = useMaxAmountIn(trade, allowedSlippage)
   const allowance = usePermit2Allowance(
     maximumAmountIn ??
-      (parsedAmounts[Field.INPUT]?.currency.isToken
-        ? (parsedAmounts[Field.INPUT] as CurrencyAmount<Token>)
-        : undefined),
+    (parsedAmounts[Field.INPUT]?.currency.isToken
+      ? (parsedAmounts[Field.INPUT] as CurrencyAmount<Token>)
+      : undefined),
     isSupportedChain(chainId) ? UNIVERSAL_ROUTER_ADDRESS(chainId) : undefined,
     trade?.fillType
   )
@@ -483,8 +492,109 @@ export function SwapForm({ disableTokenInputs = false, onCurrencyChange }: SwapF
   const switchChain = useSwitchChain()
   const switchingChain = useAppSelector((state) => state.wallets.switchingChain)
 
+  const { pairPriceRatio, setRatio, setRatioLoadingPair, wdbcPrice, setWdbcPrice, isLoadingWdbcPrice, setIsLoadingWdbcPrice } = useWDBCStore()
+  // 定期获取WDBC价格
+  useEffect(() => {
+    // fetchWDBCRatio() // 初始调用
+
+    // const intervalId = setInterval(() => {
+
+    console.log('useEffect-currencies', currencies, Field.INPUT, getSingleUnitAmount(currencies[Field.INPUT]), Field.OUTPUT, getSingleUnitAmount(currencies[Field.OUTPUT]))
+    fetchWDBCRatio(parsedAmounts[Field.INPUT] ?? getSingleUnitAmount(currencies[Field.INPUT]))
+    fetchWDBCRatio(parsedAmounts[Field.OUTPUT] ?? getSingleUnitAmount(currencies[Field.OUTPUT]))
+
+    // }, 30000) // 每30秒更新一次
+
+    // return () => clearInterval(intervalId)
+  }, [currencies])
+
+  const fetchWDBCRatio = useCallback(async (currencyAmount?: CurrencyAmount<Currency>) => {
+    if (!currencyAmount) {
+        console.log('fetchWDBCRatio: currencyAmount为空，直接返回')
+        return
+    }
+    try {
+        console.log('fetchWDBCRatio开始计算:', currencyAmount.currency.symbol)
+        const result = await calculateWDBCRatio(currencyAmount)
+        console.log('fetchWDBCRatio计算结果:', result)
+        
+        if (result && result.ratioNum) {
+            const newRatio = {
+                ...pairPriceRatio,
+                [result.token]: result.ratioNum
+            }
+
+            setRatio(newRatio)
+        }
+    } catch (error) {
+        console.error('fetchWDBCRatio错误:', error)
+    } finally {
+      setRatioLoadingPair(
+        {
+          [currencyAmount.currency.symbol]: false
+        }
+      )
+    }
+  }, [setRatioLoadingPair, setRatio])
+
+
   return (
     <>
+
+      {/* <button onClick={async () => {
+        // 首先创建 Token 对象
+        const DGC = DGC_DBC
+        const SIC = SIC_DBC
+
+        // 创建 CurrencyAmount 对象
+        const parsedAmount = CurrencyAmount.fromRawAmount(
+          DGC,
+          '1000000000000000000' // 1 token，需要考虑 decimals
+        )
+
+        const QUOTE_ARGS = {
+          // 基础交易参数
+          account: "0xde184A6809898D81186DeF5C0823d2107c001Da2",
+          amount: "1000000000000000000", // 1 token (18位小数)
+          tradeType: 0, // EXACT_INPUT
+
+          // 代币输入参数
+          tokenInAddress: "0xC260ed583545d036ed99AA5C76583a99B7E85D26", // DGC代币地址
+          tokenInChainId: 19850818,
+          tokenInDecimals: 18,
+          tokenInSymbol: "DGC",
+
+          // 代币输出参数
+          tokenOutAddress: "0x85B24b3517E3aC7bf72a14516160541A60cFF19d", // WDBC代币地址
+          tokenOutChainId: 19850818,
+          tokenOutDecimals: 18,
+          tokenOutSymbol: "WDBC",
+
+          // 路由相关参数
+          routerPreference: INTERNAL_ROUTER_PREFERENCE_PRICE,
+          sendPortionEnabled: true,
+
+          // Uniswap X 相关参数 
+          needsWrapIfUniswapX: false,
+          uniswapXForceSyntheticQuotes: false
+        }
+
+
+
+        // 支持的协议参数
+        const CLIENT_PARAMS = {
+          protocols: [Protocol.V2, Protocol.V3, Protocol.MIXED]
+        }
+
+        // // 使用示例:
+        const router = getRouter(QUOTE_ARGS.tokenInChainId)
+        const quoteResult = await getClientSideQuote(QUOTE_ARGS, router, CLIENT_PARAMS)
+        console.log("quoteResult:", quoteResult)
+
+      }}>
+        测试
+      </button> */}
+
       <TokenSafetyModal
         isOpen={urlTokensNotInDefault.length > 0 && !dismissTokenWarning}
         tokenAddress={urlTokensNotInDefault[0]?.address}

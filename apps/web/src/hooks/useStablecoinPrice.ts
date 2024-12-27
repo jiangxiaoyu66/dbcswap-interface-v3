@@ -15,7 +15,7 @@ export const STABLECOIN_AMOUNT_OUT: { [key in SupportedInterfaceChain]: Currency
   [ChainId.CELO]: CurrencyAmount.fromRawAmount(CUSD_CELO, 10_000e18),
   [ChainId.CELO_ALFAJORES]: CurrencyAmount.fromRawAmount(CUSD_CELO_ALFAJORES, 10_000e6),
   [ChainId.DBC]: CurrencyAmount.fromRawAmount(
-    new DBCNativeCurrency(ChainId.DBC) as unknown as Token,
+    new DBCNativeCurrency(ChainId.DBC) as unknown as Token,  // 这里把原生币作为稳定币，去算 $价格
     10_000e18
   ),
 }

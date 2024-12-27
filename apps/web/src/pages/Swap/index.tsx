@@ -12,7 +12,7 @@ import { useCurrency } from 'hooks/Tokens'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { useScreenSize } from 'hooks/useScreenSize'
 import { SendForm } from 'pages/Swap/Send/SendForm'
-import { ReactNode, useMemo } from 'react'
+import { ReactNode, useMemo, useCallback, useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { InterfaceTrade, TradeState } from 'state/routing/types'
 import { isPreviewTrade } from 'state/routing/utils'
@@ -22,6 +22,10 @@ import { CurrencyState, SwapAndLimitContext } from 'state/swap/types'
 import { useIsDarkMode } from '../../theme/components/ThemeToggle'
 import { LimitFormWrapper } from './Limit/LimitForm'
 import { SwapForm } from './SwapForm'
+// import { calculateWDBCRatio } from 'hooks/useDbcRatio'
+import { useWDBCStore } from 'store/dbcRatio'
+import { CurrencyAmount } from '@ubeswap/sdk-core'
+import { calculateWDBCRatio } from 'hooks/useDbcRatio'
 
 export function getIsReviewableQuote(
   trade: InterfaceTrade | undefined,
@@ -35,8 +39,21 @@ export function getIsReviewableQuote(
   return Boolean(trade && tradeState === TradeState.VALID)
 }
 
+// 新增: 定义API响应类型
+interface DBCPriceResponse {
+  status: number
+  code: string
+  msg: string
+  content: {
+    dbc_price: number
+    update_time: string | null
+    percent_change_24h: number
+  }
+}
+
 export default function SwapPage({ className }: { className?: string }) {
   const location = useLocation()
+  const {  setWdbcPrice, setIsLoadingWdbcPrice } = useWDBCStore()
 
   const { chainId: connectedChainId } = useWeb3React()
   const supportedChainId = asSupportedChain(connectedChainId)
@@ -49,6 +66,42 @@ export default function SwapPage({ className }: { className?: string }) {
 
   const initialInputCurrency = useCurrency(parsedCurrencyState.inputCurrencyId, chainId)
   const initialOutputCurrency = useCurrency(parsedCurrencyState.outputCurrencyId, chainId)
+
+
+
+
+
+  // 获取WDBC价格
+  const fetchWDBCPrice = useCallback(async () => {
+    setIsLoadingWdbcPrice(true)
+    try {
+      const response = await fetch('https://dbchaininfo.congtu.cloud/query/dbc_info?language=CN')
+      const data: DBCPriceResponse = await response.json()
+      if (data.status === 1) {
+        setWdbcPrice(data.content.dbc_price)
+      }
+    } catch (error) {
+      console.error('Failed to fetch WDBC price:', error)
+    } finally {
+      setIsLoadingWdbcPrice(false)
+    }
+  }, [])
+
+
+  // 定期获取WDBC价格
+  useEffect(() => {
+    fetchWDBCPrice() // 初始调用
+    
+    const intervalId = setInterval(() => {
+      fetchWDBCPrice()
+      // fetchWDBCRatio()
+    }, 30000) // 每30秒更新一次
+    
+    return () => clearInterval(intervalId)
+  }, [])
+
+
+
 
   return (
     <Trace page={InterfacePageName.SWAP_PAGE} shouldLogImpression>

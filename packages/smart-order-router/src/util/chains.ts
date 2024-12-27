@@ -275,7 +275,7 @@ export const WRAPPED_NATIVE_CURRENCY: { [chainId in ChainId]: Token } = {
     ChainId.DBC,
     '0x85B24b3517E3aC7bf72a14516160541A60cFF19d',
     18,
-    'WDBC',
+    'DBC',
     'Wrapped DBC'
   ),
 
