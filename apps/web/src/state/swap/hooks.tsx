@@ -140,6 +140,16 @@ export function useDerivedSwapInfo(state: SwapState): SwapInfo {
     [inputCurrency, isExactIn, outputCurrency, typedValue]
   )
 
+  console.log('useDebouncedTrade inputs:', {
+    tradeType: isExactIn ? TradeType.EXACT_INPUT : TradeType.EXACT_OUTPUT,
+    parsedAmount: {
+      value: parsedAmount?.toExact(),
+      currency: parsedAmount?.currency.symbol,
+    },
+    otherCurrency: isExactIn ? outputCurrency?.symbol : inputCurrency?.symbol,
+    account
+  })
+
   const trade = useDebouncedTrade(
     isExactIn ? TradeType.EXACT_INPUT : TradeType.EXACT_OUTPUT,
     parsedAmount,

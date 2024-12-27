@@ -434,6 +434,14 @@ export const DGC_DBC = new Token(
   'DGC'
 )
 
+export const SIC_DBC = new Token(
+  ChainId.DBC,
+  '0xC260ed583545d036ed99AA5C76583a99B7E85D26', // SIC token 的合约地址
+  18, // decimals
+  'SIC', // symbol
+  'SIC' // name
+)
+
 // Base Goerli Tokens
 export const USDC_BASE_GOERLI = new Token(
   ChainId.BASE_GOERLI,

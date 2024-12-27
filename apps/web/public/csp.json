@@ -118,7 +118,8 @@
     "https://rpc.ankr.com",
     "https://scarlet-bored-roundworm-446.mypinata.cloud",
     "http://8.214.55.62:8022",
-    "https://rpc-testnet.dbcwallet.io"
+    "https://rpc-testnet.dbcwallet.io",
+    "https://dbchaininfo.congtu.cloud"
   ],
   "workerSrc": [
     "'self'",
