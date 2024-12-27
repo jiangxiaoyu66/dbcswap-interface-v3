@@ -2145,5 +2145,8 @@
         "title": "这是一个仅查看钱包"
       }
     }
+  },
+  "moreInfo": {
+    "officialWebsite": "官网"
   }
 }

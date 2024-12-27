@@ -1,27 +1,7 @@
-import styled from 'styled-components'
+<svg version="1.0" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32.000000 32.000000"
+    preserveAspectRatio="xMidYMid meet" style="background-color: #00aab9; border-radius: 8px; width: 32px; height: 32px">
 
-// ESLint reports `fill` is missing, whereas it exists on an SVGProps type
-export type SVGProps = React.SVGProps<SVGSVGElement> & {
-  fill?: string
-  height?: string | number
-  width?: string | number
-  gradientId?: string
-  clickable?: boolean
-}
-
-export const UniIcon = ({ clickable, ...props }: SVGProps) => (
-  <Container clickable={clickable}>
-    <svg version="1.0" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32.000000 32.000000"
-      preserveAspectRatio="xMidYMid meet"
-      style={{
-        backgroundColor: '#00aab9',
-        borderRadius: '8px',
-        width: '32px',
-        height: '32px'
-      }}
-    >
-
-      <g transform="translate(0.000000,32.000000) scale(0.100000,-0.100000)" fill="#000000" stroke="none">
+    <g transform="translate(0.000000,32.000000) scale(0.100000,-0.100000)" fill="#000000" stroke="none">
         <path d="M0 249 l0 -71 26 6 c26 7 26 1 0 -32 -8 -11 -11 -10 -17 5 -4 10 -8
 -21 -8 -69 l-1 -88 160 0 160 0 0 58 c0 47 -4 59 -21 70 -17 11 -18 16 -8 28
 10 12 14 12 20 2 5 -7 9 25 9 75 l0 87 -160 0 -160 0 0 -71z m181 21 c32 -17
@@ -38,12 +18,5 @@ c12 -13 19 -26 14 -29 -50 -28 -101 -4 -68 33 23 25 27 25 54 -4z m130 0 c9
 60 38 24 41 24 56 6z" />
         <path d="M135 250 c-16 -11 -25 -20 -20 -20 10 0 64 39 55 40 -3 0 -18 -9 -35
 -20z" />
-      </g>
-    </svg>
-  </Container>
-)
-
-const Container = styled.div<{ clickable?: boolean }>`
-  position: relative;
-  cursor: ${({ clickable }) => (clickable ? 'pointer' : 'auto')};
-`
+    </g>
+</svg>

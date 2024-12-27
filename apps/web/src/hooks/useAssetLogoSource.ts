@@ -71,6 +71,8 @@ export default function useAssetLogoSource({
   isNative?: boolean
   primaryImg?: string | null
 }): [string | undefined, () => void] {
+  console.log('address', address, 'chainId', chainId, 'isNative', isNative, 'primaryImg', primaryImg)
+
   const hideLogo = Boolean(address && checkWarning(address, chainId)?.level === WARNING_LEVEL.BLOCKED)
   const [srcIndex, incrementSrcIndex] = useReducer((n: number) => n + 1, 0)
 
@@ -80,10 +82,12 @@ export default function useAssetLogoSource({
     if (primaryImg && !BAD_SRCS[primaryImg] && !isNative) return primaryImg
 
     const initialUrl = getInitialUrl(address, chainId, isNative)
+    console.log('initialUrl', BAD_SRCS, initialUrl)
     if (initialUrl && !BAD_SRCS[initialUrl]) return initialUrl
 
     const uris = tokenLogoLookup.getIcons(address, chainId) ?? []
     const fallbackSrcs = prioritizeLogoSources(parseLogoSources(uris))
+    console.log('fallbackSrcs', fallbackSrcs)
     return fallbackSrcs.find((src) => !BAD_SRCS[src])
     // eslint-disable-next-line react-hooks/exhaustive-deps -- rerun when src index changes, denoting a bad src was marked
   }, [address, chainId, hideLogo, isNative, primaryImg, srcIndex])

@@ -152,28 +152,28 @@ export const PageTabs = () => {
       <MenuItem href="/swap" isActive={pathname.startsWith('/swap')}>
         <Trans>Swap</Trans>
       </MenuItem>
-      <Box display={{ sm: 'flex', lg: 'none', xxl: 'flex' }} width="full">
+      <Box display={{ sm: 'flex', xxl: 'flex' }} width="full">
         <MenuItem href="/pool" dataTestId="pool-nav-link" isActive={isPoolActive}>
           <Trans>Pool</Trans>
         </MenuItem>
       </Box>
-      <MenuItem href="/earn" isActive={pathname.startsWith('/earn')}>
+      {/* <MenuItem href="/earn" isActive={pathname.startsWith('/earn')}>
         <Trans>Earn</Trans>
       </MenuItem>
       <MenuItem href="/claim-new-ube" isActive={pathname.startsWith('/claim-new')}>
         <Trans>Convert</Trans>
-      </MenuItem>
+      </MenuItem> */}
       {/*<MenuItem href="/stake" isActive={pathname.startsWith('/stake')}>
         <Trans>Stake</Trans>
       </MenuItem>
       <MenuItem href="/farm" isActive={pathname.startsWith('/farm')}>
         <Trans>Farm</Trans>
       </MenuItem>*/}
-      {!shouldDisableNFTRoutes && (
+      {/* {!shouldDisableNFTRoutes && (
         <MenuItem dataTestId="nft-nav" href="/nfts" isActive={isNftPage}>
           <Trans>NFTs</Trans>
         </MenuItem>
-      )}
+      )} */}
       {/*<MenuItem
           href={'/explore' + (chainName !== Chain.Ethereum ? `/${chainName.toLowerCase()}` : '')}
           isActive={pathname.startsWith('/explore')}
@@ -236,7 +236,7 @@ const Navbar = ({ blur }: { blur: boolean }) => {
                 onClick={handleUniIconClick}
               />
               <Text fontSize={24} marginTop={-1}>
-                Ubeswap
+                DBCSwap
               </Text>
             </Box>
             {!isNftPage && (

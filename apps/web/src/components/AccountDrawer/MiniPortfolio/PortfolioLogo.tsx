@@ -181,12 +181,13 @@ export function PortfolioLogo(props: PortfolioLogoProps) {
   return (
     <LogoContainer style={props.style}>
       {getLogo(props)}
-      <SquareL2Logo chainId={props.chainId} />
+      {/* <SquareL2Logo chainId={props.chainId} /> */}
     </LogoContainer>
   )
 }
 
 function getLogo({ chainId, accountAddress, currencies, images, size = '40px' }: PortfolioLogoProps) {
+  console.log('chainId', chainId, 'accountAddress', accountAddress, 'currencies', currencies, 'images', images)
   if (accountAddress) {
     return <PortfolioAvatar accountAddress={accountAddress} size={size} />
   }

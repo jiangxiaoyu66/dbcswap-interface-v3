@@ -25,23 +25,32 @@ export const useMenuContent = (): MenuSection[] => {
     //     { label: 'Convert', href: '/claim-new-ube', internal: true, overflow: true },
     //   ],
     // },
+
     {
-      title: t('Charts'),
+      title: t('Official Website'),
       items: [
-        { label: t('Analytics'), href: 'https://info.ubeswap.org/' },
-        { label: t('Celo Tracker'), href: 'https://celotracker.com/' },
+        { label: 'DeepBrain Chain', href: 'https://www.deepbrainchain.org/' },
+        // { label: t('common.careers'), href: 'https://boards.greenhouse.io/uniswaplabs' },
+        // { label: t('common.blog'), href: 'https://blog.uniswap.org/' },
       ],
     },
-    {
-      title: t('Bridge'),
-      items: [
-        { label: t('Squid Router'), href: 'https://app.squidrouter.com/' },
-        { label: t('Portal'), href: 'https://portalbridge.com/' },
-      ],
-    },
-    {
-      title: t('Need help?'),
-      items: [{ label: t('Ubeswap Docs'), href: 'https://docs.ubeswap.org' }],
-    },
+    // {
+    //   title: t('Charts'),
+    //   items: [
+    //     { label: t('Analytics'), href: 'https://info.ubeswap.org/' },
+    //     { label: t('Celo Tracker'), href: 'https://celotracker.com/' },
+    //   ],
+    // },
+    // {
+    //   title: t('Bridge'),
+    //   items: [
+    //     { label: t('Squid Router'), href: 'https://app.squidrouter.com/' },
+    //     { label: t('Portal'), href: 'https://portalbridge.com/' },
+    //   ],
+    // },
+    // {
+    //   title: t('Need help?'),
+    //   items: [{ label: t('Ubeswap Docs'), href: 'https://docs.ubeswap.org' }],
+    // },
   ]
 }

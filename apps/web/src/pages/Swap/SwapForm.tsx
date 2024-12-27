@@ -151,6 +151,7 @@ export function SwapForm({ disableTokenInputs = false, onCurrencyChange }: SwapF
     outputTax,
   } = derivedSwapInfo
 
+
   const [inputTokenHasTax, outputTokenHasTax] = useMemo(
     () => [!inputTax.equalTo(0), !outputTax.equalTo(0)],
     [inputTax, outputTax]

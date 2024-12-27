@@ -64,6 +64,7 @@ export default function CommonBases({
   portfolioBalanceUsd?: number
 }) {
   const bases = chainId !== undefined ? COMMON_BASES[chainId] ?? [] : []
+  console.log('bases', bases, chainId)
   const portfolioBalanceUsd = useTotalBalancesUsdForAnalytics()
 
   return bases.length > 0 ? (

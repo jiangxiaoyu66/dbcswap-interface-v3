@@ -532,6 +532,7 @@ const STABLECOINS: { [chainId in ChainId]: Token[] } = {
   [ChainId.ZORA]: [],
   [ChainId.ROOTSTOCK]: [],
   [ChainId.BLAST]: [USDB_BLAST],
+  [ChainId.DBC]: [],
 }
 
 export function isStablecoin(currency?: Currency): boolean {
@@ -558,6 +559,6 @@ export class DBCNativeCurrency extends NativeCurrency {
   }
   public constructor(chainId: number) {
     if (!isDBC(chainId)) throw new Error('Not DBC')
-    super(chainId, 18, 'ETH', 'Ethereum')
+    super(chainId, 18, 'DBC', 'DBC')
   }
 }
