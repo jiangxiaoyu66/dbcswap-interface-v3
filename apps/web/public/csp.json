@@ -119,7 +119,8 @@
     "https://scarlet-bored-roundworm-446.mypinata.cloud",
     "http://8.214.55.62:8022",
     "https://rpc-testnet.dbcwallet.io",
-    "https://dbchaininfo.congtu.cloud"
+    "https://dbchaininfo.congtu.cloud",
+    "http://8.214.55.62:8028"
   ],
   "workerSrc": [
     "'self'",

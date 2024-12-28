@@ -108,7 +108,7 @@ const SwapTitle = t`Buy, sell & trade on Ubeswap`
 export const routes: RouteDefinition[] = [
   createRouteDefinition({
     path: '/',
-    getTitle: () => t`Ubeswap | The native DeFi platfor on DBC`,
+    getTitle: () => t`DBCSwap | The native DeFi platfor on DBC`,
     getElement: (args) => {
       return args.browserRouterEnabled && args.hash ? <Navigate to={args.hash.replace('#', '')} replace /> : <Landing />
     },
