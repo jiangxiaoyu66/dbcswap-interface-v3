@@ -559,6 +559,6 @@ export class DBCNativeCurrency extends NativeCurrency {
   }
   public constructor(chainId: number) {
     if (!isDBC(chainId)) throw new Error('Not DBC')
-    super(chainId, 18, 'DBC', 'DBC')
+    super(chainId, 18, 'WDBC', 'DBC') // 默认填入WDBC
   }
 }

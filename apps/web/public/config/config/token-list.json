@@ -1,0 +1,41 @@
+{
+  "name": "DBCSwap",
+  "logoURI": "https://raw.githubusercontent.com/favicon.png",
+  "keywords": ["deepchain", "defi", "dex"],
+  "timestamp": "2024-12-28T08:43:31.145Z",
+  "tokens": [ 
+     {
+    "address": "0xC260ed583545d036ed99AA5C76583a99B7E85D26",
+    "name": "DGC",
+    "symbol": "DGC",
+    "chainId": 19850818,
+    "decimals": 18,
+    "logoURI": ""
+  },
+  {
+    "address": "0x624EB4E6e8A9ED8CC31b4Bb8d5532C27118A77CB",
+    "name": "SIC",
+    "symbol": "SIC",
+    "chainId": 19850818,
+    "decimals": 18,
+    "logoURI": ""
+  },
+  {
+    "address": "0x85B24b3517E3aC7bf72a14516160541A60cFF19d",
+    "name": "DBC",
+    "symbol": "WDBC",
+    "chainId": 19850818,
+    "decimals": 18,
+    "logoURI": "https://raw.githubusercontent.com/favicon.png"
+  }
+
+
+],
+  "version": {
+    "major": 4,
+    "minor": 1,
+    "patch": 69
+  }
+}
+
+

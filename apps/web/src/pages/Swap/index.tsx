@@ -114,7 +114,7 @@ export default function SwapPage({ className }: { className?: string }) {
           initialOutputCurrency={initialOutputCurrency}
           syncTabToUrl={true}
         />
-        <NetworkAlert />
+        {/* <NetworkAlert /> */}
       </PageWrapper>
       {location.pathname === '/swap' && <SwitchLocaleLink />}
     </Trace>

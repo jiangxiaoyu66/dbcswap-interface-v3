@@ -136,7 +136,7 @@ export function Hero({ transition }: HeroProps) {
           </StyledH1>
           <RiseIn delay={0.2}>
             <StyledH1>
-              <Trans>on Celo.</Trans>
+              <Trans>on DBC.</Trans>
             </StyledH1>
           </RiseIn>
         </Box>
@@ -157,7 +157,7 @@ export function Hero({ transition }: HeroProps) {
               variant: 'body2',
             }}
           >
-            <Trans>The native DeFi platform on Celo.</Trans>
+            <Trans>The native DeFi platform on DBC.</Trans>
           </Text>
         </RiseIn>
       </Center>
