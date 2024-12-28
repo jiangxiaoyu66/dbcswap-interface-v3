@@ -3,7 +3,7 @@
 // export const UBE_EXTENDED_LIST =
 //   !ISDEV ? 'http://8.214.55.62:8028/config/config/token-list.json' : 'http://localhost:3000/config/config/token-list.json'
 export const UBE_LIST = 'https://raw.githubusercontent.com/jiangxiaoyu66/dbcswap-interface-v3/refs/heads/main/constants/default-token-list/ubeswap.token-list.json'
-export const UBESWAP_EXTRA_LIST = 'https://raw.githubusercontent.com/jiangxiaoyu66/dbcswap-interface-v3/refs/heads/main/constants/default-token-list/ubeswap-experimental.token-list.json'
+export const UBE_EXTENDED_LIST = '.githubusercontent.com/jiangxiaoyu66/dbcswap-interface-v3/refs/heads/main/constants/default-token-list/ubeswap-experimental.token-list.json https://raw.githubusercontent.com/jiangxiaoyu66/dbcswap-interface-v3/refs/heads/main/constants/default-token-list/ubeswap-experimental.token-list.json'
 // const UNI_UNSUPPORTED_LIST = 'https://cloudflare-ipfs.com/ipns/unsupportedtokens.uniswap.org'
 // const AAVE_LIST = 'tokenlist.aave.eth'
 const BA_LIST = 'https://raw.githubusercontent.com/The-Blockchain-Association/sec-notice-list/master/ba-sec-list.json'
