@@ -521,7 +521,7 @@ export function SwapForm({ disableTokenInputs = false, onCurrencyChange }: SwapF
         if (result && result.ratioNum) {
             const newRatio = {
                 ...pairPriceRatio,
-                [result.token]: result.ratioNum
+                [result.token as string]: result.ratioNum
             }
 
             setRatio(newRatio)
@@ -531,7 +531,7 @@ export function SwapForm({ disableTokenInputs = false, onCurrencyChange }: SwapF
     } finally {
       setRatioLoadingPair(
         {
-          [currencyAmount.currency.symbol]: false
+          [currencyAmount.currency.symbol as string]: false
         }
       )
     }

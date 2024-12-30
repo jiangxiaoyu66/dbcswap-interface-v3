@@ -80,12 +80,13 @@ const GQL_MAINNET_CHAINS = [
   Chain.Avalanche,
   Chain.Base,
   Chain.Blast,
+  Chain.DBC,
 ] as const
 
 /** Used for making graphql queries to all chains supported by the graphql backend. Must be mutable for some apollo typechecking. */
 export const GQL_MAINNET_CHAINS_MUTABLE = [Chain.DBC]
 
-const GQL_TESTNET_CHAINS = [Chain.EthereumGoerli, Chain.EthereumSepolia] as const
+const GQL_TESTNET_CHAINS = [Chain.EthereumGoerli, Chain.EthereumSepolia, Chain.DBCTEST] as const
 
 const UX_SUPPORTED_GQL_CHAINS = [...GQL_MAINNET_CHAINS, ...GQL_TESTNET_CHAINS] as const
 type InterfaceGqlChain = (typeof UX_SUPPORTED_GQL_CHAINS)[number]
@@ -108,6 +109,7 @@ export const CHAIN_ID_TO_BACKEND_NAME: { [key: number]: InterfaceGqlChain } = {
   [ChainId.BLAST]: Chain.Blast,
   [ChainId.DBC]: Chain.DBC,
 }
+
 
 export function chainIdToBackendName(chainId: number | undefined) {
   return chainId && CHAIN_ID_TO_BACKEND_NAME[chainId]
@@ -196,6 +198,8 @@ const CHAIN_NAME_TO_CHAIN_ID: { [key in InterfaceGqlChain]: ChainId } = {
   [Chain.Avalanche]: ChainId.AVALANCHE,
   [Chain.Base]: ChainId.BASE,
   [Chain.Blast]: ChainId.BLAST,
+  [Chain.DBC]: ChainId.DBC,
+  [Chain.DBCTEST]: ChainId.DBCTEST,
 }
 
 export function isSupportedGQLChain(chain: Chain): chain is InterfaceGqlChain {

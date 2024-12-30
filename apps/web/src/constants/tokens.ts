@@ -533,6 +533,7 @@ const STABLECOINS: { [chainId in ChainId]: Token[] } = {
   [ChainId.ROOTSTOCK]: [],
   [ChainId.BLAST]: [USDB_BLAST],
   [ChainId.DBC]: [],
+  [ChainId.DBCTEST]: [],
 }
 
 export function isStablecoin(currency?: Currency): boolean {

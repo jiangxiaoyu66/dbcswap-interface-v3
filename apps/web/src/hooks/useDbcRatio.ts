@@ -8,11 +8,11 @@ import { useWDBCStore } from 'store/dbcRatio'
 export const WDBC_ADDRESS = "0x85B24b3517E3aC7bf72a14516160541A60cFF19d"
 
 export async function calculateWDBCRatio(currencyAmount: CurrencyAmount<Currency>): Promise<{ token: string | undefined, ratioNum: number | undefined } | undefined> {
-  const { 
-    pairPriceRatio: cachedRatio, 
+  const {
+    pairPriceRatio: cachedRatio,
     ratioLoadingPairs,
-    setRatio, 
-    setRatioLoadingPair 
+    setRatio,
+    setRatioLoadingPair
   } = useWDBCStore.getState()
 
   const tokenSymbol = currencyAmount.currency.symbol
@@ -26,7 +26,7 @@ export async function calculateWDBCRatio(currencyAmount: CurrencyAmount<Currency
 
   // 如果该交易对已经在加载中,直接返回
   if (ratioLoadingPairs[tokenSymbol]) {
-    return 
+    return
   }
   else {
     setRatioLoadingPair({ [tokenSymbol]: true })
@@ -58,7 +58,7 @@ export async function calculateWDBCRatio(currencyAmount: CurrencyAmount<Currency
     }
 
     const router = getRouter(QUOTE_ARGS.tokenInChainId)
-    const quoteResult = await getClientSideQuote(QUOTE_ARGS, router, {
+    const quoteResult: any = await getClientSideQuote(QUOTE_ARGS, router, {
       protocols: [Protocol.V2, Protocol.V3, Protocol.MIXED]
     })
 

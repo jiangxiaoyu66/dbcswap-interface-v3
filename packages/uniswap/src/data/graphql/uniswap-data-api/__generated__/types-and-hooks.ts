@@ -154,7 +154,8 @@ export enum Chain {
   Optimism = 'OPTIMISM',
   Polygon = 'POLYGON',
   UnknownChain = 'UNKNOWN_CHAIN',
-  DBC = 'DBC'
+  DBC = 'DBC',
+  DBCTEST = 'DBCTEST'
 }
 
 export enum CollectionSortableField {

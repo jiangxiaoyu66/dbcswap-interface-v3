@@ -23,6 +23,7 @@ export enum ChainId {
   ROOTSTOCK = 30,
   BLAST = 81457,
   DBC = 19850818,
+  DBCTEST = 19850819,
 }
 
 export const SUPPORTED_CHAINS = [ChainId.CELO_ALFAJORES, ChainId.CELO, ChainId.DBC] as const

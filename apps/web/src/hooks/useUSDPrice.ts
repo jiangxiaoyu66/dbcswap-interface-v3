@@ -133,7 +133,7 @@ export function useUSDPrice(
 
 
   // 新增: 使用getState()获取状态
-  const { pairPriceRatio, isLoadingRatio, wdbcPrice, isLoadingWdbcPrice } = useWDBCStore.getState()
+  const { pairPriceRatio,  wdbcPrice, isLoadingWdbcPrice } = useWDBCStore.getState()
   const ratioNum = pairPriceRatio?.[currencyAmount?.currency.symbol ?? '']
 
   console.log('pairPriceRatio1', pairPriceRatio)
@@ -147,7 +147,7 @@ export function useUSDPrice(
     if (!currencyAmount || !ratioNum || wdbcPrice === undefined) {
       return {
         data: undefined,
-        isLoading: isLoadingRatio || isLoadingWdbcPrice
+        isLoading: isLoadingWdbcPrice
       }
     }
 
@@ -158,5 +158,5 @@ export function useUSDPrice(
       data: usdValue,
       isLoading: false
     }
-  }, [currencyAmount, ratioNum, wdbcPrice, isLoadingRatio, isLoadingWdbcPrice])
+  }, [currencyAmount, ratioNum, wdbcPrice, isLoadingWdbcPrice])
 }
