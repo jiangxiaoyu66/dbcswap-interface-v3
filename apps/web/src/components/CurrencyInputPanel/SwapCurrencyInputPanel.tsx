@@ -29,7 +29,7 @@ import DoubleCurrencyLogo from '../DoubleLogo'
 import { RowBetween, RowFixed } from '../Row'
 import CurrencySearchModal from '../SearchModal/CurrencySearchModal'
 import { FiatValue } from './FiatValue'
-import { formatCurrencySymbol } from './utils'
+import { formatCurrencyName, formatCurrencySymbol } from './utils'
 
 export const InputPanel = styled.div<{ hideInput?: boolean }>`
   ${flexColumnNoWrap};
@@ -364,7 +364,7 @@ const SwapCurrencyInputPanel = forwardRef<HTMLInputElement, SwapCurrencyInputPan
                           className="token-symbol-container"
                           active={Boolean(currency && currency.symbol)}
                         >
-                          {currency ? formatCurrencySymbol(currency) : <Trans>Select token</Trans>}
+                          {currency ? formatCurrencyName(currency) : <Trans>Select token</Trans>}
                         </StyledTokenName>
                       )}
                     </RowFixed>

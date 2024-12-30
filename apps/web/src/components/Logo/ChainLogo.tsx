@@ -8,6 +8,7 @@ import { useIsDarkMode } from 'theme/components/ThemeToggle'
 import { ReactComponent as arbitrum } from './ChainSymbols/arbitrum.svg'
 import { ReactComponent as avax } from './ChainSymbols/avax.svg'
 import { ReactComponent as base } from './ChainSymbols/base.svg'
+import { ReactComponent as dbc }  from './ChainSymbols/dbc.svg'
 import { ReactComponent as blast } from './ChainSymbols/blast.svg'
 import { ReactComponent as blastLight } from './ChainSymbols/blast_light.svg'
 import { ReactComponent as bnb } from './ChainSymbols/bnb.svg'
@@ -97,7 +98,7 @@ export function getChainUI(chainId: ChainId, darkMode: boolean): ChainUI | undef
           }
     case ChainId.DBC:
       return {
-        Symbol: base,
+        Symbol: dbc,
         bgColor: '#0052FF33',
         textColor: '#0052FF',
       }

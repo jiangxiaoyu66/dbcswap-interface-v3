@@ -1,6 +1,6 @@
 {
   "name": "DBCSwap",
-  "logoURI": "https://raw.githubusercontent.com/favicon.png",
+  "logoURI": "https://test.dbcswap.io/favicon.png",
   "keywords": ["deepchain", "defi", "dex"],
   "timestamp": "2024-12-28T08:43:31.145Z",
   "tokens": [ 
@@ -24,9 +24,17 @@
     "address": "0x85B24b3517E3aC7bf72a14516160541A60cFF19d",
     "name": "DBC",
     "symbol": "WDBC",
+  "chainId": 19850818,
+    "decimals": 18,
+    "logoURI": "https://test.dbcswap.io/favicon.png"
+  },
+  {
+    "address": "0xeC848d39a97B5753bAdcE5084957F75b0F78C242",
+    "name": "XAA",
+    "symbol": "XAA",
     "chainId": 19850818,
     "decimals": 18,
-    "logoURI": "https://raw.githubusercontent.com/favicon.png"
+    "logoURI": ""
   }
 
 

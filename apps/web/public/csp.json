@@ -120,7 +120,8 @@
     "http://8.214.55.62:8022",
     "https://rpc-testnet.dbcwallet.io",
     "https://dbchaininfo.congtu.cloud",
-    "http://8.214.55.62:8028"
+    "http://8.214.55.62:8028",
+    "https://test.dbcswap.io"
   ],
   "workerSrc": [
     "'self'",
