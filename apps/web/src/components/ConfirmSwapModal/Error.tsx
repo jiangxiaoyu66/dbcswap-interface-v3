@@ -107,11 +107,11 @@ export default function Error({ errorType, trade, swapResult, onRetry }: ErrorMo
       body={
         <ColumnCenter gap="md">
           {trade && <TradeSummary trade={trade} />}
-          {supportArticleURL && (
+          {/* {supportArticleURL && (
             <ExternalLink href={supportArticleURL}>
               <Trans>Learn more</Trans>
             </ExternalLink>
-          )}
+          )} */}
           {swapResult && swapResult.type === TradeFillType.Classic && (
             <ExternalLink
               href={getExplorerLink(

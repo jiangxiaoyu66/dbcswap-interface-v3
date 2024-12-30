@@ -202,7 +202,7 @@ export const SWAP_ROUTER_02_ADDRESSES = (chainId: number) => {
 
 export const UNIVERSAL_ROUTER_ADDRESS = (chainId: number) => {
   if (SUPPORTED_CHAINS.includes(chainId)) {
-    return '0x3C255DED9B25f0BFB4EF1D14234BD2514d7A7A0d'
+    return '0x8f357B11c890fa638d3ff465833f578499C9382c'
   }
   return ''
 }

@@ -23,7 +23,7 @@ export function SwapHead({ onDismiss, isLimitTrade }: { onDismiss: () => void; i
         </FadePresence>
       </Row>
       <Row justify="right" gap="10px">
-        <GetHelpButton />
+        {/* <GetHelpButton /> */}
         <CloseIcon onClick={onDismiss} data-testid="confirmation-close-icon" />
       </Row>
     </Row>

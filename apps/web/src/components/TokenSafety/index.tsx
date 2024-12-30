@@ -265,7 +265,7 @@ export default function TokenSafety({
         <AutoColumn>
           <LogoContainer>{logos}</LogoContainer>
         </AutoColumn>
-        {displayWarningLabel(displayWarning) && (
+        {/* {displayWarningLabel(displayWarning) && (
           <ShortColumn>
             <SafetyLabel warning={displayWarning} />
           </ShortColumn>
@@ -274,7 +274,7 @@ export default function TokenSafety({
           <InfoText>
             {heading} {description} {learnMoreUrl}
           </InfoText>
-        </ShortColumn>
+        </ShortColumn> */}
         <LinkColumn>{urls}</LinkColumn>
         <Buttons
           warning={displayWarning}

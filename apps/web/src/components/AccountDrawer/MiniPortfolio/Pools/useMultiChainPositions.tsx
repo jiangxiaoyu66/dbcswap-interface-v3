@@ -39,7 +39,7 @@ type FeeAmounts = [BigNumber, BigNumber]
 
 const MAX_UINT128 = BigNumber.from(2).pow(128).sub(1)
 
-const DEFAULT_CHAINS = [ChainId.CELO]
+const DEFAULT_CHAINS = [ChainId.DBC]
 
 type UseMultiChainPositionsData = { positions?: PositionInfo[]; loading: boolean }
 
@@ -53,6 +53,7 @@ type UseMultiChainPositionsData = { positions?: PositionInfo[]; loading: boolean
  * @returns positions, fees
  */
 export default function useMultiChainPositions(account: string, chains = DEFAULT_CHAINS): UseMultiChainPositionsData {
+
   const pms = useV3ManagerContracts(chains)
   const multicalls = useInterfaceMulticallContracts(chains)
 
