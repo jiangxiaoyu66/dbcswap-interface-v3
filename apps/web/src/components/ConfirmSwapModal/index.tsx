@@ -198,9 +198,10 @@ export function ConfirmSwapModal({
             <FadePresence>
               <AutoColumn gap="md">
                 <SwapDetails
+                  // 触发确认swap
                   onConfirm={() => {
-                    suppressPopups()
-                    startSwapFlow()
+                    suppressPopups() // 暂时禁用弹窗显示
+                    startSwapFlow() // 开始交换流程
                   }}
                   trade={trade}
                   allowance={allowance}
