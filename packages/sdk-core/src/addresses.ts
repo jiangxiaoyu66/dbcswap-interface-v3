@@ -70,7 +70,7 @@ const CELO_ADDRESSES: ChainAddresses = {
 }
 
 
-const DBC_ADDRESSES: ChainAddresses = {
+const DBC_ADDRESSES: ChainAddresses | any = {
   "v3CoreFactoryAddress": "0xAc2366109dA0B0aFd28ecC2d2FE171c78594d113",
   "multicallAddress": "0xE92da0910B224055776E20a61c238C3a3fd2d42c",
   "quoterAddress": "0xA56C023F150F5Bd69ebB1fF8E59d2894DD6138F1",
@@ -83,7 +83,7 @@ const DBC_ADDRESSES: ChainAddresses = {
   "nonfungiblePositionManagerAddress": "0xdc8748C1e8d93aBE88B7B77AED4fEb0bAb4fACCE",
   "v3MigratorAddress": "0x90d2eE2Ec1fF7803d2b072C83f033E523f3a02B6",
   // "v3StakerAddress": "0x349762bdF5C1444FFE6A2228f1A488b69EE897D0",
-  // "quoterV2Address": "0xA56C023F150F5Bd69ebB1fF8E59d2894DD6138F1",
+  "quoterV2Address": "0xA56C023F150F5Bd69ebB1fF8E59d2894DD6138F1",
   // "swapRouter02": "0x0348B9867862Aa638df274F0F861a677E0462Ea1"
 }
 
@@ -202,7 +202,7 @@ export const SWAP_ROUTER_02_ADDRESSES = (chainId: number) => {
 
 export const UNIVERSAL_ROUTER_ADDRESS = (chainId: number) => {
   if (SUPPORTED_CHAINS.includes(chainId)) {
-    return '0x8f357B11c890fa638d3ff465833f578499C9382c'
+    return '0xa9FE8eBDc579beE77155A34AF5e46cDfFf43981B'
   }
   return ''
 }
