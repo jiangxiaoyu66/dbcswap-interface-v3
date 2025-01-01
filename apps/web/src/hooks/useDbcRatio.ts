@@ -33,11 +33,11 @@ export async function calculateWDBCRatio(currencyAmount: CurrencyAmount<Currency
   }
 
   try {
-    console.log('WDBC比率查询参数:', {
-      tokenInAddress,
-      isNative: currencyAmount.currency.isNative,
-      amount: currencyAmount.quotient.toString()
-    })
+    // console.log('WDBC比率查询参数:', {
+    //   tokenInAddress,
+    //   isNative: currencyAmount.currency.isNative,
+    //   amount: currencyAmount.quotient.toString()
+    // })
 
     const QUOTE_ARGS = {
       account: "0xde184A6809898D81186DeF5C0823d2107c001Da2",
@@ -62,15 +62,15 @@ export async function calculateWDBCRatio(currencyAmount: CurrencyAmount<Currency
       protocols: [Protocol.V2, Protocol.V3, Protocol.MIXED]
     })
 
-    console.log('报价结果:', {
-      quoteResult,
-      inputAmount: QUOTE_ARGS.amount,
-      outputAmount: quoteResult?.quote
-    })
+    // console.log('报价结果:', {
+    //   quoteResult,
+    //   inputAmount: QUOTE_ARGS.amount,
+    //   outputAmount: quoteResult?.quote
+    // })
 
     if (quoteResult?.data?.quote?.quote) {
       const ratioNum = parseFloat(quoteResult.data.quote.quote) / parseFloat(QUOTE_ARGS.amount)
-      console.log('计算得到的新比率:', ratioNum)
+      // console.log('计算得到的新比率:', ratioNum)
 
       setRatioLoadingPair({ [tokenSymbol]: false })
       return {

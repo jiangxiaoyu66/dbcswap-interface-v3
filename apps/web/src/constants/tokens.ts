@@ -361,6 +361,8 @@ export const WRAPPED_NATIVE_CURRENCY: { [chainId: number]: Token | undefined } =
     'Wrapped AVAX'
   ),
   [ChainId.BLAST]: new Token(ChainId.BLAST, '0x4300000000000000000000000000000000000004', 18, 'WETH', 'Wrapped Ether'),
+
+  [ChainId.DBC]: new Token(ChainId.DBC, '0x85B24b3517E3aC7bf72a14516160541A60cFF19d', 18, 'WDBC', 'Wrapped DBC'),
 }
 
 export function isCelo(chainId: number): chainId is ChainId.CELO | ChainId.CELO_ALFAJORES {
@@ -556,10 +558,32 @@ export class DBCNativeCurrency extends NativeCurrency {
   }
   get wrapped(): Token {
     if (!isDBC(this.chainId)) throw new Error('Not DBC')
-    return this as unknown as Token // 直接使用原生币，不需要 wrapped 版本
+    // return this as unknown as Token // 直接使用原生币，不需要 wrapped 版本
+    const wrapped = WRAPPED_NATIVE_CURRENCY[this.chainId]
+    invariant(wrapped instanceof Token)
+    return wrapped
   }
   public constructor(chainId: number) {
     if (!isDBC(chainId)) throw new Error('Not DBC')
-    super(chainId, 18, 'WDBC', 'DBC') // 默认填入WDBC
+    super(chainId, 18, 'DBC', 'DBC') // 默认填入WDBC
   }
 }
+
+
+// class BscNativeCurrency extends NativeCurrency {
+//   equals(other: Currency): boolean {
+//     return other.isNative && other.chainId === this.chainId
+//   }
+
+//   get wrapped(): Token {
+//     if (!isBsc(this.chainId)) throw new Error('Not bnb')
+//     const wrapped = WRAPPED_NATIVE_CURRENCY[this.chainId]
+//     invariant(wrapped instanceof Token)
+//     return wrapped
+//   }
+
+//   public constructor(chainId: number) {
+//     if (!isBsc(chainId)) throw new Error('Not bnb')
+//     super(chainId, 18, 'BNB', 'BNB')
+//   }
+// }
