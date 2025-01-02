@@ -6,7 +6,7 @@
     "defi",
     "dex"
   ],
-  "timestamp": "2024-12-28T08:43:31.145Z",
+  "timestamp": "2025-01-02T08:43:31.145Z",
   "tokens": [
     {
       "address": "0xC260ed583545d036ed99AA5C76583a99B7E85D26",
@@ -36,6 +36,6 @@
   "version": {
     "major": 4,
     "minor": 1,
-    "patch": 69
+    "patch": 70
   }
 }

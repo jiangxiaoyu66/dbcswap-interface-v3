@@ -40,8 +40,8 @@ export const UNSUPPORTED_LIST_URLS: string[] = [BA_LIST /*, UNI_UNSUPPORTED_LIST
 // default lists to be 'active' aka searched across
 export const DEFAULT_ACTIVE_LIST_URLS: string[] = [UBE_LIST]
 export const DEFAULT_INACTIVE_LIST_URLS: string[] = [
-  UBE_EXTENDED_LIST,
-  UBESWAP_EXTRA_LIST,
+  // UBE_EXTENDED_LIST,
+  // UBESWAP_EXTRA_LIST,
   // COMPOUND_LIST,
   // AAVE_LIST,
   // //  CMC_ALL_LIST,
@@ -62,7 +62,7 @@ export const DEFAULT_INACTIVE_LIST_URLS: string[] = [
   // PLASMA_BNB_LIST,
   // AVALANCHE_LIST,
   // BASE_LIST,
-  ...UNSUPPORTED_LIST_URLS,
+  // ...UNSUPPORTED_LIST_URLS,
 ]
 
 export const DEFAULT_LIST_OF_LISTS: string[] = [...DEFAULT_ACTIVE_LIST_URLS, ...DEFAULT_INACTIVE_LIST_URLS]
