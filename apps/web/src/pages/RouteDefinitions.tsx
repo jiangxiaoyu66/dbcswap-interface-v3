@@ -103,12 +103,12 @@ function createRouteDefinition(route: Partial<RouteDefinition>): RouteDefinition
   }
 }
 
-const SwapTitle = t`Buy, sell & trade on Ubeswap`
+const SwapTitle = t`Buy, sell & trade on DBCSwap`
 
 export const routes: RouteDefinition[] = [
   createRouteDefinition({
     path: '/',
-    getTitle: () => t`DBCSwap | The native DeFi platfor on DBC`,
+    getTitle: () => t`DBCSwap | The native DeFi platform on DBC`,
     getElement: (args) => {
       return args.browserRouterEnabled && args.hash ? <Navigate to={args.hash.replace('#', '')} replace /> : <Landing />
     },
@@ -121,7 +121,7 @@ export const routes: RouteDefinition[] = [
   }),
   createRouteDefinition({
     path: '/explore/tokens/:chainName/:tokenAddress',
-    getTitle: () => t`Buy & sell on Ubeswap`,
+    getTitle: () => t`Buy & sell on DBCSwap`,
     getElement: () => <TokenDetails />,
   }),
   createRouteDefinition({
@@ -141,7 +141,7 @@ export const routes: RouteDefinition[] = [
   }),
   createRouteDefinition({
     path: '/explore/pools/:chainName/:poolAddress',
-    getTitle: () => t`Explore pools on Ubeswap`,
+    getTitle: () => t`Explore pools on DBCSwap`,
     getElement: () => (
       <Suspense fallback={null}>
         <PoolDetails />
@@ -150,7 +150,7 @@ export const routes: RouteDefinition[] = [
   }),
   createRouteDefinition({
     path: '/vote/*',
-    getTitle: () => t`Vote on governance proposals on Ubeswap`,
+    getTitle: () => t`Vote on governance proposals on DBCSwap`,
     getElement: () => (
       <Suspense fallback={<LazyLoadSpinner />}>
         <Vote />
@@ -159,13 +159,13 @@ export const routes: RouteDefinition[] = [
   }),
   createRouteDefinition({
     path: '/create-proposal',
-    getTitle: () => t`Create a new governance proposal on Ubeswap`,
+    getTitle: () => t`Create a new governance proposal on DBCSwap`,
     getElement: () => <Navigate to="/vote/create-proposal" replace />,
   }),
   createRouteDefinition({
     path: '/send',
     getElement: () => <Swap />,
-    getTitle: () => t`Send tokens on Ubeswap`,
+    getTitle: () => t`Send tokens on DBCSwap`,
   }),
   createRouteDefinition({
     path: '/limits',
@@ -184,64 +184,64 @@ export const routes: RouteDefinition[] = [
   createRouteDefinition({
     path: '/pool/v2/find',
     getElement: () => <PoolFinder />,
-    getTitle: () => t`Explore top liquidity pools (v2) on Ubeswap`,
+    getTitle: () => t`Explore top liquidity pools (v2) on DBCSwap`,
   }),
   createRouteDefinition({
     path: '/pool/v2',
     getElement: () => <PoolV2 />,
-    getTitle: () => t`Provide liquidity to pools (v2) on Ubeswap`,
+    getTitle: () => t`Provide liquidity to pools (v2) on DBCSwap`,
   }),
   createRouteDefinition({
     path: '/pool',
     getElement: () => <Pool />,
-    getTitle: () => t`Manage & provide pool liquidity on Ubeswap`,
+    getTitle: () => t`Manage & provide pool liquidity on DBCSwap`,
   }),
   createRouteDefinition({
     path: '/pool/:tokenId',
     getElement: () => <PositionPage />,
-    getTitle: () => t`Manage pool liquidity on Ubeswap`,
+    getTitle: () => t`Manage pool liquidity on DBCSwap`,
   }),
   createRouteDefinition({
     path: '/pools/v2/find',
     getElement: () => <PoolFinder />,
-    getTitle: () => t`Explore top liquidity pools (v2) on Ubeswap`,
+    getTitle: () => t`Explore top liquidity pools (v2) on DBCSwap`,
   }),
   createRouteDefinition({
     path: '/pools/v2',
     getElement: () => <PoolV2 />,
-    getTitle: () => t`Manage & provide v2 pool liquidity on Ubeswap`,
+    getTitle: () => t`Manage & provide v2 pool liquidity on DBCSwap`,
   }),
   createRouteDefinition({
     path: '/pools',
     getElement: () => <Pool />,
-    getTitle: () => t`Manage & provide pool liquidity on Ubeswap`,
+    getTitle: () => t`Manage & provide pool liquidity on DBCSwap`,
   }),
   createRouteDefinition({
     path: '/pools/:tokenId',
     getElement: () => <PositionPage />,
-    getTitle: () => t`Manage pool liquidity on Ubeswap`,
+    getTitle: () => t`Manage pool liquidity on DBCSwap`,
   }),
   createRouteDefinition({
     path: '/add/v2',
     nestedPaths: [':currencyIdA', ':currencyIdA/:currencyIdB'],
     getElement: () => <AddLiquidityV2WithTokenRedirects />,
-    getTitle: () => t`Provide liquidity to pools (v2) on Ubeswap`,
+    getTitle: () => t`Provide liquidity to pools (v2) on DBCSwap`,
   }),
   createRouteDefinition({
     path: '/add/single',
     nestedPaths: [':currencyIdA', ':currencyIdA/:currencyIdB'],
     getElement: () => <AddSingleSidedWithTokenRedirects />,
-    getTitle: () => t`Provide liquidity to Single Sided Vaults on Ubeswap`,
+    getTitle: () => t`Provide liquidity to Single Sided Vaults on DBCSwap`,
   }),
   createRouteDefinition({
     path: '/ichivault/:vaultAddress',
     getElement: () => <IchiVaultDetails />,
-    getTitle: () => t`Manage single sided vault on Ubeswap`,
+    getTitle: () => t`Manage single sided vault on DBCSwap`,
   }),
   createRouteDefinition({
     path: '/remove/single/:vaultAddress',
     getElement: () => <WithdrawIchi />,
-    getTitle: () => t`Manage single sided vault on Ubeswap`,
+    getTitle: () => t`Manage single sided vault on DBCSwap`,
   }),
   createRouteDefinition({
     path: '/add',
@@ -252,27 +252,27 @@ export const routes: RouteDefinition[] = [
       ':currencyIdA/:currencyIdB/:feeAmount/:tokenId',
     ],
     getElement: () => <AddLiquidityWithTokenRedirects />,
-    getTitle: () => t`Provide liquidity to pools on Ubeswap`,
+    getTitle: () => t`Provide liquidity to pools on DBCSwap`,
   }),
   createRouteDefinition({
     path: '/remove/v2/:currencyIdA/:currencyIdB',
     getElement: () => <RemoveLiquidity />,
-    getTitle: () => t`Manage v2 pool liquidity on Ubeswap`,
+    getTitle: () => t`Manage v2 pool liquidity on DBCSwap`,
   }),
   createRouteDefinition({
     path: '/remove/:tokenId',
     getElement: () => <RemoveLiquidityV3 />,
-    getTitle: () => t`Manage pool liquidity on Ubeswap`,
+    getTitle: () => t`Manage pool liquidity on DBCSwap`,
   }),
   createRouteDefinition({
     path: '/migrate/v2',
     getElement: () => <MigrateV2 />,
-    getTitle: () => t`Migrate v2 pool liquidity to Ubeswap v3`,
+    getTitle: () => t`Migrate v2 pool liquidity to DBCSwap v3`,
   }),
   createRouteDefinition({
     path: '/migrate/v2/:address',
     getElement: () => <MigrateV2Pair />,
-    getTitle: () => t`Migrate v2 pool liquidity to Ubeswap v3`,
+    getTitle: () => t`Migrate v2 pool liquidity to DBCSwap v3`,
   }),
   createRouteDefinition({
     path: '/nfts',
@@ -282,7 +282,7 @@ export const routes: RouteDefinition[] = [
       </Suspense>
     ),
     enabled: (args) => !args.shouldDisableNFTRoutes,
-    getTitle: () => t`Trade NFTs across OpenSea & other top marketplaces on Ubeswap`,
+    getTitle: () => t`Trade NFTs across OpenSea & other top marketplaces on DBCSwap`,
   }),
   createRouteDefinition({
     path: '/nfts/asset/:contractAddress/:tokenId',
@@ -292,7 +292,7 @@ export const routes: RouteDefinition[] = [
       </Suspense>
     ),
     enabled: (args) => !args.shouldDisableNFTRoutes,
-    getTitle: () => t`Explore NFTs on Ubeswap`,
+    getTitle: () => t`Explore NFTs on DBCSwap`,
   }),
   createRouteDefinition({
     path: '/nfts/profile',
@@ -302,7 +302,7 @@ export const routes: RouteDefinition[] = [
       </Suspense>
     ),
     enabled: (args) => !args.shouldDisableNFTRoutes,
-    getTitle: () => t`Explore NFTs on Ubeswap`,
+    getTitle: () => t`Explore NFTs on DBCSwap`,
   }),
   createRouteDefinition({
     path: '/nfts/collection/:contractAddress',
@@ -312,7 +312,7 @@ export const routes: RouteDefinition[] = [
       </Suspense>
     ),
     enabled: (args) => !args.shouldDisableNFTRoutes,
-    getTitle: () => t`Explore NFTs on Ubeswap`,
+    getTitle: () => t`Explore NFTs on DBCSwap`,
   }),
   createRouteDefinition({
     path: '/nfts/collection/:contractAddress/activity',
@@ -322,7 +322,7 @@ export const routes: RouteDefinition[] = [
       </Suspense>
     ),
     enabled: (args) => !args.shouldDisableNFTRoutes,
-    getTitle: () => t`Explore NFTs on Ubeswap`,
+    getTitle: () => t`Explore NFTs on DBCSwap`,
   }),
   createRouteDefinition({
     path: '/stake',
