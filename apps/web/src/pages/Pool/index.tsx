@@ -288,9 +288,9 @@ export default function Pool() {
                 <ThemedText.LargeHeader>
                   <Trans>Positions</Trans>
                 </ThemedText.LargeHeader>
-                <PoolVersionMenu protocolVersion={ProtocolVersion.V3} />
+                {/* <PoolVersionMenu protocolVersion={ProtocolVersion.V3} /> */}
               </Row>
-              <ButtonRow>
+              {/* <ButtonRow>
                 {networkSupportsV2 && (
                   <PoolMenu
                     modal={ApplicationModal.POOL_OVERVIEW_OPTIONS}
@@ -316,6 +316,17 @@ export default function Pool() {
                     </ResponsiveButtonPrimary>
                   )}
                 />
+              </ButtonRow> */}
+
+              <ButtonRow>
+                <ResponsiveButtonPrimary
+                  onClick={() => {
+                    window.location.href = '/add'
+                  }}
+                  data-cy="join-pool-button"
+                >
+                  + <Trans>New position</Trans>
+                </ResponsiveButtonPrimary>
               </ButtonRow>
             </TitleRow>
 
