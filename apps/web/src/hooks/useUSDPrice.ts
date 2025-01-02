@@ -79,21 +79,8 @@ export function useUSDPrice(
   data?: number
   isLoading: boolean
 } {
-  console.log('useUSDPrice params:', {
-    amount: currencyAmount?.toExact(),
-    currency: prefetchCurrency?.symbol,
-    decimals: prefetchCurrency?.decimals,
-    currencyAmount: currencyAmount?.toExact(),
-    prefetchCurrency: prefetchCurrency?.symbol,
-  })
 
-//   {
-//     "amount": "1",
-//     "currency": "DGC",
-//     "decimals": 18,
-//     "currencyAmount": "1",
-//     "prefetchCurrency": "DGC"
-// }
+
 
 
   const currency = currencyAmount?.currency ?? prefetchCurrency
@@ -136,7 +123,6 @@ export function useUSDPrice(
   const { pairPriceRatio,  wdbcPrice, isLoadingWdbcPrice } = useWDBCStore.getState()
   const ratioNum = pairPriceRatio?.[currencyAmount?.currency.symbol ?? '']
 
-  console.log('pairPriceRatio1', pairPriceRatio)
 
   if(pairPriceRatio?.[currencyAmount?.currency.symbol ?? '']) {
     console.log('pairPriceRatio拿到了', pairPriceRatio)

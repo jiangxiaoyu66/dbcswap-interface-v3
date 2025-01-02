@@ -99,6 +99,8 @@ export function CurrencySearch({
     otherSelectedCurrency,
   })
 
+  console.log('CurrencySearch allCurrencyRows', allCurrencyRows)
+
   const { balanceMap } = useTokenBalances()
 
   const gqlTokenListsEnabled = useFeatureFlag(FeatureFlags.GqlTokenLists)
@@ -107,6 +109,9 @@ export function CurrencySearch({
   )
 
   const native = useNativeCurrency(chainId)
+
+  console.log('Native currency:', native)
+  console.log('Balance map:', balanceMap)
 
   const selectChain = useSelectChain()
   const handleCurrencySelect = useCallback(
@@ -208,6 +213,8 @@ export function CurrencySearch({
               <ChainSelector />
             </ChainSelectorWrapper>
           </Row>
+
+          {/* 原生代币展示？ */}
           {showCommonBases && (
             <CommonBases
               chainId={chainId}

@@ -1,11 +1,11 @@
-// const ISDEV = false
+const ISDEV = false
 // export const UBE_LIST = !ISDEV ? 'http://8.214.55.62:8028/config/config/token-list.json' : 'http://localhost:3000/config/config/token-list.json'
 // export const UBE_EXTENDED_LIST =
 //   !ISDEV ? 'http://8.214.55.62:8028/config/config/token-list.json' : 'http://localhost:3000/config/config/token-list.json'
-export const UBE_LIST = 'https://test.dbcswap.io/config/config/token-list.json'
+export const UBE_LIST = !ISDEV ? 'https://test.dbcswap.io/config/config/token-list.json' : 'http://localhost:3000/config/config/token-list.json'
 export const UBE_EXTENDED_LIST = ''
 
-const UBESWAP_EXTRA_LIST = 'https://test.dbcswap.io/config/config/token-list.json'
+const UBESWAP_EXTRA_LIST = !ISDEV ? 'https://test.dbcswap.io/config/config/token-list.json' : 'http://localhost:3000/config/config/token-list.json'
 
 
 // const UNI_UNSUPPORTED_LIST = 'https://cloudflare-ipfs.com/ipns/unsupportedtokens.uniswap.org'
