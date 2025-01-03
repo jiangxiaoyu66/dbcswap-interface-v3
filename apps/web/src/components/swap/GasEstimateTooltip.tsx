@@ -14,6 +14,7 @@ import { ThemedText } from 'theme/components'
 import { NumberType, useFormatter } from 'utils/formatNumbers'
 
 import { GasBreakdownTooltip } from './GasBreakdownTooltip'
+import { useWDBCStore } from 'store/dbcRatio'
 
 const StyledGasIcon = styled(Gas)`
   height: 16px;
@@ -28,6 +29,10 @@ export default function GasEstimateTooltip({ trade, loading }: { trade?: Submitt
   const { chainId } = useWeb3React()
   const { formatNumber } = useFormatter()
 
+  const { wdbcPrice, pairPriceRatio } = useWDBCStore()
+
+  console.log('wdbcPrice', wdbcPrice)
+  console.log('pairPriceRatio', pairPriceRatio)
   if (!trade || !chainId || !SUPPORTED_GAS_ESTIMATE_CHAIN_IDS.includes(chainId)) {
     return null
   }
@@ -52,7 +57,7 @@ export default function GasEstimateTooltip({ trade, loading }: { trade?: Submitt
                 <UniswapXGradient>
                   <div style={{ fontWeight: 535 }}>
                     {formatNumber({
-                      input: trade.totalGasUseEstimateUSD,
+                      input: trade.totalGasUseEstimateUSD * (wdbcPrice ?? 1) * (pairPriceRatio?.DGC ?? 1),
                       type: NumberType.FiatGasPrice,
                     })}
                   </div>
@@ -60,7 +65,7 @@ export default function GasEstimateTooltip({ trade, loading }: { trade?: Submitt
               ) : (
                 <div>
                   {formatNumber({
-                    input: trade.totalGasUseEstimateUSD,
+                    input: trade.totalGasUseEstimateUSD * (wdbcPrice ?? 1) * (pairPriceRatio?.DGC ?? 1),
                     type: NumberType.FiatGasPrice,
                   })}
                 </div>
@@ -70,7 +75,7 @@ export default function GasEstimateTooltip({ trade, loading }: { trade?: Submitt
                 <div>
                   <s>
                     {formatNumber({
-                      input: trade.classicGasUseEstimateUSD,
+                      input: trade.classicGasUseEstimateUSD * (wdbcPrice ?? 1) * (pairPriceRatio?.DGC ?? 1),
                       type: NumberType.FiatGasPrice,
                     })}
                   </s>

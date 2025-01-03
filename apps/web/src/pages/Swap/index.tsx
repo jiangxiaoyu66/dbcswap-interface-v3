@@ -87,6 +87,37 @@ export default function SwapPage({ className }: { className?: string }) {
     }
   }, [])
 
+  const { pairPriceRatio, setRatio, setRatioLoadingPair, wdbcPrice,  } = useWDBCStore()
+
+  const fetchWDBCRatio = useCallback(async (currencyAmount?: CurrencyAmount<Currency>) => {
+    if (!currencyAmount) {
+        console.log('fetchWDBCRatio: currencyAmount为空，直接返回')
+        return
+    }
+    try {
+        console.log('fetchWDBCRatio开始计算:', currencyAmount)
+        const result = await calculateWDBCRatio(currencyAmount)
+        console.log('fetchWDBCRatio计算结果:', result)
+        
+        if (result && result.ratioNum) {
+            const newRatio = {
+                ...pairPriceRatio,
+                [result.token as string]: result.ratioNum
+            }
+
+            setRatio(newRatio)
+        }
+    } catch (error) {
+        console.error('fetchWDBCRatio错误:', error)
+    } finally {
+      setRatioLoadingPair(
+        {
+          [currencyAmount.currency.symbol as string]: false
+        }
+      )
+    }
+  }, [])
+
 
   // 定期获取WDBC价格
   useEffect(() => {
@@ -94,7 +125,28 @@ export default function SwapPage({ className }: { className?: string }) {
     
     const intervalId = setInterval(() => {
       fetchWDBCPrice()
-      // fetchWDBCRatio()
+      fetchWDBCRatio({
+        "numerator": [
+            731797216,
+            836099643,
+            85
+        ],
+        "denominator": [
+            1
+        ],
+        "currency": {
+            "chainId": 19850818,
+            "decimals": 18,
+            "symbol": "DGC",
+            "isNative": false,
+            "isToken": true,
+            "address": "0xC260ed583545d036ed99AA5C76583a99B7E85D26"
+        },
+        "decimalScale": [
+            660865024,
+            931322574
+        ]
+    })
     }, 30000) // 每30秒更新一次
     
     return () => clearInterval(intervalId)
