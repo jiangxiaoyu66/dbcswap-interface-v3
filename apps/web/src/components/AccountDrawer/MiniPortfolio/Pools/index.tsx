@@ -304,6 +304,16 @@ function PositionListItem({ positionInfo }: { positionInfo: PositionInfo }) {
         descriptor={<ThemedText.BodySmall>{`${pool.fee / BIPS_BASE}%`}</ThemedText.BodySmall>}
         right={
           <>
+
+
+            <Row justify="flex-end">
+              <ThemedText.BodySmall color="neutral2">
+                {closed ? t`Closed` : inRange ? t`In range` : t`Out of range`}
+              </ThemedText.BodySmall>
+              <ActiveDot closed={closed} outOfRange={!inRange} />
+            </Row>
+
+
             <MouseoverTooltip
               placement="left"
               text={
@@ -319,19 +329,15 @@ function PositionListItem({ positionInfo }: { positionInfo: PositionInfo }) {
               }
             >
               <ThemedText.SubHeader>
-                {formatNumber({
-                  input: (liquidityValue ?? 0) + (feeValue ?? 0),
-                  type: NumberType.PortfolioBalance,
-                })}
+                <div style={{ visibility: 'hidden' }}>
+                  {formatNumber({
+                    input: (liquidityValue ?? 0) + (feeValue ?? 0),
+                    type: NumberType.PortfolioBalance,
+                  })}
+                </div>
+
               </ThemedText.SubHeader>
             </MouseoverTooltip>
-
-            <Row justify="flex-end">
-              <ThemedText.BodySmall color="neutral2">
-                {closed ? t`Closed` : inRange ? t`In range` : t`Out of range`}
-              </ThemedText.BodySmall>
-              <ActiveDot closed={closed} outOfRange={!inRange} />
-            </Row>
           </>
         }
       />

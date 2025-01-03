@@ -89,20 +89,21 @@ export function Socials({ iconSize }: { iconSize?: string }) {
   return (
     <Box gap="24px" onClick={onClickBox}>
       <SocialIcon $hoverColor="#00C32B">
-        <StyledExternalLink href="https://github.com/Ubeswap">
+        <StyledExternalLink href="https://github.com/DeepBrainChain/DBCSwap-Interface">
           <Github size={iconSize} fill="inherit" />
         </StyledExternalLink>
       </SocialIcon>
       <SocialIcon $hoverColor="#20BAFF">
-        <StyledExternalLink href="https://twitter.com/Ubeswap">
+        <StyledExternalLink href="https://x.com/DeepBrainChain">
           <Twitter size={iconSize} fill="inherit" />
         </StyledExternalLink>
       </SocialIcon>
-      <SocialIcon $hoverColor="#5F51FF">
+      {/* <SocialIcon $hoverColor="#5F51FF">
         <StyledExternalLink href="https://discord.com/invite/zZkUXCMPGP">
           <Discord size={iconSize} fill="inherit" />
         </StyledExternalLink>
-      </SocialIcon>
+      </SocialIcon> */}
+      
     </Box>
   )
 }

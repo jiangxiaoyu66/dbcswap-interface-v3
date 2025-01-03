@@ -25,6 +25,7 @@ import { PositionDetails } from 'types/position'
 import { ProtocolVersion } from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks'
 // import CTACards from './CTACards'
 import { LoadingRows } from './styled'
+import { Link } from 'react-router-dom'
 
 const PageWrapper = styled(AutoColumn)`
   padding: 68px 8px 0px;
@@ -320,9 +321,8 @@ export default function Pool() {
 
               <ButtonRow>
                 <ResponsiveButtonPrimary
-                  onClick={() => {
-                    window.location.href = '/add'
-                  }}
+                  as={Link}
+                  to="/add"
                   data-cy="join-pool-button"
                 >
                   + <Trans>New position</Trans>

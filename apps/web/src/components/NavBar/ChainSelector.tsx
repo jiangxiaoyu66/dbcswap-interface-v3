@@ -11,7 +11,7 @@ import useSelectChain from 'hooks/useSelectChain'
 import useSyncChainQuery from 'hooks/useSyncChainQuery'
 import { t } from 'i18n'
 import { useAtomValue } from 'jotai/utils'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState, useEffect } from 'react'
 import { AlertTriangle } from 'react-feather'
 import { css, useTheme } from 'styled-components'
 import { getSupportedChainIdsFromWalletConnectSession } from 'utils/getSupportedChainIdsFromWalletConnectSession'
@@ -97,9 +97,12 @@ export const ChainSelector = ({ leftAlign }: { leftAlign?: boolean }) => {
     [selectChain, setIsOpen]
   )
 
-  if (!chainId) {
-    return null
-  }
+  useEffect(() => {
+    // console.log('chainId', chainId, NETWORK_SELECTOR_CHAINS)
+    if (chainId && !NETWORK_SELECTOR_CHAINS.includes(chainId)) {
+      onSelectChain(NETWORK_SELECTOR_CHAINS[0])
+    }
+  }, [chainId, onSelectChain])
 
   const isSupported = !!info
 

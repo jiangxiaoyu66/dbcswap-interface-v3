@@ -258,7 +258,7 @@ export function queryParametersToCurrencyState(parsedQs: ParsedQs): SerializedCu
 
   if (inputCurrency === '' && outputCurrency === '' && independentField === Field.INPUT) {
     // Defaults to having the native currency selected
-    inputCurrency = 'ETH'
+    inputCurrency = ''
   } else if (inputCurrency === outputCurrency) {
     // clear output if identical
     outputCurrency = ''

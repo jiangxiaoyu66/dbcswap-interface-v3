@@ -235,7 +235,8 @@ export const BACKEND_SUPPORTED_CHAINS = [
   // Chain.Polygon,
   // Chain.Base,
   // Chain.Bnb,
-  Chain.Celo,
+  // Chain.Celo,
+  Chain.DBC,
   // Chain.Blast,
 ] as const
 export const BACKEND_NOT_YET_SUPPORTED_CHAIN_IDS = [ChainId.AVALANCHE] as const

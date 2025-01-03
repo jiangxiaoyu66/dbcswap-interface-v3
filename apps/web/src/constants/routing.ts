@@ -137,7 +137,7 @@ export const COMMON_BASES: ChainCurrencyList = {
     USDT_AVALANCHE,
     WETH_AVALANCHE,
   ],
-  [ChainId.DBC]: [nativeOnChain(ChainId.DBC), WRAPPED_NATIVE_CURRENCY[ChainId.DBC] as Token],
+  [ChainId.DBC]: [nativeOnChain(ChainId.DBC)],
 }
 
 // used to construct the list of all pairs we consider by default in the frontend

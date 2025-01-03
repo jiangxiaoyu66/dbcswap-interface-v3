@@ -124,9 +124,6 @@ export function useUSDPrice(
   const ratioNum = pairPriceRatio?.[currencyAmount?.currency.symbol ?? '']
 
 
-  if(pairPriceRatio?.[currencyAmount?.currency.symbol ?? '']) {
-    console.log('pairPriceRatio拿到了', pairPriceRatio)
-  }
 
 
   return useMemo(() => {
