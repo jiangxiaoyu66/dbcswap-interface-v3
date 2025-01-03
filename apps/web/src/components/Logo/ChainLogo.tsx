@@ -99,7 +99,7 @@ export function getChainUI(chainId: ChainId, darkMode: boolean): ChainUI | undef
     case ChainId.DBC:
       return {
         Symbol: dbc,
-        bgColor: '#0052FF33',
+        bgColor: '',
         textColor: '#0052FF',
       }
     default:
@@ -146,8 +146,8 @@ export function ChainLogo({
       data-testid={testId}
     >
       <title id="titleID">{`${label} logo`}</title>
-      <rect rx={borderRadius} fill={surface2} width={iconSize} height={iconSize} />
-      <rect rx={borderRadius} fill={bgColor} width={iconSize} height={iconSize} />
+      {/* <rect rx={borderRadius} fill={surface2} width={iconSize} height={iconSize} /> */}
+      {/* <rect rx={borderRadius} fill={bgColor} width={iconSize} height={iconSize} /> */}
       <Symbol width={iconSize} height={iconSize} />
     </svg>
   )
