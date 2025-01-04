@@ -8,7 +8,7 @@ import { ExternalLink } from 'theme/components'
 
 import { Wiggle } from '../components/animations'
 import { Body1, Box, H3 } from '../components/Generics'
-import { Discord, Github, Twitter } from '../components/Icons'
+import { Discord, Github, Telegram, Twitter } from '../components/Icons'
 
 const SocialIcon = styled(Wiggle)`
   flex: 0;
@@ -98,11 +98,11 @@ export function Socials({ iconSize }: { iconSize?: string }) {
           <Twitter size={iconSize} fill="inherit" />
         </StyledExternalLink>
       </SocialIcon>
-      {/* <SocialIcon $hoverColor="#5F51FF">
-        <StyledExternalLink href="https://discord.com/invite/zZkUXCMPGP">
-          <Discord size={iconSize} fill="inherit" />
+      <SocialIcon $hoverColor="#5F51FF">
+        <StyledExternalLink href="https://t.me/DeepBrainChainGlobal">
+          <Telegram size={iconSize} fill="inherit" />
         </StyledExternalLink>
-      </SocialIcon> */}
+      </SocialIcon>
       
     </Box>
   )
