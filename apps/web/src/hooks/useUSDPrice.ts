@@ -120,7 +120,7 @@ export function useUSDPrice(
 
 
   // 新增: 使用getState()获取状态
-  const { pairPriceRatio,  wdbcPrice, isLoadingWdbcPrice } = useWDBCStore.getState()
+  const { pairPriceRatio, wdbcPrice, isLoadingWdbcPrice } = useWDBCStore.getState()
   const ratioNum = pairPriceRatio?.[currencyAmount?.currency.symbol ?? '']
 
 
@@ -133,6 +133,7 @@ export function useUSDPrice(
         isLoading: isLoadingWdbcPrice
       }
     }
+
 
     // 计算美元价值: 输入金额 * WDBC兑换比例 * WDBC美元价格
     const usdValue = parseFloat(currencyAmount.toExact()) * ratioNum * wdbcPrice

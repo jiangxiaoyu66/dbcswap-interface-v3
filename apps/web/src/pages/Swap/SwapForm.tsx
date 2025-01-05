@@ -514,9 +514,11 @@ export function SwapForm({ disableTokenInputs = false, onCurrencyChange }: SwapF
         return
     }
     try {
-        console.log('fetchWDBCRatio开始计算:', currencyAmount.currency.symbol)
+        // console.log('fetchWDBCRatio开始计算:', currencyAmount.currency.symbol)
         const result = await calculateWDBCRatio(currencyAmount)
-        console.log('fetchWDBCRatio计算结果:', result)
+        if (currencyAmount.currency.symbol === 'DBC') {
+            console.log('fetchWDBCRatio计算结果:', result)
+        }
         
         if (result && result.ratioNum) {
             const newRatio = {

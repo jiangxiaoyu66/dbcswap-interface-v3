@@ -24,6 +24,13 @@ export async function calculateWDBCRatio(currencyAmount: CurrencyAmount<Currency
 
   console.log('calculateWDBCRatio-tokenInAddress', tokenInAddress, 'currencyAmount', currencyAmount, "isLoading", ratioLoadingPairs[tokenSymbol])
 
+  if (currencyAmount.currency.isNative) {
+    return {
+      token: tokenSymbol,
+      ratioNum: 1
+    }
+  }
+
   // 如果该交易对已经在加载中,直接返回
   if (ratioLoadingPairs[tokenSymbol]) {
     return
