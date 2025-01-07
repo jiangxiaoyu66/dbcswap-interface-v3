@@ -11,6 +11,7 @@ import COINBASE_ICON from 'assets/wallets/coinbase-icon.svg'
 import UNIWALLET_ICON from 'assets/wallets/uniswap-wallet-icon.png'
 import VALORA_ICON from 'assets/wallets/valora-icon.png'
 import WALLET_CONNECT_ICON from 'assets/wallets/walletconnect-icon.svg'
+import EXTENSION_ICON from 'assets/wallets/extension.svg'
 import { t } from 'i18n'
 import { useSyncExternalStore } from 'react'
 import { isMobile, isTouchable, isWebAndroid, isWebIOS } from 'uniswap/src/utils/platform'
@@ -38,7 +39,7 @@ const [eip6963, eip6963hooks] = initializeConnector<EIP6963>((actions) => new EI
 // we define a static eip6963Connection object that provides access to all eip6963 wallets. The `wrap` function is used to obtain a copy
 // of the connection with metadata & activation for a specific extension/provider.
 export const eip6963Connection: InjectedConnection = {
-  getProviderInfo: () => eip6963.provider.currentProviderDetail?.info ?? { name: t`Browser Wallet` },
+  getProviderInfo: () => eip6963.provider.currentProviderDetail?.info ?? { name: t`Browser Wallet`, icon: EXTENSION_ICON },
   selectRdns: (rdns: string) => eip6963.selectProvider(rdns),
   connector: eip6963,
   hooks: eip6963hooks,
@@ -81,7 +82,7 @@ const getIsGenericInjector = () => getIsInjected() && !getIsMetaMaskWallet() && 
 const [web3Injected, web3InjectedHooks] = initializeConnector<MetaMask>((actions) => new MetaMask({ actions, onError }))
 
 export const deprecatedInjectedConnection: Connection = {
-  getProviderInfo: (isDarkMode: boolean) => getDeprecatedInjection(isDarkMode) ?? { name: t`Browser Wallet` },
+  getProviderInfo: (isDarkMode: boolean) => null ?? { name: t`Browser Wallet`, icon: EXTENSION_ICON },
   connector: web3Injected,
   hooks: web3InjectedHooks,
   type: ConnectionType.INJECTED,
@@ -225,11 +226,11 @@ const coinbaseWalletConnection: Connection = {
 export const connections = [
   gnosisSafeConnection,
   // uniwalletWCV2ConnectConnection,
-  deprecatedInjectedConnection,
+  deprecatedInjectedConnection, // 这个是浏览器钱包
   valoraConnectConnection,
   walletConnectV2Connection,
   coinbaseWalletConnection,
-  eip6963Connection,
+  // eip6963Connection,
   // network connector should be last in the list, as it should be the fallback if no other connector is active
   networkConnection,
 ]
