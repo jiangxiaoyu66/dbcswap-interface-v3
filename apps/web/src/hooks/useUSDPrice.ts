@@ -124,8 +124,6 @@ export function useUSDPrice(
   const ratioNum = pairPriceRatio?.[currencyAmount?.currency.symbol ?? '']
 
 
-
-
   return useMemo(() => {
     if (!currencyAmount || !ratioNum || wdbcPrice === undefined) {
       return {
@@ -134,6 +132,7 @@ export function useUSDPrice(
       }
     }
 
+    console.log('ratioNum', ratioNum, 'wdbcPrice', wdbcPrice, " parseFloat(currencyAmount.toExact()) ", parseFloat(currencyAmount.toExact()))
 
     // 计算美元价值: 输入金额 * WDBC兑换比例 * WDBC美元价格
     const usdValue = parseFloat(currencyAmount.toExact()) * ratioNum * wdbcPrice

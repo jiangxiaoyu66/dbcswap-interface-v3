@@ -16,13 +16,16 @@ export default function useTransactionDeadline(): BigNumber | undefined {
 }
 
 /**
- * Returns an asynchronous function which will get the block timestamp and combine it with user settings for a deadline.
- * Should be used for any submitted transactions, as it uses an on-chain timestamp instead of a client timestamp.
+ * 返回一个异步函数，该函数会获取区块时间戳并结合用户设置的截止时间。
+ * 应该用于所有提交的交易，因为它使用链上时间戳而不是客户端时间戳。
+ * 
+ * @returns 返回一个异步函数，该函数返回 Promise<BigNumber | undefined>
  */
 export function useGetTransactionDeadline(): () => Promise<BigNumber | undefined> {
   const { chainId } = useWeb3React()
   const ttl = useAppSelector((state) => state.user.userDeadline)
   const multicall = useInterfaceMulticall()
+  
   return useCallback(async () => {
     const blockTimestamp = await multicall.getCurrentBlockTimestamp()
     return timestampToDeadline(chainId, blockTimestamp, ttl)

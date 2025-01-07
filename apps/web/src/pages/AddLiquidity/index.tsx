@@ -114,7 +114,7 @@ function calculatePresetTickRange(type: PresetType, token0Symbol: string, token1
 const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 const blastRebasingAlertAtom = atomWithStorage<boolean>('shouldShowBlastRebasingAlert', true)
 
-const StyledBodyWrapper = styled(BodyWrapper)<{ $hasExistingPosition: boolean }>`
+const StyledBodyWrapper = styled(BodyWrapper) <{ $hasExistingPosition: boolean }>`
   padding: ${({ $hasExistingPosition }) => ($hasExistingPosition ? '10px' : 0)};
   max-width: 640px;
 `
@@ -150,7 +150,7 @@ function AddLiquidity() {
   const { account, chainId, provider } = useWeb3React()
   const theme = useTheme()
   const trace = useTrace()
-
+  const [addBtnLoading, setAddBtnLoading] = useState(false)
   const toggleWalletDrawer = useToggleAccountDrawer() // toggle wallet when disconnected
   const addTransaction = useTransactionAdder()
   const positionManager = useV3NFTPositionManagerContract()
@@ -274,6 +274,7 @@ function AddLiquidity() {
   )
 
   async function onAdd() {
+    setAddBtnLoading(true)
     if (!chainId || !provider || !account) return
 
     if (!positionManager || !baseCurrency || !quoteCurrency) {
@@ -287,18 +288,18 @@ function AddLiquidity() {
       const { calldata, value } =
         hasExistingPosition && tokenId
           ? NonfungiblePositionManager.addCallParameters(position, {
-              tokenId,
-              slippageTolerance: allowedSlippage,
-              deadline: deadline.toString(),
-              useNative,
-            })
+            tokenId,
+            slippageTolerance: allowedSlippage,
+            deadline: deadline.toString(),
+            useNative,
+          })
           : NonfungiblePositionManager.addCallParameters(position, {
-              slippageTolerance: allowedSlippage,
-              recipient: account,
-              deadline: deadline.toString(),
-              useNative,
-              createPool: noLiquidity,
-            })
+            slippageTolerance: allowedSlippage,
+            recipient: account,
+            deadline: deadline.toString(),
+            useNative,
+            createPool: noLiquidity,
+          })
 
       let txn: { to: string; data: string; value: string } = {
         to: NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId],
@@ -344,9 +345,12 @@ function AddLiquidity() {
             gasLimit: calculateGasMargin(estimate),
           }
 
-          return provider
-            .getSigner()
-            .sendTransaction(newTxn)
+          // 预先获取 signer
+          const signer = provider.getSigner()
+
+
+          // 然后再发送交易
+          signer.sendTransaction(newTxn)
             .then((response: TransactionResponse) => {
               setAttemptingTxn(false)
               const transactionInfo: TransactionInfo = {
@@ -365,7 +369,9 @@ function AddLiquidity() {
                 ...trace,
                 ...transactionInfo,
               })
+              console.log('结束', addBtnLoading)
             })
+
         })
         .catch((error) => {
           console.error('Failed to send transaction', error)
@@ -375,7 +381,11 @@ function AddLiquidity() {
             console.error(error)
           }
         })
+      setAddBtnLoading(false)
+
     } else {
+      setAddBtnLoading(true)
+
       return
     }
   }
@@ -474,11 +484,9 @@ function AddLiquidity() {
   const showApprovalB =
     !argentWalletContract && approvalB !== ApprovalState.APPROVED && !!parsedAmounts[Field.CURRENCY_B]
 
-  const pendingText = `Supplying ${!depositADisabled ? parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) : ''} ${
-    !depositADisabled ? currencies[Field.CURRENCY_A]?.symbol : ''
-  } ${!outOfRange ? 'and' : ''} ${!depositBDisabled ? parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) : ''} ${
-    !depositBDisabled ? currencies[Field.CURRENCY_B]?.symbol : ''
-  }`
+  const pendingText = `Supplying ${!depositADisabled ? parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) : ''} ${!depositADisabled ? currencies[Field.CURRENCY_A]?.symbol : ''
+    } ${!outOfRange ? 'and' : ''} ${!depositBDisabled ? parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) : ''} ${!depositBDisabled ? currencies[Field.CURRENCY_B]?.symbol : ''
+    }`
 
   const [searchParams, setSearchParams] = useSearchParams()
 
@@ -712,9 +720,14 @@ function AddLiquidity() {
                 />
               )}
               bottomContent={() => (
-                <ButtonPrimary style={{ marginTop: '1rem' }} onClick={onAdd}>
+                // 添加按钮
+                <ButtonPrimary
+
+                  onClick={onAdd}
+                  disabled={addBtnLoading}
+                >
                   <Text fontWeight={535} fontSize={20}>
-                    <Trans>Add</Trans>
+                    {<Trans>Add</Trans>}
                   </Text>
                 </ButtonPrimary>
               )}
@@ -837,8 +850,7 @@ function AddLiquidity() {
                                 onFieldAInput(formattedAmounts[Field.CURRENCY_B] ?? '')
                               }
                               navigate(
-                                `/add/${currencyIdB as string}/${currencyIdA as string}${
-                                  feeAmount ? '/' + feeAmount : ''
+                                `/add/${currencyIdB as string}/${currencyIdA as string}${feeAmount ? '/' + feeAmount : ''
                                 }`
                               )
                             }}
