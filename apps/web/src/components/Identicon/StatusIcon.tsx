@@ -97,6 +97,7 @@ const MiniWalletIcon = ({ connection, side }: { connection: Connection; side: 'l
 }
 
 const MainWalletIcon = ({ account, connection, size }: { account: string; connection: Connection; size: number }) => {
+
   const { unitag } = useUnitagByAddressWithoutFlag(account, Boolean(account))
   const { avatar } = useENSAvatar(account ?? undefined)
   const uniconV2Enabled = useFeatureFlag(FeatureFlags.UniconsV2)
@@ -110,8 +111,12 @@ const MainWalletIcon = ({ account, connection, size }: { account: string; connec
       </UnigramContainer>
     )
   }
+  // console.log('avatar', avatar, connection, connection.getProviderInfo().name)
 
-  const hasIdenticon = avatar || connection.getProviderInfo().name === 'MetaMask'
+  const hasIdenticon = avatar || connection.getProviderInfo().name === 'Browser Wallet'
+
+  // console.log('hasIdenticon', hasIdenticon, uniconV2Enabled)
+
   return hasIdenticon ? (
     <Identicon account={account} size={size} />
   ) : uniconV2Enabled ? (
