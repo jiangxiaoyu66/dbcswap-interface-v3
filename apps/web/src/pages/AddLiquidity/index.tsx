@@ -281,112 +281,116 @@ function AddLiquidity() {
       return
     }
 
-    const deadline = await getDeadline()
+    try {
+      const deadline = await getDeadline()
 
-    if (position && account && deadline) {
-      const useNative = baseCurrency.isNative ? baseCurrency : quoteCurrency.isNative ? quoteCurrency : undefined
-      const { calldata, value } =
-        hasExistingPosition && tokenId
-          ? NonfungiblePositionManager.addCallParameters(position, {
-            tokenId,
-            slippageTolerance: allowedSlippage,
-            deadline: deadline.toString(),
-            useNative,
-          })
-          : NonfungiblePositionManager.addCallParameters(position, {
-            slippageTolerance: allowedSlippage,
-            recipient: account,
-            deadline: deadline.toString(),
-            useNative,
-            createPool: noLiquidity,
-          })
-
-      let txn: { to: string; data: string; value: string } = {
-        to: NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId],
-        data: calldata,
-        value,
-      }
-
-      if (argentWalletContract) {
-        const amountA = parsedAmounts[Field.CURRENCY_A]
-        const amountB = parsedAmounts[Field.CURRENCY_B]
-        const batch = [
-          ...(amountA && amountA.currency.isToken
-            ? [approveAmountCalldata(amountA, NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId])]
-            : []),
-          ...(amountB && amountB.currency.isToken
-            ? [approveAmountCalldata(amountB, NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId])]
-            : []),
-          {
-            to: txn.to,
-            data: txn.data,
-            value: txn.value,
-          },
-        ]
-        const data = argentWalletContract.interface.encodeFunctionData('wc_multiCall', [batch])
-        txn = {
-          to: argentWalletContract.address,
-          data,
-          value: '0x0',
-        }
-      }
-
-      const connectedChainId = await provider.getSigner().getChainId()
-      if (chainId !== connectedChainId) throw new WrongChainError()
-
-      setAttemptingTxn(true)
-
-      provider
-        .getSigner()
-        .estimateGas(txn)
-        .then((estimate) => {
-          const newTxn = {
-            ...txn,
-            gasLimit: calculateGasMargin(estimate),
-          }
-
-          // 预先获取 signer
-          const signer = provider.getSigner()
-
-
-          // 然后再发送交易
-          signer.sendTransaction(newTxn)
-            .then((response: TransactionResponse) => {
-              setAttemptingTxn(false)
-              const transactionInfo: TransactionInfo = {
-                type: TransactionType.ADD_LIQUIDITY_V3_POOL,
-                baseCurrencyId: currencyId(baseCurrency),
-                quoteCurrencyId: currencyId(quoteCurrency),
-                createPool: Boolean(noLiquidity),
-                expectedAmountBaseRaw: parsedAmounts[Field.CURRENCY_A]?.quotient?.toString() ?? '0',
-                expectedAmountQuoteRaw: parsedAmounts[Field.CURRENCY_B]?.quotient?.toString() ?? '0',
-                feeAmount: position.pool.fee,
-              }
-              addTransaction(response, transactionInfo)
-              setTxHash(response.hash)
-              sendAnalyticsEvent(LiquidityEventName.ADD_LIQUIDITY_SUBMITTED, {
-                label: [currencies[Field.CURRENCY_A]?.symbol, currencies[Field.CURRENCY_B]?.symbol].join('/'),
-                ...trace,
-                ...transactionInfo,
-              })
-              console.log('结束', addBtnLoading)
+      if (position && account && deadline) {
+        const useNative = baseCurrency.isNative ? baseCurrency : quoteCurrency.isNative ? quoteCurrency : undefined
+        const { calldata, value } =
+          hasExistingPosition && tokenId
+            ? NonfungiblePositionManager.addCallParameters(position, {
+              tokenId,
+              slippageTolerance: allowedSlippage,
+              deadline: deadline.toString(),
+              useNative,
+            })
+            : NonfungiblePositionManager.addCallParameters(position, {
+              slippageTolerance: allowedSlippage,
+              recipient: account,
+              deadline: deadline.toString(),
+              useNative,
+              createPool: noLiquidity,
             })
 
-        })
-        .catch((error) => {
-          console.error('Failed to send transaction', error)
-          setAttemptingTxn(false)
-          // we only care if the error is something _other_ than the user rejected the tx
-          if (error?.code !== 4001) {
-            console.error(error)
+        let txn: { to: string; data: string; value: string } = {
+          to: NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId],
+          data: calldata,
+          value,
+        }
+
+        if (argentWalletContract) {
+          const amountA = parsedAmounts[Field.CURRENCY_A]
+          const amountB = parsedAmounts[Field.CURRENCY_B]
+          const batch = [
+            ...(amountA && amountA.currency.isToken
+              ? [approveAmountCalldata(amountA, NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId])]
+              : []),
+            ...(amountB && amountB.currency.isToken
+              ? [approveAmountCalldata(amountB, NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId])]
+              : []),
+            {
+              to: txn.to,
+              data: txn.data,
+              value: txn.value,
+            },
+          ]
+          const data = argentWalletContract.interface.encodeFunctionData('wc_multiCall', [batch])
+          txn = {
+            to: argentWalletContract.address,
+            data,
+            value: '0x0',
           }
-        })
+        }
+
+        const connectedChainId = await provider.getSigner().getChainId()
+        if (chainId !== connectedChainId) throw new WrongChainError()
+
+        setAttemptingTxn(true)
+
+        provider
+          .getSigner()
+          .estimateGas(txn)
+          .then((estimate) => {
+            const newTxn = {
+              ...txn,
+              gasLimit: calculateGasMargin(estimate),
+            }
+
+            const signer = provider.getSigner()
+
+            return signer.sendTransaction(newTxn)
+              .then((response: TransactionResponse) => {
+                setAttemptingTxn(false)
+                const transactionInfo: TransactionInfo = {
+                  type: TransactionType.ADD_LIQUIDITY_V3_POOL,
+                  baseCurrencyId: currencyId(baseCurrency),
+                  quoteCurrencyId: currencyId(quoteCurrency),
+                  createPool: Boolean(noLiquidity),
+                  expectedAmountBaseRaw: parsedAmounts[Field.CURRENCY_A]?.quotient?.toString() ?? '0',
+                  expectedAmountQuoteRaw: parsedAmounts[Field.CURRENCY_B]?.quotient?.toString() ?? '0',
+                  feeAmount: position.pool.fee,
+                }
+                addTransaction(response, transactionInfo)
+                setTxHash(response.hash)
+                sendAnalyticsEvent(LiquidityEventName.ADD_LIQUIDITY_SUBMITTED, {
+                  label: [currencies[Field.CURRENCY_A]?.symbol, currencies[Field.CURRENCY_B]?.symbol].join('/'),
+                  ...trace,
+                  ...transactionInfo,
+                })
+                console.log('结束', addBtnLoading)
+              })
+              .catch((error) => {
+                console.error('Failed to send transaction', error)
+                setAttemptingTxn(false)
+                setShowConfirm(false) // 关闭确认弹窗
+                // we only care if the error is something _other_ than the user rejected the tx
+                if (error?.code !== 4001) {
+                  console.error(error)
+                }
+              })
+          })
+          .catch((error) => {
+            console.error('Failed to estimate gas', error)
+            setAttemptingTxn(false)
+            setShowConfirm(false) // 关闭确认弹窗
+          })
+      }
+    } catch (error) {
+      console.error('Transaction failed', error)
+      setAttemptingTxn(false)
+      setShowConfirm(false) // 关闭确认弹窗
+    } finally {
       setAddBtnLoading(false)
-
-    } else {
-      setAddBtnLoading(true)
-
-      return
     }
   }
 
@@ -722,12 +726,15 @@ function AddLiquidity() {
               bottomContent={() => (
                 // 添加按钮
                 <ButtonPrimary
-
                   onClick={onAdd}
                   disabled={addBtnLoading}
                 >
                   <Text fontWeight={535} fontSize={20}>
-                    {<Trans>Add</Trans>}
+                    {addBtnLoading ? (
+                      <Dots>Add</Dots>
+                    ) : (
+                      <Trans>Add</Trans>
+                    )}
                   </Text>
                 </ButtonPrimary>
               )}
