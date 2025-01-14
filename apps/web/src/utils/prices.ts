@@ -22,43 +22,56 @@ export function computeRealizedPriceImpact(trade: Trade<Currency, Currency, Trad
   return trade.priceImpact.subtract(realizedLpFeePercent)
 }
 
-// computes realized lp fee as a percent
+// 计算实际的LP(流动性提供者)费用百分比
 function computeRealizedLPFeePercent(trade: Trade<Currency, Currency, TradeType>): Percent {
   let percent: Percent
 
-  // Since routes are either all v2 or all v3 right now, calculate separately
+  // 由于目前路由要么全是v2要么全是v3，所以分开计算
   if (trade.swaps[0].route.pools instanceof Pair) {
-    // for each hop in our trade, take away the x*y=k price impact from 0.3% fees
-    // e.g. for 3 tokens/2 hops: 1 - ((1 - .03) * (1-.03))
+    // V2池子的情况
+    // 对于交易中的每一跳，都要计算0.3%费用的价格影响
+    // 例如: 对于3个代币/2跳的情况: 1 - ((1 - 0.03) * (1-0.03))
+    // 也就是说每经过一个池子都会收取0.3%的费用
     percent = ONE_HUNDRED_PERCENT.subtract(
       trade.swaps.reduce<Percent>(
-        (currentFee: Percent): Percent => currentFee.multiply(INPUT_FRACTION_AFTER_FEE),
+        (currentFee: Percent): Percent => currentFee.multiply(INPUT_FRACTION_AFTER_FEE), // INPUT_FRACTION_AFTER_FEE = 1 - 0.3%
         ONE_HUNDRED_PERCENT
       )
     )
   } else {
+    // V3池子的情况
     percent = ZERO_PERCENT
+    console.log('computeRealizedLPFeePercent中trade.swaps:', trade.swaps)
     for (const swap of trade.swaps) {
+      // console.log('computeRealizedLPFeePercent中swap:', swap)
+      // 计算这个swap在整个交易输入量中占的比例
+      // 例如：如果一个交易分成两部分，可能是60%走路径A，40%走路径B
       const { numerator, denominator } = swap.inputAmount.divide(trade.inputAmount)
       const overallPercent = new Percent(numerator, denominator)
 
+      // 计算这个路由实际的LP费用百分比
       const routeRealizedLPFeePercent = overallPercent.multiply(
         ONE_HUNDRED_PERCENT.subtract(
           swap.route.pools.reduce<Percent>((currentFee: Percent, pool): Percent => {
+            // 获取池子的费用率
             const fee =
               pool instanceof Pair
-                ? // not currently possible given protocol check above, but not fatal
-                  FeeAmount.MEDIUM
-                : pool.fee
+                ? // 虽然前面已经检查过不是Pair了，这里是以防万一的检查
+                  FeeAmount.MEDIUM  // V2池子统一用0.3%的费率
+                : pool.fee          // V3池子用其自定义的费率(可能是0.01%, 0.05%, 0.3%, 1%等)
+            // 计算扣除费用后剩余的比例
+            // fee是以百万分之一为单位的，所以要除以1_000_000
             return currentFee.multiply(ONE_HUNDRED_PERCENT.subtract(new Fraction(fee, 1_000_000)))
           }, ONE_HUNDRED_PERCENT)
         )
       )
 
+      // 累加每个路由的费用
       percent = percent.add(routeRealizedLPFeePercent)
     }
   }
 
+  // 返回最终计算出的LP费用百分比
   return new Percent(percent.numerator, percent.denominator)
 }
 

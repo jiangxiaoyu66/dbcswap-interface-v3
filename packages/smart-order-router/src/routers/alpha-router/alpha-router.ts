@@ -1419,7 +1419,7 @@ export class AlphaRouter implements IRouter<AlphaRouterConfig>, ISwapToRatio<Alp
 
     let v3CandidatePoolsPromise: Promise<V3CandidatePools | undefined> = Promise.resolve(undefined)
     if (v3ProtocolSpecified || noProtocolsSpecified || (shouldQueryMixedProtocol && mixedProtocolAllowed)) {
-      console.log('V3333333333333333')
+      console.log('V3333333333333333', v3ProtocolSpecified, noProtocolsSpecified, shouldQueryMixedProtocol, mixedProtocolAllowed)
       v3CandidatePoolsPromise = getV3CandidatePools({
         tokenIn,
         tokenOut,

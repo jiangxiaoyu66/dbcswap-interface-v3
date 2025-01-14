@@ -426,6 +426,9 @@ export function SwapForm({ disableTokenInputs = false, onCurrencyChange }: SwapF
     }
 
     const marketPriceImpact = trade?.priceImpact ? computeRealizedPriceImpact(trade) : undefined
+
+    console.log('marketPriceImpact:',trade?.priceImpact,  marketPriceImpact)
+    console.log('preTaxStablecoinPriceImpact:', preTaxStablecoinPriceImpact)
     const largerPriceImpact = largerPercentValue(marketPriceImpact, preTaxStablecoinPriceImpact)
     return { priceImpactSeverity: warningSeverity(largerPriceImpact), largerPriceImpact }
   }, [preTaxStablecoinPriceImpact, trade])
