@@ -158,7 +158,7 @@ export default function BuyDBC() {
           Buy DBC on Gate.io
         </StepTitle>
         <StepContent>
-          Visit <StyledExternalLink href="https://gate.io">Gate.io</StyledExternalLink> to purchase DBC.
+          Visit <StyledExternalLink href="https://www.gate.io/trade/DBC_USDT">Gate.io</StyledExternalLink> to purchase DBC.
         </StepContent>
 
         <StepTitle>
