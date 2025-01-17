@@ -25,12 +25,12 @@ export function setInitialUserState(win: Cypress.AUTWindow, state: UserState) {
     const db = dbRequest.result
     const transaction = db.transaction('keyvaluepairs', 'readwrite')
     const store = transaction.objectStore('keyvaluepairs')
-    store.put(
-      {
-        user: state,
-      },
-      'persist:interface'
-    )
+    // store.put(
+    //   {
+    //     user: state,
+    //   },
+    //   'persist:interface'
+    // )
   }
   dbRequest.onupgradeneeded = function () {
     const db = dbRequest.result
