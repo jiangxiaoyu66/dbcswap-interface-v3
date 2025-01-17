@@ -200,7 +200,7 @@ export function CurrencyRow({
             </Row>
             <Row gap="sm">
               <ThemedText.Caption ml="0px" color="neutral2">
-                {currency?.name}
+                {currency?.symbol}
               </ThemedText.Caption>
               {showAddress && currency.isToken && (
                 <ThemedText.Caption color="neutral3">{shortenAddress(currency.address)}</ThemedText.Caption>
