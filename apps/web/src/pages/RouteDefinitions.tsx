@@ -16,6 +16,7 @@ const NftExplore = lazy(() => import('nft/pages/explore'))
 const Collection = lazy(() => import('nft/pages/collection'))
 const Profile = lazy(() => import('nft/pages/profile'))
 const Asset = lazy(() => import('nft/pages/asset/Asset'))
+const BuyDBC = lazy(() => import('./BuyDBC'))
 const AddLiquidityWithTokenRedirects = lazy(() => import('pages/AddLiquidity/redirects'))
 const AddSingleSidedWithTokenRedirects = lazy(() => import('pages/AddSingleSided/redirects'))
 const AddLiquidityV2WithTokenRedirects = lazy(() => import('pages/AddLiquidityV2/redirects'))
@@ -112,6 +113,15 @@ export const routes: RouteDefinition[] = [
     getElement: (args) => {
       return args.browserRouterEnabled && args.hash ? <Navigate to={args.hash.replace('#', '')} replace /> : <Landing />
     },
+  }),
+  createRouteDefinition({
+    path: '/buy-dbc',
+    getTitle: () => t`How to Purchase DBC and Transfer It to Your Wallet`,
+    getElement: () => (
+      <Suspense fallback={<LazyLoadSpinner />}>
+        <BuyDBC />
+      </Suspense>
+    ),
   }),
   createRouteDefinition({
     path: '/explore',

@@ -36,6 +36,7 @@ import { ThemeMode, useDarkModeManager } from 'theme/components/ThemeToggle'
 import { relevantDigits } from 'utils/relevantDigits'
 import UbeBalanceContent from './UbeBalanceContent'
 import * as styles from './style.css'
+import { ButtonPrimary } from 'components/Button'
 
 const Nav = styled.nav`
   padding: ${({ theme }) => `${theme.navVerticalPad}px 12px`};
@@ -185,12 +186,48 @@ export const PageTabs = () => {
   )
 }
 
+const BuyDBCButton = styled(ButtonPrimary)`
+  background: ${({ theme }) => theme.accent1};
+  padding: 8px 16px;
+  border-radius: 16px;
+  height: 36px;
+  font-size: 15px;
+  font-weight: 500;
+  width: auto;
+  min-width: 120px;
+  border: none;
+  
+  &:hover {
+    opacity: 0.8;
+  }
+
+  @media (max-width: 768px) {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 8px 16px;
+    font-size: 14px;
+    height: 36px;
+    min-width: auto;
+    border-radius: 18px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+`
+
+// const BuyDBCButtonMobile = styled(BuyDBCButton)`
+//   @media (min-width: 769px) {
+//     display: none;
+//   }
+// `
+
 const Navbar = ({ blur }: { blur: boolean }) => {
   const isNftPage = useIsNftPage()
+  const { pathname } = useLocation()
   // const isLandingPage = useIsLandingPage()
   const sellPageState = useProfilePageState((state) => state.state)
   const navigate = useNavigate()
   const isNavSearchInputVisible = useIsNavSearchInputVisible()
+  const showBuyButton = !pathname.startsWith('/buy-dbc')
 
   const { account } = useWeb3React()
   const [accountDrawerOpen, toggleAccountDrawer] = useAccountDrawer()
@@ -257,7 +294,15 @@ const Navbar = ({ blur }: { blur: boolean }) => {
             {/* <SearchBar /> */}
           </Box>
           <Box className={styles.rightSideContainer}>
-            <Row gap="12">
+            <Row gap="12" style={{ height: '100%', alignItems: 'center' }}>
+              {showBuyButton && (
+                <Box display={{ sm: 'none', md: 'block' }}>
+                  <BuyDBCButton onClick={() => navigate('/buy-dbc')}>
+                    <Trans>Buy DBC</Trans>
+                  </BuyDBCButton>
+                </Box>
+              )}
+              
               <Box position="relative" display={isNavSearchInputVisible ? 'none' : { sm: 'flex' }}>
                 {/* <SearchBar /> */}
               </Box>
@@ -294,6 +339,11 @@ const Navbar = ({ blur }: { blur: boolean }) => {
           </Box>
         </Box>
       </Nav>
+      {/* {showBuyButton && (
+        <BuyDBCButtonMobile onClick={() => navigate('/buy-dbc')}>
+          <Trans>Buy DBC</Trans>
+        </BuyDBCButtonMobile>
+      )} */}
       <Modal isOpen={showUbeBalanceModal} onDismiss={() => setShowUbeBalanceModal(false)}>
         <UbeBalanceContent setShowUbeBalanceModal={setShowUbeBalanceModal} />
       </Modal>
