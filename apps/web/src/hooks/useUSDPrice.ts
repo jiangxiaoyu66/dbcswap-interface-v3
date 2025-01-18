@@ -83,37 +83,37 @@ export function useUSDPrice(
 
 
 
-  const currency = currencyAmount?.currency ?? prefetchCurrency
-  const chainId = currency?.chainId
-  const chain = chainId ? chainIdToBackendName(chainId) : undefined
+  // const currency = currencyAmount?.currency ?? prefetchCurrency
+  // const chainId = currency?.chainId
+  // const chain = chainId ? chainIdToBackendName(chainId) : undefined
 
-  // skip all pricing requests if the window is not focused
-  const isWindowVisible = useIsWindowVisible()
+  // // skip all pricing requests if the window is not focused
+  // const isWindowVisible = useIsWindowVisible()
 
-  // Use ETH-based pricing if available.
-  const { data: tokenEthPrice, isLoading: isTokenEthPriceLoading } = useETHPrice(currency)
-  const isTokenEthPriced = Boolean(tokenEthPrice || isTokenEthPriceLoading)
+  // // Use ETH-based pricing if available.
+  // const { data: tokenEthPrice, isLoading: isTokenEthPriceLoading } = useETHPrice(currency)
+  // const isTokenEthPriced = Boolean(tokenEthPrice || isTokenEthPriceLoading)
 
-  // console.log('useTokenSpotPriceQuery params:', {
-  //   chain: chain ?? Chain.Ethereum,
-  //   address: getNativeTokenDBAddress(chain ?? Chain.Ethereum),
-  //   skip: !isTokenEthPriced || !isWindowVisible,
-  //   pollInterval: PollingInterval.Normal,
-  //   notifyOnNetworkStatusChange: true,
-  //   fetchPolicy: 'cache-first',
-  // })
+  // // console.log('useTokenSpotPriceQuery params:', {
+  // //   chain: chain ?? Chain.Ethereum,
+  // //   address: getNativeTokenDBAddress(chain ?? Chain.Ethereum),
+  // //   skip: !isTokenEthPriced || !isWindowVisible,
+  // //   pollInterval: PollingInterval.Normal,
+  // //   notifyOnNetworkStatusChange: true,
+  // //   fetchPolicy: 'cache-first',
+  // // })
 
-  // const { data, networkStatus } = useTokenSpotPriceQuery({
-  //   variables: { chain: chain ?? Chain.Ethereum, address: getNativeTokenDBAddress(chain ?? Chain.Ethereum) },
-  //   // skip: !isTokenEthPriced || !isWindowVisible,
-  //   skip: false,
-  //   pollInterval: PollingInterval.Normal,
-  //   notifyOnNetworkStatusChange: true,
-  //   fetchPolicy: 'cache-first',
-  // })
+  // // const { data, networkStatus } = useTokenSpotPriceQuery({
+  // //   variables: { chain: chain ?? Chain.Ethereum, address: getNativeTokenDBAddress(chain ?? Chain.Ethereum) },
+  // //   // skip: !isTokenEthPriced || !isWindowVisible,
+  // //   skip: false,
+  // //   pollInterval: PollingInterval.Normal,
+  // //   notifyOnNetworkStatusChange: true,
+  // //   fetchPolicy: 'cache-first',
+  // // })
 
-  // Use USDC-based pricing for chains not yet supported by backend (for ETH-based pricing).
-  const stablecoinPrice = useStablecoinPrice(isTokenEthPriced ? undefined : currency)
+  // // Use USDC-based pricing for chains not yet supported by backend (for ETH-based pricing).
+  // const stablecoinPrice = useStablecoinPrice(isTokenEthPriced ? undefined : currency)
 
 
 

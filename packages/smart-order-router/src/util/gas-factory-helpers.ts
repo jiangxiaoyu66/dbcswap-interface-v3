@@ -100,10 +100,10 @@ export async function getHighestLiquidityV3USDPool(
     
     const mockUSDToken = new Token(
       chainId,
-      '0xC260ed583545d036ed99AA5C76583a99B7E85D26', // DGC address
-      18,  // DGC decimals
-      'DGC',
-      'DGC'
+      '0x85B24b3517E3aC7bf72a14516160541A60cFF19d', // WDBC address
+      18,  // WDBC decimals
+      'WDBC',
+      'WDBC'
     )
     
     const currentTick = 0

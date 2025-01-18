@@ -125,28 +125,6 @@ export default function SwapPage({ className }: { className?: string }) {
     
     const intervalId = setInterval(() => {
       fetchWDBCPrice()
-      fetchWDBCRatio({
-        "numerator": [
-            731797216,
-            836099643,
-            85
-        ],
-        "denominator": [
-            1
-        ],
-        "currency": {
-            "chainId": 19850818,
-            "decimals": 18,
-            "symbol": "DGC",
-            "isNative": false,
-            "isToken": true,
-            "address": "0xC260ed583545d036ed99AA5C76583a99B7E85D26"
-        },
-        "decimalScale": [
-            660865024,
-            931322574
-        ]
-    })
     }, 30000) // 每30秒更新一次
     
     return () => clearInterval(intervalId)
