@@ -22,7 +22,7 @@
       "symbol": "DGC",
       "chainId": 19850818,
       "decimals": 18,
-      "logoURI": ""
+      "logoURI": "https://www.degpt.ai/favicon.png"
     },
     {
       "address": "0x624EB4E6e8A9ED8CC31b4Bb8d5532C27118A77CB",
@@ -30,7 +30,7 @@
       "symbol": "SIC",
       "chainId": 19850818,
       "decimals": 18,
-      "logoURI": ""
+      "logoURI": "https://app.superimage.ai/favicon.png"
     },
     {
       "address": "0x4aF0632B0E63EE55e69e76c912E376731EECdbc5",
@@ -38,12 +38,12 @@
       "symbol": "DLC",
       "chainId": 19850818,
       "decimals": 18,
-      "logoURI": ""
+      "logoURI": "https://www.deeplink.cloud/deeplink.ico"
     }
   ],
   "version": {
     "major": 4,
     "minor": 1,
-    "patch": 77
+    "patch": 79
   }
 }
