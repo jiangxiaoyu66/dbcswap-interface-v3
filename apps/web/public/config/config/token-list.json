@@ -14,12 +14,36 @@
       "symbol": "XAA",
       "chainId": 19850818,
       "decimals": 18,
+      "logoURI": "https://app.xaiagent.io/favicon.ico"
+    },
+    {
+      "address": "0xC260ed583545d036ed99AA5C76583a99B7E85D26",
+      "name": "DecentralGPT Token",
+      "symbol": "DGC",
+      "chainId": 19850818,
+      "decimals": 18,
+      "logoURI": ""
+    },
+    {
+      "address": "0x624EB4E6e8A9ED8CC31b4Bb8d5532C27118A77CB",
+      "name": "SuperImage Token",
+      "symbol": "SIC",
+      "chainId": 19850818,
+      "decimals": 18,
+      "logoURI": ""
+    },
+    {
+      "address": "0x4aF0632B0E63EE55e69e76c912E376731EECdbc5",
+      "name": "DeepLink Token",
+      "symbol": "DLC",
+      "chainId": 19850818,
+      "decimals": 18,
       "logoURI": ""
     }
   ],
   "version": {
     "major": 4,
     "minor": 1,
-    "patch": 70
+    "patch": 77
   }
 }
