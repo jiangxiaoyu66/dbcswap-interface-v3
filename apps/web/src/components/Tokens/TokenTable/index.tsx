@@ -116,7 +116,7 @@ export const HEADER_DESCRIPTIONS: Record<TokenSortMethod, ReactNode | undefined>
     </Trans>
   ),
   [TokenSortMethod.VOLUME]: (
-    <Trans>Volume is the amount of the asset that has been traded on Ubeswap v3 during the selected time frame.</Trans>
+    <Trans>Volume is the amount of the asset that has been traded on DBCSwap v3 during the selected time frame.</Trans>
   ),
 }
 

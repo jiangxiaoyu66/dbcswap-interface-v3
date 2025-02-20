@@ -1,7 +1,7 @@
 {
   "name": "@ubeswap/eslint-config",
   "version": "0.0.1",
-  "description": "Ubeswap ESLint config",
+  "description": "DBCSwap ESLint config",
   "license": "MIT",
   "scripts": {
     "lint": "eslint .",

@@ -119,7 +119,7 @@ export function Footer() {
           <Box direction="column" height="100%" gap="64px">
             <Box direction="column" gap="10px">
               <H3>© 2024</H3>
-              <H3>Ubeswap</H3>
+              <H3>DBCSwap</H3>
             </Box>
             <HideWhenSmall>
               <Socials />

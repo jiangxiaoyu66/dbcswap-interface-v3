@@ -1,6 +1,6 @@
-# Ubeswap Analytics
+# DBCSwap Analytics
 
-React components and functions used to provide Analytics capability to Ubeswap. This is forked from `@uniswap/analytics`.
+React components and functions used to provide Analytics capability to DBCSwap. This is forked from `@uniswap/analytics`.
 
 This package is intended to be used with the `@ubeswap/analytics-events` package, which provides the constant definitions used inside this package.
 

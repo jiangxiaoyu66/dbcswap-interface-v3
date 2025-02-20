@@ -183,7 +183,7 @@ export type SwapAndAddParameters = {
 }
 
 /**
- * Provides functionality for finding optimal swap routes on the Ubeswap Protocol.
+ * Provides functionality for finding optimal swap routes on the DBCSwap Protocol.
  *
  * @export
  * @abstract

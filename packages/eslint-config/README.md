@@ -1,6 +1,6 @@
 # @ubeswap/eslint-config
 
-Ubeswap ESLint config to enforce coding standards and best practices.
+DBCSwap ESLint config to enforce coding standards and best practices.
 This is forked from `@uniswap/eslint-config`
 
 - TypeScript and Jest support

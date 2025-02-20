@@ -139,7 +139,7 @@ export class V2SubgraphProvider implements IV2SubgraphProvider {
             )
           } while (pairsPage.length > 0)*/
 
-          const res = await fetch('https://raw.githubusercontent.com/Ubeswap/static/main/ubeswap-v2-pools.json')
+          const res = await fetch('https://raw.githubusercontent.com/DBCSwap/static/main/ubeswap-v2-pools.json')
           return (await res.json()) as RawV2SubgraphPool[]
         }
 

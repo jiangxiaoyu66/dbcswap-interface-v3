@@ -11,7 +11,7 @@ export abstract class BaseCurrency {
    */
   public abstract readonly isNative: boolean
   /**
-   * Returns whether the currency is a token that is usable in Ubeswap without wrapping
+   * Returns whether the currency is a token that is usable in DBCSwap without wrapping
    */
   public abstract readonly isToken: boolean
 
@@ -56,8 +56,8 @@ export abstract class BaseCurrency {
   public abstract equals(other: Currency): boolean
 
   /**
-   * Return the wrapped version of this currency that can be used with the Ubeswap contracts. Currencies must
-   * implement this to be used in Ubeswap
+   * Return the wrapped version of this currency that can be used with the DBCSwap contracts. Currencies must
+   * implement this to be used in DBCSwap
    */
   public abstract get wrapped(): Token
 }

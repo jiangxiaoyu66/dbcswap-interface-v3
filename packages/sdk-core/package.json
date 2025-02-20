@@ -1,6 +1,6 @@
 {
   "name": "@ubeswap/sdk-core",
-  "description": "Ubeswap SDK Core for V3",
+  "description": "DBCSwap SDK Core for V3",
   "version": "0.0.0",
   "license": "MIT",
   "publishConfig": {

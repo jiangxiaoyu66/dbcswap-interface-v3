@@ -262,13 +262,13 @@ export const DAI_AVALANCHE = new Token(
 )
 
 export const UBE: { [chainId: number]: Token } = {
-  [ChainId.CELO]: new Token(ChainId.CELO, UBE_ADDRESSES[ChainId.CELO], 18, 'UBE', 'Ubeswap'),
+  [ChainId.CELO]: new Token(ChainId.CELO, UBE_ADDRESSES[ChainId.CELO], 18, 'UBE', 'DBCSwap'),
   [ChainId.CELO_ALFAJORES]: new Token(
     ChainId.CELO_ALFAJORES,
     UBE_ADDRESSES[ChainId.CELO_ALFAJORES],
     18,
     'UBE',
-    'Ubeswap'
+    'DBCSwap'
   ),
 }
 

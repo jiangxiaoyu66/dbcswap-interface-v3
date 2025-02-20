@@ -670,7 +670,7 @@ function PositionPageContent() {
       <>
         <Helmet>
           <title>
-            {t(`Manage {{quoteSymbol}}/{{baseSymbol}} pool liquidity on Ubeswap`, {
+            {t(`Manage {{quoteSymbol}}/{{baseSymbol}} pool liquidity on DBCSwap`, {
               quoteSymbol: currencyQuote?.symbol,
               baseSymbol: currencyBase?.symbol,
             })}

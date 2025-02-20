@@ -5,7 +5,7 @@ import useTransactionDeadline from './useTransactionDeadline'
 
 const REMOVE_V2_LIQUIDITY_PERMIT_INFO: PermitInfo = {
   version: '1',
-  name: 'Ubeswap LP Token',
+  name: 'DBCSwap LP Token',
   type: PermitType.AMOUNT,
 }
 

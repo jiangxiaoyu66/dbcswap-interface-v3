@@ -153,7 +153,7 @@ export default function ClaimNewPactToken() {
   } | null>(null)
   const [whitelistLoading, setWhitelistLoading] = useState(true)
   useEffect(() => {
-    fetch('https://raw.githubusercontent.com/Ubeswap/static/main/pact-whitelist.json')
+    fetch('https://raw.githubusercontent.com/DBCSwap/static/main/pact-whitelist.json')
       .then((response) => response.json())
       .then((data) => {
         setWhitelistLoading(false)

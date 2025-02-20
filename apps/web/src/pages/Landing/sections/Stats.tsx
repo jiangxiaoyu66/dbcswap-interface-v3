@@ -143,7 +143,7 @@ const LearnMoreArrow = styled(ArrowRightCircle)`
 `
 const ProtocolDescription = () => (
   <Trans>
-    Ubeswap products are powered by the Ubeswap Protocol. The protocol is the largest onchain marketplace, with billions
+    DBCSwap products are powered by the DBCSwap Protocol. The protocol is the largest onchain marketplace, with billions
     of dollars in weekly volume across thousands of tokens on Ethereum and 7+ additional chains.
   </Trans>
 )

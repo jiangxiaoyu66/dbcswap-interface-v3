@@ -118,7 +118,7 @@ const TxCompleteModal = () => {
                       <Trans>Complete!</Trans>
                     </h1>
                     <p className={styles.subHeading}>
-                      <Trans>Ubeswap has granted your wish!</Trans>
+                      <Trans>DBCSwap has granted your wish!</Trans>
                     </p>
                   </Box>
                   <UploadLink onClick={shareTweet} target="_blank">

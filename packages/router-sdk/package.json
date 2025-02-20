@@ -1,6 +1,6 @@
 {
   "name": "@uniswap/router-sdk",
-  "description": "An sdk for routing swaps using Ubeswap v2 and Ubeswap v3.",
+  "description": "An sdk for routing swaps using DBCSwap v2 and DBCSwap v3.",
   "version": "0.0.0",
   "license": "MIT",
   "publishConfig": {

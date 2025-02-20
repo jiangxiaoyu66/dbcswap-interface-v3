@@ -508,7 +508,7 @@ exports[`SwapDetailsDropdown.tsx renders a trade 1`] = `
                         <div
                           class="c22 css-142zc9n"
                         >
-                          Ubeswap Client
+                          DBCSwap Client
                         </div>
                       </div>
                     </div>

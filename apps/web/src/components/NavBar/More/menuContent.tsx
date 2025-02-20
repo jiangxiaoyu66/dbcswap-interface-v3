@@ -50,7 +50,7 @@ export const useMenuContent = (): MenuSection[] => {
     // },
     // {
     //   title: t('Need help?'),
-    //   items: [{ label: t('Ubeswap Docs'), href: 'https://docs.ubeswap.org' }],
+    //   items: [{ label: t('DBCSwap Docs'), href: 'https://docs.ubeswap.org' }],
     // },
   ]
 }

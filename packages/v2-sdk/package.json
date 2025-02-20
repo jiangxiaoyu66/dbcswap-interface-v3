@@ -1,6 +1,6 @@
 {
   "name": "@uniswap/v2-sdk",
-  "description": "🛠 An SDK for building applications on top of Ubeswap V2",
+  "description": "🛠 An SDK for building applications on top of DBCSwap V2",
   "version": "0.0.0",
   "license": "MIT",
   "publishConfig": {

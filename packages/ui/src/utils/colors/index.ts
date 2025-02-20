@@ -12,7 +12,7 @@ const MIN_TOKEN_COLOR_CONTRAST_THRESHOLD = 1.95
 
 export const SPECIAL_CASE_TOKEN_COLORS: { [key: string]: string } = {
   // UBE
-  'https://raw.githubusercontent.com/Ubeswap/ubeswap-interface/main/src/assets/images/token-logo.png':
+  'https://raw.githubusercontent.com/DBCSwap/ubeswap-interface/main/src/assets/images/token-logo.png':
     '#8878c3',
   // old WBTC
   'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599/logo.png':

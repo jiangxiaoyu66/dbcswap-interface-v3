@@ -192,7 +192,7 @@ export function useIchiVaults(account: string | null | undefined): UseIchiVaults
       setIsLoading(true)
       ;(async () => {
         try {
-          const dex = SupportedDex.Ubeswap
+          const dex = SupportedDex.DBCSwap
           let amounts: (UserAmountsInVault & { vaultInfo?: IchiVault })[] = await getAllUserAmounts(
             account,
             provider,
@@ -241,7 +241,7 @@ export function useIchiVaultDetails(vaultAddress: string | undefined) {
       setIsLoading(true)
       ;(async () => {
         try {
-          const dex = SupportedDex.Ubeswap
+          const dex = SupportedDex.DBCSwap
           const info = await getIchiVaultInfo(42220, dex, vaultAddress)
 
           if (active) {

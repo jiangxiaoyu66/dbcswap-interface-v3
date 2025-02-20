@@ -45,7 +45,7 @@ type TransactionChanges = {
 type FormatNumberOrStringFunctionType = ReturnType<typeof useFormatter>['formatNumberOrString']
 
 // TODO: Move common contract metadata to a backend service
-const UBE_IMG = 'https://raw.githubusercontent.com/Ubeswap/ubeswap-interface/main/src/assets/images/token-logo.png'
+const UBE_IMG = 'https://raw.githubusercontent.com/DBCSwap/ubeswap-interface/main/src/assets/images/token-logo.png'
 
 const ENS_IMG =
   'https://464911102-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/collections%2F2TjMAeHSzwlQgcOdL48E%2Ficon%2FKWP0gk2C6bdRPliWIA6o%2Fens%20transparent%20background.png?alt=media&token=bd28b063-5a75-4971-890c-97becea09076'
@@ -59,7 +59,7 @@ const COMMON_CONTRACTS: { [key: string]: Partial<Activity> | undefined } = {
   // TODO(cartcrom): Add permit2-specific logo
   '0x000000000022d473030f116ddee9f6b43ac78ba3': {
     title: t`Permit2`,
-    descriptor: t`Ubeswap Protocol`,
+    descriptor: t`DBCSwap Protocol`,
     logos: [UBE_IMG],
   },
   '0x4976fb03c32e5b8cfe2b6ccb31c09ba78ebaba41': {
