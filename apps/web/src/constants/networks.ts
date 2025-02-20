@@ -38,7 +38,7 @@ export const PUBLIC_RPC_URLS: Record<SupportedInterfaceChain, string[]> = {
     `https://alfajores-forno.celo-testnet.org`,
   ],
   [ChainId.DBC]: [
-    `https://rpc-testnet.dbcwallet.io`,
+    `https://rpc.dbcwallet.io`,
   ],
 }
 
@@ -55,7 +55,7 @@ export const APP_RPC_URLS: Record<SupportedInterfaceChain, string[]> = {
   ],
   [ChainId.CELO_ALFAJORES]: [`https://celo-alfajores.infura.io/v3/${INFURA_KEY}`],
   [ChainId.DBC]: [
-    `https://rpc-testnet.dbcwallet.io`,
+    `https://rpc.dbcwallet.io`,
   ],
 }
 

@@ -28,9 +28,9 @@ const CHAIN_CONFIGS: { [key: number]: ChainConfig } = {
     creationBlock: 25670593,
   },
   // dbc
-  [19850818]: {
-    router: '0xa9FE8eBDc579beE77155A34AF5e46cDfFf43981B',
-    weth: '0x85B24b3517E3aC7bf72a14516160541A60cFF19d',
+  [19880818]: {
+    router: '0x615b6bb562565224E2b810Dc0277ed0777e149E8',
+    weth: '0xD7EA4Da7794c7d09bceab4A21a6910D9114Bc936',
     creationBlock: 1402331,
   },
 }

@@ -5,7 +5,7 @@ import { getClientSideQuote, getRouter } from 'lib/hooks/routing/clientSideSmart
 import { useWDBCStore } from 'store/dbcRatio'
 
 // WDBC合约地址
-export const WDBC_ADDRESS = "0x85B24b3517E3aC7bf72a14516160541A60cFF19d"
+export const WDBC_ADDRESS = "0xD7EA4Da7794c7d09bceab4A21a6910D9114Bc936"
 
 export async function calculateWDBCRatio(currencyAmount: CurrencyAmount<Currency>): Promise<{ token: string | undefined, ratioNum: number | undefined } | undefined> {
   const {
@@ -51,11 +51,11 @@ export async function calculateWDBCRatio(currencyAmount: CurrencyAmount<Currency
       amount: currencyAmount.quotient.toString(),
       tradeType: 0,
       tokenInAddress: tokenInAddress,
-      tokenInChainId: 19850818,
+      tokenInChainId: 19880818,
       tokenInDecimals: currencyAmount.currency.decimals,
       tokenInSymbol: currencyAmount.currency.symbol ?? '',
       tokenOutAddress: WDBC_ADDRESS,
-      tokenOutChainId: 19850818,
+      tokenOutChainId: 19880818,
       tokenOutDecimals: 18,
       tokenOutSymbol: "WDBC",
       routerPreference: INTERNAL_ROUTER_PREFERENCE_PRICE,

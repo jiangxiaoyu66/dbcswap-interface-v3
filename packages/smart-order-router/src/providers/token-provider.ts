@@ -428,7 +428,7 @@ export const USDC_BASE = new Token(
 
 export const DGC_DBC = new Token(
   ChainId.DBC,
-  '0xC260ed583545d036ed99AA5C76583a99B7E85D26',
+  '0x18386F368e7C211E84324337fA8f62d5093272E1',
   18,
   'DGC',
   'DGC'
@@ -436,7 +436,7 @@ export const DGC_DBC = new Token(
 
 export const SIC_DBC = new Token(
   ChainId.DBC,
-  '0xC260ed583545d036ed99AA5C76583a99B7E85D26', // SIC token 的合约地址
+  '0x07D325030dA1A8c1f96C414BFFbe4fBD539CED45', // SIC token 的合约地址
   18, // decimals
   'SIC', // symbol
   'SIC' // name

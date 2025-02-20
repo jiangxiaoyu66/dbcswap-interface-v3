@@ -564,14 +564,14 @@ export function SwapForm({ disableTokenInputs = false, onCurrencyChange }: SwapF
           tradeType: 0, // EXACT_INPUT
 
           // 代币输入参数
-          tokenInAddress: "0xC260ed583545d036ed99AA5C76583a99B7E85D26", // DGC代币地址
-          tokenInChainId: 19850818,
+          tokenInAddress: "0x18386F368e7C211E84324337fA8f62d5093272E1", // DGC代币地址
+          tokenInChainId: 19880818,
           tokenInDecimals: 18,
           tokenInSymbol: "DGC",
 
           // 代币输出参数
-          tokenOutAddress: "0x85B24b3517E3aC7bf72a14516160541A60cFF19d", // WDBC代币地址
-          tokenOutChainId: 19850818,
+          tokenOutAddress: "0xD7EA4Da7794c7d09bceab4A21a6910D9114Bc936", // WDBC代币地址
+          tokenOutChainId: 19880818,
           tokenOutDecimals: 18,
           tokenOutSymbol: "WDBC",
 
