@@ -1,5 +1,5 @@
 overrideExisting: true
-schema: 'https://test.dbcswap.io/api/graph-mainnet/subgraphs/name/ianlapham/uniswap-v3-mainnet?source=uniswap'
+schema: 'https://test.dbcswap.io/api/graph-mainnet/subgraphs/name/ianlapham/dbcswap-v3-mainnet?source=uniswap'
 generates:
   ./src/graphql/thegraph/schema/schema.graphql:
     plugins:
