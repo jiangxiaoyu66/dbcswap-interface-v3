@@ -75,7 +75,7 @@ export const ID_TO_CHAIN_ID = (id: number): ChainId => {
       return ChainId.BASE
     case 84531:
       return ChainId.BASE_GOERLI
-    case 19880818:
+    case 19850818:
       return ChainId.DBC
     default:
       throw new Error(`Unknown chain id: ${id}`)
@@ -188,7 +188,7 @@ export const ID_TO_NETWORK_NAME = (id: number): ChainName => {
       return ChainName.BASE
     case 84531:
       return ChainName.BASE_GOERLI
-    case 19880818:
+    case 19850818:
       return ChainName.DBC
     default:
       throw new Error(`Unknown chain id: ${id}`)
@@ -273,7 +273,7 @@ export const WRAPPED_NATIVE_CURRENCY: { [chainId in ChainId]: Token } = {
   ),
   [ChainId.DBC]: new Token(
     ChainId.DBC,
-    '0xD7EA4Da7794c7d09bceab4A21a6910D9114Bc936',
+    '0x85B24b3517E3aC7bf72a14516160541A60cFF19d',
     18,
     'DBC',
     'Wrapped DBC'

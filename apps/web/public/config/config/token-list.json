@@ -9,34 +9,34 @@
   "timestamp": "2025-01-02T08:43:31.145Z",
   "tokens": [
     {
-      "address": "0x16d83F6B17914a4e88436251589194CA5AC0f452",
+      "address": "0xeC848d39a97B5753bAdcE5084957F75b0F78C242",
       "name": "XAIAgent Token",
       "symbol": "XAA",
-      "chainId": 19880818,
+      "chainId": 19850818,
       "decimals": 18,
       "logoURI": "https://app.xaiagent.io/favicon.ico"
     },
     {
-      "address": "0x18386F368e7C211E84324337fA8f62d5093272E1",
+      "address": "0xC260ed583545d036ed99AA5C76583a99B7E85D26",
       "name": "DecentralGPT Token",
       "symbol": "DGC",
-      "chainId": 19880818,
+      "chainId": 19850818,
       "decimals": 18,
       "logoURI": "https://www.degpt.ai/favicon.png"
     },
     {
-      "address": "0x07D325030dA1A8c1f96C414BFFbe4fBD539CED45",
+      "address": "0x624EB4E6e8A9ED8CC31b4Bb8d5532C27118A77CB",
       "name": "SuperImage Token",
       "symbol": "SIC",
-      "chainId": 19880818,
+      "chainId": 19850818,
       "decimals": 18,
       "logoURI": "https://app.superimage.ai/favicon.png"
     },
     {
-      "address": "0x6f8F70C74FE7d7a61C8EAC0f35A4Ba39a51E1BEe",
+      "address": "0x4aF0632B0E63EE55e69e76c912E376731EECdbc5",
       "name": "DeepLink Token",
       "symbol": "DLC",
-      "chainId": 19880818,
+      "chainId": 19850818,
       "decimals": 18,
       "logoURI": "https://www.deeplink.cloud/deeplink.ico"
     }
@@ -44,6 +44,6 @@
   "version": {
     "major": 4,
     "minor": 1,
-    "patch": 80
+    "patch": 81
   }
 }

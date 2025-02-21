@@ -22,7 +22,7 @@ export enum ChainId {
   ZORA_SEPOLIA = 999999999,
   ROOTSTOCK = 30,
   BLAST = 81457,
-  DBC = 19880818,
+  DBC = 19850818,
   DBCTEST = 19850819,
 }
 

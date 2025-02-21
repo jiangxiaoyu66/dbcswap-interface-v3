@@ -112,6 +112,7 @@
     "web": "yarn workspace @uniswap/interface",
     "uniswap": "yarn workspace uniswap",
     "utilities": "yarn workspace utilities",
+    
     "deploy": "git checkout deploy-v3 && git pull && yarn install && yarn build:production && pm2 restart ecosystem.config.js --only dbc-swap",
     "start": "pm2 start ecosystem.config.js --only dbc-swap",
     "restart": "pm2 restart ecosystem.config.js --only dbc-swap"

@@ -362,7 +362,7 @@ export const WRAPPED_NATIVE_CURRENCY: { [chainId: number]: Token | undefined } =
   ),
   [ChainId.BLAST]: new Token(ChainId.BLAST, '0x4300000000000000000000000000000000000004', 18, 'WETH', 'Wrapped Ether'),
 
-  [ChainId.DBC]: new Token(ChainId.DBC, '0xD7EA4Da7794c7d09bceab4A21a6910D9114Bc936', 18, 'WDBC', 'Wrapped DBC'),
+  [ChainId.DBC]: new Token(ChainId.DBC, '0x85B24b3517E3aC7bf72a14516160541A60cFF19d', 18, 'WDBC', 'Wrapped DBC'),
 }
 
 export function isCelo(chainId: number): chainId is ChainId.CELO | ChainId.CELO_ALFAJORES {

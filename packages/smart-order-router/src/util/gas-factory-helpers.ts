@@ -100,7 +100,7 @@ export async function getHighestLiquidityV3USDPool(
     
     const mockUSDToken = new Token(
       chainId,
-      '0xD7EA4Da7794c7d09bceab4A21a6910D9114Bc936', // WDBC address
+      '0x85B24b3517E3aC7bf72a14516160541A60cFF19d', // WDBC address
       18,  // WDBC decimals
       'WDBC',
       'WDBC'

@@ -61,7 +61,7 @@ export const eip6963Connection: InjectedConnection = {
 }
 
 const [web3Network, web3NetworkHooks] = initializeConnector<Network>(
-  (actions) => new Network({ actions, urlMap: RPC_PROVIDERS, defaultChainId: 19880818 })
+  (actions) => new Network({ actions, urlMap: RPC_PROVIDERS, defaultChainId: 19850818 })
 )
 export const networkConnection: Connection = {
   getProviderInfo: () => ({ name: 'Network' }),

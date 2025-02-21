@@ -1660,7 +1660,6 @@ export class AlphaRouter implements IRouter<AlphaRouterConfig>, ISwapToRatio<Alp
       ? getHighestLiquidityV3NativePool(amountToken, this.v3PoolProvider, providerConfig)
       : Promise.resolve(null)
 
-
     const [usdPool, nativeQuoteTokenV3Pool, nativeAmountTokenV3Pool] = await Promise.all([
       usdPoolPromise,
       nativeQuoteTokenV3PoolPromise,
