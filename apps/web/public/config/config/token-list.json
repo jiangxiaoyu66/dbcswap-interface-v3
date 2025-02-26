@@ -1,6 +1,6 @@
 {
   "name": "DBCSwap",
-  "logoURI": "https://test.dbcswap.io/favicon.png",
+  "logoURI": "https://dbcswap.io/favicon.png",
   "keywords": [
     "deepchain",
     "defi",
@@ -44,6 +44,6 @@
   "version": {
     "major": 4,
     "minor": 1,
-    "patch": 80
+    "patch": 81
   }
 }
