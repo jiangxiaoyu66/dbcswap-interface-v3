@@ -15,8 +15,15 @@
       "chainId": 19880818,
       "decimals": 18,
       "logoURI": "https://app.xaiagent.io/favicon.ico"
+    },
+    {
+      "address": "0x2282D5DA5f39Bb7B90cef532341FBB998A1d0965",
+      "name": "StyleID Token",
+      "symbol": "STID",
+      "chainId": 19880818,
+      "decimals": 18,
+      "logoURI": "http://xaiagent.oss-ap-northeast-2.aliyuncs.com/logo/StyleID.png"
     }
-  
   ],
   "version": {
     "major": 4,
