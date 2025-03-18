@@ -23,11 +23,19 @@
       "chainId": 19880818,
       "decimals": 18,
       "logoURI": "http://xaiagent.oss-ap-northeast-2.aliyuncs.com/logo/StyleID.png"
+    },
+    {
+      "address": "0x6f8F70C74FE7d7a61C8EAC0f35A4Ba39a51E1BEe",
+      "name": "DeepLink Token",
+      "symbol": "DLC",
+      "chainId": 19880818,
+      "decimals": 18,
+      "logoURI": "https://www.deeplink.cloud/deeplink.ico"
     }
   ],
   "version": {
     "major": 4,
     "minor": 1,
-    "patch": 83
+    "patch": 84
   }
 }
