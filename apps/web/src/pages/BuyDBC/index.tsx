@@ -1,14 +1,14 @@
 import { Trans } from 'i18n'
+import { darken } from 'polished'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 import { ExternalLink } from 'theme/components'
-import { darken } from 'polished'
 
 const Container = styled.div`
   max-width: 1000px;
   margin: 40px auto;
   padding: 0 20px;
-  
+
   @media (max-width: 768px) {
     margin: 20px auto;
   }
@@ -104,7 +104,7 @@ const NetworkItem = styled(Text)`
   line-height: 1.6;
   display: flex;
   align-items: center;
-  
+
   &:last-child {
     margin-bottom: 0;
   }
@@ -158,7 +158,8 @@ export default function BuyDBC() {
           Buy DBC on Gate.io
         </StepTitle>
         <StepContent>
-          Visit <StyledExternalLink href="https://www.gate.io/trade/DBC_USDT">Gate.io</StyledExternalLink> to purchase DBC.
+          Visit <StyledExternalLink href="https://www.gate.io/trade/DBC_USDT">Gate.io</StyledExternalLink> to purchase
+          DBC.
         </StepContent>
 
         <StepTitle>
@@ -166,8 +167,8 @@ export default function BuyDBC() {
           Add a Custom Network to Your Wallet
         </StepTitle>
         <StepContent>
-          You can use wallets like <StyledExternalLink href="https://metamask.io">MetaMask</StyledExternalLink>, 
-          <StyledExternalLink href="https://token.im"> ImToken</StyledExternalLink>, or 
+          You can use wallets like <StyledExternalLink href="https://metamask.io">MetaMask</StyledExternalLink>,
+          <StyledExternalLink href="https://token.im"> ImToken</StyledExternalLink>, or
           <StyledExternalLink href="https://www.tokenpocket.pro"> TokenPocket</StyledExternalLink>.
         </StepContent>
 
@@ -182,9 +183,7 @@ export default function BuyDBC() {
           </NetworkItem>
           <NetworkItem>
             <strong>Chain RPC URL:</strong>
-            <StyledExternalLink href="https://rpc.dbcwallet.io">
-              https://rpc.dbcwallet.io
-            </StyledExternalLink>
+            <StyledExternalLink href="https://rpc2.dbcwallet.io">https://rpc2.dbcwallet.io</StyledExternalLink>
           </NetworkItem>
           <NetworkItem>
             <strong>Chain ID:</strong>
@@ -206,4 +205,4 @@ export default function BuyDBC() {
       </ContentCard>
     </Container>
   )
-} 
+}
