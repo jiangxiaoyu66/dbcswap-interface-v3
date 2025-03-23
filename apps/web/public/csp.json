@@ -121,7 +121,8 @@
     "https://rpc2.dbcwallet.io",
     "https://dbchaininfo.congtu.cloud",
     "http://8.214.55.62:8028",
-    "https://test.dbcswap.io"
+    "https://test.dbcswap.io",
+    "https://dbcswap.io"
   ],
   "workerSrc": [
     "'self'",

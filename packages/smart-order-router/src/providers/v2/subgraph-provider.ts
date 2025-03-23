@@ -38,7 +38,7 @@ type RawV2SubgraphPool = {
 const SUBGRAPH_URL_BY_CHAIN: { [chainId in ChainId]?: string } = {
   [ChainId.MAINNET]: 'https://api.thegraph.com/subgraphs/name/ianlapham/uniswap-v2-dev',
   [ChainId.CELO]: 'https://interface-gateway.ubeswap.org/v1/v2-subgraph-proxy',
-  [ChainId.DBC]: 'https://test.dbcswap.io/api/graph-mainnet/subgraphs/name/ianlapham/dbcswap-v3-mainnet',
+  [ChainId.DBC]: 'https://dbcswap.io/subgraph/name/ianlapham/dbcswap-v3-mainnet',
 }
 
 const threshold = 0.025
