@@ -31,6 +31,14 @@
       "chainId": 19880818,
       "decimals": 18,
       "logoURI": "https://www.deeplink.cloud/deeplink.ico"
+    },
+    {
+      "address": "0x07D325030dA1A8c1f96C414BFFbe4fBD539CED45",
+      "name": "SuperImage Token",
+      "symbol": "SIC",
+      "chainId": 19880818,
+      "decimals": 18,
+      "logoURI": "https://app.superimage.ai/static/logo.svg"
     }
   ],
   "version": {
