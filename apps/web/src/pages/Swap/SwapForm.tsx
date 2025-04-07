@@ -430,7 +430,9 @@ export function SwapForm({ disableTokenInputs = false, onCurrencyChange }: SwapF
     console.log('marketPriceImpact:',trade?.priceImpact,  marketPriceImpact)
     console.log('preTaxStablecoinPriceImpact:', preTaxStablecoinPriceImpact)
     const largerPriceImpact = largerPercentValue(marketPriceImpact, preTaxStablecoinPriceImpact)
-    return { priceImpactSeverity: warningSeverity(largerPriceImpact), largerPriceImpact }
+    // return { priceImpactSeverity: warningSeverity(largerPriceImpact), largerPriceImpact }
+    return { priceImpactSeverity: 0, largerPriceImpact: 0 }
+
   }, [preTaxStablecoinPriceImpact, trade])
 
   const handleConfirmDismiss = useCallback(() => {
@@ -626,7 +628,7 @@ export function SwapForm({ disableTokenInputs = false, onCurrencyChange }: SwapF
           fiatValueOutput={fiatValueTradeOutput}
         />
       )}
-      {showPriceImpactModal && showPriceImpactWarning && (
+      {/* {showPriceImpactModal && showPriceImpactWarning && (
         <PriceImpactModal
           priceImpact={largerPriceImpact}
           onDismiss={() => setShowPriceImpactModal(false)}
@@ -635,7 +637,7 @@ export function SwapForm({ disableTokenInputs = false, onCurrencyChange }: SwapF
             handleContinueToReview()
           }}
         />
-      )}
+      )} */}
       <div style={{ display: 'relative' }}>
         <SwapSection>
           <Trace section={InterfaceSectionName.CURRENCY_INPUT_PANEL}>
@@ -715,7 +717,7 @@ export function SwapForm({ disableTokenInputs = false, onCurrencyChange }: SwapF
           </OutputSwapSection>
         </div>
 
-        {showPriceImpactWarning && <PriceImpactWarning priceImpact={largerPriceImpact} />}
+        {/* {showPriceImpactWarning && <PriceImpactWarning priceImpact={largerPriceImpact} />} */}
         <div>
           {swapIsUnsupported ? (
             <ButtonPrimary $borderRadius="16px" disabled={true}>

@@ -28,9 +28,62 @@ const ETH_AMOUNT_OUT: { [chainId: number]: CurrencyAmount<Currency> } = {
   [ChainId.CELO]: CurrencyAmount.fromRawAmount(nativeOnChain(ChainId.CELO), 10e18),
 }
 
+// 首先添加一个缓存机制
+const tokenRateCache = new Map<string, {
+  data: TokenRateInfo;
+  timestamp: number;
+}>();
 
+// 缓存过期时间设置为5分钟
+const CACHE_EXPIRY = 5 * 60 * 1000; 
 
+// 添加一个新的 hook 用于缓存请求结果
+function useTokenXaaRate(tokenAddress?: string) {
+  const [rateInfo, setRateInfo] = useState<TokenRateInfo | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchRate = async () => {
+      if (!tokenAddress) return;
+
+      // 检查缓存
+      const cached = tokenRateCache.get(tokenAddress.toLowerCase());
+      if (cached && Date.now() - cached.timestamp < CACHE_EXPIRY) {
+        setRateInfo(cached.data);
+        return;
+      }
+
+      setIsLoading(true);
+      try {
+        const result = await getTokenXaaRate(tokenAddress);
+        if (result && isMounted) {
+          // 更新缓存
+          tokenRateCache.set(tokenAddress.toLowerCase(), {
+            data: result,
+            timestamp: Date.now()
+          });
+          setRateInfo(result);
+        }
+      } catch (error) {
+        console.error('获取代币汇率失败:', error);
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    fetchRate();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [tokenAddress]);
+
+  return { rateInfo, isLoading };
+}
 
 export function useUSDPrice(
   currencyAmount?: CurrencyAmount<Currency>,
@@ -40,150 +93,69 @@ export function useUSDPrice(
   isLoading: boolean
 } {
   const currency = currencyAmount?.currency ?? prefetchCurrency
-  const [xaaRate, setXaaRate] = useState<number>(0)
-  const [xaaDbcRateState, setXaaDbcRateState] = useState<number>(0)
-  const [isLoadingXaaRate, setIsLoadingXaaRate] = useState(false)
-  const [currencyUsdValueFromXaaSwap, setCurrencyUsdValueFromXaaSwap] = useState<number | undefined>(undefined)
-
-  // 从全局状态获取WDBC相关数据
+  const tokenAddress = currency?.isToken ? (currency as Token).address : undefined;
+  
+  const { rateInfo, isLoading: isLoadingXaaRate } = useTokenXaaRate(tokenAddress);
   const { pairPriceRatio, wdbcPrice, isLoadingWdbcPrice } = useWDBCStore.getState()
-  const ratioNum = pairPriceRatio?.[currencyAmount?.currency?.symbol ?? '']
-
-  useEffect(() => {
-    let isMounted = true
-
-    const fetchXaaRate = async () => {
-      if (!currency?.isToken || !currencyAmount) {
-        console.log('提前返回条件检查:', {
-          hasToken: currency?.isToken,
-          hasCurrencyAmount: !!currencyAmount,
-          currencySymbol: currency?.symbol
-        })
-        return
-      }
-      
-      try {
-        setIsLoadingXaaRate(true)
-        const tokenAddress = (currency as Token).address
-        console.log('正在获取XAA汇率，tokenAddress:', tokenAddress)
-        const result = await getTokenXaaRate(tokenAddress)
-        console.log('getTokenXaaRate结果:', result)
-        
-        if (!result || !isMounted) {
-          console.log('result为空或组件已卸载')
-          return
-        }
-
-        const { xaaRate: fetchedXaaRate, xaaDbcRate: fetchedXaaDbcRate } = result
-        console.log('获取到的汇率:', {
-          fetchedXaaRate,
-          fetchedXaaDbcRate,
-          wdbcPrice,
-          currencyAmount: currencyAmount.toExact()
-        })
-        
-        if (typeof fetchedXaaRate === 'number') {
-          setXaaRate(fetchedXaaRate)
-        }
-        
-        if (typeof fetchedXaaDbcRate === 'number') {
-          setXaaDbcRateState(fetchedXaaDbcRate)
-        }
-
-        // 确保所有必要的值都存在并且有效
-        const currentWdbcPrice = wdbcPrice // 在验证前获取当前值
-        if (
-          typeof fetchedXaaRate === 'number' && 
-          fetchedXaaRate > 0 && 
-          typeof fetchedXaaDbcRate === 'number' && 
-          fetchedXaaDbcRate > 0 && 
-          typeof currentWdbcPrice === 'number' && 
-          currentWdbcPrice > 0
-        ) {
-          const amount = parseFloat(currencyAmount.toExact())
-          console.log('计算USD价值的输入值:', {
-            amount,
-            fetchedXaaRate,
-            fetchedXaaDbcRate,
-            currentWdbcPrice
-          })
-          
-          const usdValue = amount * fetchedXaaRate * fetchedXaaDbcRate * currentWdbcPrice
-
-          debugger
-          console.log('计算得到的USD价值:', usdValue)
-          
-          if (!isNaN(usdValue) && isFinite(usdValue) && usdValue > 0) {
-            console.log('设置新的USD价值:', usdValue)
-            setCurrencyUsdValueFromXaaSwap(usdValue)
-          } else {
-            console.log('计算结果无效，不更新USD价值')
-            setCurrencyUsdValueFromXaaSwap(undefined)
-          }
-        } else {
-          console.log('无法计算USD价值，参数无效:', {
-            hasValidXaaRate: typeof fetchedXaaRate === 'number' && fetchedXaaRate > 0,
-            hasValidXaaDbcRate: typeof fetchedXaaDbcRate === 'number' && fetchedXaaDbcRate > 0,
-            hasValidWdbcPrice: typeof currentWdbcPrice === 'number' && currentWdbcPrice > 0
-          })
-          setCurrencyUsdValueFromXaaSwap(undefined)
-        }
-      } catch (error) {
-        console.error('获取XAA汇率时出错:', error)
-        setCurrencyUsdValueFromXaaSwap(undefined)
-      } finally {
-        if (isMounted) {
-          setIsLoadingXaaRate(false)
-        }
-      }
-    }
-
-    fetchXaaRate()
-
-    return () => {
-      isMounted = false
-    }
-  }, [currency, currencyAmount, wdbcPrice])
+  const ratioNum = pairPriceRatio?.[currency?.symbol ?? '']
 
   return useMemo(() => {
-    // 检查是否正在加载任何必要的数据
     const isLoading = isLoadingWdbcPrice || isLoadingXaaRate;
 
-    // 检查所有必要的数据是否都已准备好
-    const hasRequiredData = currencyAmount && 
-                          (ratioNum !== undefined && ratioNum !== 0) && 
-                          (wdbcPrice !== undefined && wdbcPrice !== 0);
+    console.log("调试", currency, currencyAmount, rateInfo);
+    
 
-    // 如果正在加载或缺少必要数据，返回加载状态
-    if (isLoading || !hasRequiredData) {
+    if (!currencyAmount || isLoading || !rateInfo) {
       return {
         data: undefined,
         isLoading: true
+      };
+    }
+
+    const amount = parseFloat(currencyAmount.toExact());
+
+    if(currency?.symbol === 'DBC') {
+      debugger
+      if(wdbcPrice) {
+        return {
+          data: amount * wdbcPrice,
+          isLoading: false
+        }
       }
     }
 
-    // 计算基于比率的USD价值
-    const usdValue = parseFloat(currencyAmount.toExact()) * ratioNum * wdbcPrice;
-    
-    // 检查计算结果是否有效
-    const isValidUsdValue = !isNaN(usdValue) && isFinite(usdValue) && usdValue > 0;
-    
-    // 优先使用XAA交换得到的价值，如果没有则使用比率计算的价值
-    const finalValue = currencyUsdValueFromXaaSwap ?? (isValidUsdValue ? usdValue : undefined);
+    // 如果有 XAA 汇率信息，使用它计算
+    if (rateInfo.xaaRate && rateInfo.xaaDbcRate && wdbcPrice) {
+      const usdValue = amount * rateInfo.xaaRate * rateInfo.xaaDbcRate * wdbcPrice;
+      if (!isNaN(usdValue) && isFinite(usdValue) && usdValue > 0) {
+        return {
+          data: usdValue,
+          isLoading: false
+        };
+      }
+    }
+
+    // 回退到使用比率计算
+    if (ratioNum && wdbcPrice) {
+      const usdValue = amount * ratioNum * wdbcPrice;
+      if (!isNaN(usdValue) && isFinite(usdValue) && usdValue > 0) {
+        return {
+          data: usdValue,
+          isLoading: false
+        };
+      }
+    }
 
     return {
-      data: finalValue,
+      data: undefined,
       isLoading: false
-    }
-  }, [currencyAmount, ratioNum, wdbcPrice, isLoadingWdbcPrice, isLoadingXaaRate, currencyUsdValueFromXaaSwap])
+    };
+  }, [currencyAmount, rateInfo, wdbcPrice, ratioNum, isLoadingWdbcPrice, isLoadingXaaRate])
 }
-
-
 
 const SUBGRAPH_URL =  'https://dbcswap.io/subgraph/name/ianlapham/dbcswap-v3-mainnet';
 export const XAA_TOKEN_ADDRESS = "0x16d83f6b17914a4e88436251589194ca5ac0f452";
 export const DBC_TOKEN_ADDRESS = "0xD7EA4Da7794c7d09bceab4A21a6910D9114Bc936";
-
 
 interface TokenRateInfo {
   symbol: string;
