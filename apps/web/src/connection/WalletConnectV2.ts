@@ -5,6 +5,9 @@ import { L1_CHAIN_IDS, L2_CHAIN_IDS } from 'constants/chains'
 import { APP_RPC_URLS } from 'constants/networks'
 import { Z_INDEX } from 'theme/zIndex'
 import { isWebAndroid, isWebIOS } from 'uniswap/src/utils/platform'
+import { useWeb3React } from '@web3-react/core'
+import { getConnection } from './index'
+import { ConnectionType } from './types'
 
 // 钱包协议配置
 const WALLET_PROTOCOLS = {
@@ -22,7 +25,7 @@ const WALLET_DOWNLOAD_URLS = {
   trustwallet: 'https://trustwallet.com/download',
 } as const;
 
-type WalletType = keyof typeof WALLET_PROTOCOLS;
+type WalletType = keyof typeof WALLET_PROTOCOLS | undefined;
 
 // 获取应用URL
 const getAppUrl = () => {
@@ -43,133 +46,205 @@ const WC_RPC_URLS = Object.entries(APP_RPC_URLS).reduce(
   {}
 )
 
-// 处理钱包唤起
-export const openWallet = (uri: string) => {
-  // 使用 web3-react 提供的 hooks 获取连接器
-  let connector;
+// 添加工具函数
+interface WalletMeta {
+  agent?: string;
+  name?: string;
+  description?: string;
+  url?: string;
+  icons?: string[];
+}
+
+// 获取钱包元数据
+const getWalletMeta = (provider: any): WalletMeta | undefined => {
   try {
-    // 尝试从全局状态获取连接器
-    const state = (window as any).__WEB3_REACT_STATE__;
-    connector = state?.connector;
-  } catch (error) {
-    console.warn('Failed to get connector from global state:', error);
-  }
-
-  if (!connector) {
-    console.warn('No connector found, defaulting to metamask');
-  }
-
-  // 获取钱包类型
-  let walletType: WalletType = 'metamask';
-  
-  if (connector) {
-    const provider = connector.provider;
-    const providerInfo = {
-      name: connector.name?.toLowerCase() || '',
-      constructor: connector.constructor?.name?.toLowerCase() || '',
-      providerName: provider?.constructor?.name?.toLowerCase() || '',
-    };
-
-    console.log('Current wallet info:', providerInfo);
-
-    // 判断钱包类型
-    if (providerInfo.name.includes('tokenpocket') || 
-        providerInfo.constructor.includes('tokenpocket') || 
-        providerInfo.providerName.includes('tokenpocket')) {
-      walletType = 'tokenpocket';
-    } else if (providerInfo.name.includes('imtoken') || 
-        providerInfo.constructor.includes('imtoken') || 
-        providerInfo.providerName.includes('imtoken')) {
-      walletType = 'imtoken';
-    } else if (providerInfo.name.includes('trust') || 
-        providerInfo.constructor.includes('trust') || 
-        providerInfo.providerName.includes('trust')) {
-      walletType = 'trustwallet';
-    }
-  }
-
-  console.log('Opening wallet type:', walletType);
-  const protocol = WALLET_PROTOCOLS[walletType];
-  
-  // 如果没有 URI,说明是签名场景,直接打开钱包
-  if (!uri) {
-    console.log('No URI provided, opening wallet for signing');
-    const directLink = protocol;
+    if (!provider) return undefined;
     
-    try {
-      // 使用 iframe 方式打开
+    // 尝试获取不同格式的钱包信息
+    const info = {
+      agent: provider.agent || provider.walletAgent || provider._agent,
+      name: provider.walletName || provider.name || provider._walletName,
+      description: provider.description || provider._description,
+      url: provider.walletUrl || provider.url || provider._url,
+      icons: provider.icons || provider._icons
+    };
+    
+    console.log('Wallet meta info:', info);
+    return info;
+  } catch (error) {
+    console.error('Failed to get wallet meta:', error);
+    return undefined;
+  }
+};
+
+// 获取钱包类型
+const getWalletType = (connector: any): WalletType => {
+  try {
+    const connection = getConnection(connector);
+    if (!connection) {
+      console.warn('No connection found for connector');
+      return undefined;
+    }
+
+    // 获取提供者信息
+    const providerInfo = connection.getProviderInfo();
+    const provider = connector?.provider;
+
+    // 添加更详细的日志
+    console.log('Wallet Detection Details:', {
+      providerName: providerInfo?.name,
+      providerNameLower: providerInfo?.name?.toLowerCase(),
+      isMetaMask: provider?.isMetaMask,
+      provider: provider
+    });
+
+    // 如果是 WalletConnect 连接
+    if (connection.type === ConnectionType.WALLET_CONNECT_V2) {
+      const peerMetadata = provider?.session?.peer?.metadata;
+      const walletName = (peerMetadata?.name || '').toLowerCase();
+      
+      // 增加 MetaMask 的检测条件
+      if (walletName.includes('metamask') || 
+          provider?.isMetaMask || 
+          peerMetadata?.description?.toLowerCase().includes('metamask') ||
+          peerMetadata?.url?.toLowerCase().includes('metamask.io')) {
+        return 'metamask';
+      }
+      
+      if (walletName.includes('tokenpocket') || 
+          peerMetadata?.description?.toLowerCase().includes('tokenpocket') ||
+          peerMetadata?.url?.toLowerCase().includes('tokenpocket')) {
+        return 'tokenpocket';
+      }
+      
+      if (walletName.includes('imtoken') || 
+          peerMetadata?.description?.toLowerCase().includes('imtoken') ||
+          peerMetadata?.url?.toLowerCase().includes('imtoken')) {
+        return 'imtoken';
+      }
+      
+      if (walletName.includes('trust') || 
+          peerMetadata?.description?.toLowerCase().includes('trust') ||
+          peerMetadata?.url?.toLowerCase().includes('trust')) {
+        return 'trustwallet';
+      }
+
+      if (provider?.isTokenPocket) return 'tokenpocket';
+      if (provider?.isImToken) return 'imtoken';
+      if (provider?.isTrust) return 'trustwallet';
+
+      // 如果无法识别，返回 undefined
+      return undefined;
+    } 
+
+    // 非 WalletConnect 连接的处理逻辑
+    const walletName = (providerInfo.name || '').toLowerCase();
+    // 修改 MetaMask 检测条件，移除 providerInfo.isMetaMask
+    if (walletName.includes('metamask') || 
+        walletName.includes('metamask wallet') || 
+        provider?.isMetaMask) {
+      return 'metamask';
+    }
+
+    if (walletName.includes('tokenpocket')) return 'tokenpocket';
+    if (walletName.includes('imtoken')) return 'imtoken';
+    if (walletName.includes('trust')) return 'trustwallet';
+
+    // 如果无法识别，返回 undefined
+    return undefined;
+
+  } catch (error) {
+    console.error('Failed to determine wallet type:', error);
+    return undefined;
+  }
+};
+
+// 处理钱包唤起
+export const openWallet = (uri: string, web3Data?: { connector?: any; provider?: any; account?: string }) => {
+  try {
+    const { connector, provider, account } = web3Data || {};
+    
+    console.log('Web3 Data:', {
+      connector,
+      provider,
+      account
+    });
+
+    if (!connector) {
+      console.warn('No connector found');
+      return;
+    }
+
+    // 使用新的钱包类型检测逻辑
+    const walletType = getWalletType(connector);
+    
+    // 如果没有检测出钱包类型，直接返回
+    if (!walletType) {
+      console.log('Unable to determine wallet type, skipping wallet open');
+      return;
+    }
+
+    const protocol = WALLET_PROTOCOLS[walletType];
+    
+    if (!protocol) {
+      console.warn('Unsupported wallet type:', walletType);
+      return;
+    }
+
+    // 如果没有 URI,说明是签名场景,直接打开钱包
+    if (!uri) {
+      console.log('No URI provided, opening wallet for signing');
+      const directLink = protocol;
+      
+      try {
+        console.log('Trying location.href');
+        window.location.href = directLink;
+      } catch (error) {
+        console.error('Failed to open wallet for signing:', error);
+      }
+      return;
+    }
+
+    // 连接场景的处理
+    console.log('URI provided, opening wallet for connecting:', uri);
+    // 修改深度链接格式
+    const deepLink = `${protocol}wc?uri=${encodeURIComponent(uri)}`;
+    // 添加备用深度链接格式
+    const backupDeepLink = `${protocol}?wc=${encodeURIComponent(uri)}`;
+    
+    console.log('Deep link:', deepLink);
+    console.log('Backup deep link:', backupDeepLink);
+    
+    const tryOpenWallet = (link: string) => {
       const iframe = document.createElement('iframe');
       iframe.style.display = 'none';
-      iframe.src = directLink;
+      iframe.src = link;
       document.body.appendChild(iframe);
       
       setTimeout(() => {
         document.body.removeChild(iframe);
-        
-        // 如果 iframe 方式失败，使用 location.href
-        if (document.hidden) return;
-        console.log('Trying location.href');
-        window.location.href = directLink;
-      }, 1500);
-      
-    } catch (error) {
-      console.error('Failed to open wallet for signing:', error);
-      alert('请手动打开钱包应用并确认交易');
-    }
-    return;
-  }
-
-  // 连接场景的处理
-  console.log('URI provided, opening wallet for connecting:', uri);
-  // 修改深度链接格式
-  const deepLink = `${protocol}wc?uri=${encodeURIComponent(uri)}`;
-  // 添加备用深度链接格式
-  const backupDeepLink = `${protocol}?wc=${encodeURIComponent(uri)}`;
-  
-  console.log('Deep link:', deepLink);
-  console.log('Backup deep link:', backupDeepLink);
-  
-  const tryOpenWallet = (link: string) => {
-    const iframe = document.createElement('iframe');
-    iframe.style.display = 'none';
-    iframe.src = link;
-    document.body.appendChild(iframe);
+      }, 2000);
+    };
     
-    setTimeout(() => {
-      document.body.removeChild(iframe);
-    }, 2000);
-  };
-  
-  try {
-    // 先尝试使用 iframe 方式打开
-    tryOpenWallet(deepLink);
-    
-    // 如果 iframe 方式失败，使用 location.href
-    setTimeout(() => {
-      if (document.hidden) return;
-      
+    try {
       console.log('Trying location.href with deep link');
       window.location.href = deepLink;
       
-      // 如果第一个格式失败，尝试备用格式
-      setTimeout(() => {
-        if (document.hidden) return;
+      // // 如果第一个格式失败，尝试备用格式
+      // setTimeout(() => {
+      //   console.log('Trying backup deep link format');
+      //   window.location.href = backupDeepLink;
         
-        console.log('Trying backup deep link format');
-        window.location.href = backupDeepLink;
-        
-        // 最后才跳转到下载页
-        setTimeout(() => {
-          if (document.hidden) return;
-          
-          console.log('Wallet open timeout, redirecting to download page');
-          window.location.href = WALLET_DOWNLOAD_URLS[walletType];
-        }, 1500);
-      }, 1500);
-    }, 1500);
+      //   // 如果所有自动打开方式都失败,提示用户手动打开
+      //   setTimeout(() => {
+      //     console.log('Unable to open wallet automatically, please open manually');
+      //   }, 1500);
+      // }, 1500);
+    } catch (error) {
+      console.error('Failed to open wallet:', error);
+    }
   } catch (error) {
     console.error('Failed to open wallet:', error);
-    alert('请手动打开钱包应用并重试');
   }
 };
 
@@ -345,3 +420,4 @@ export class ValoraConnect extends WalletConnectV2 {
     return super.deactivate()
   }
 }
+

@@ -88,7 +88,7 @@ interface SwapFormProps {
 
 export function SwapForm({ disableTokenInputs = false, onCurrencyChange }: SwapFormProps) {
   const connectionReady = useConnectionReady()
-  const { account, chainId: connectedChainId, connector } = useWeb3React()
+  const { account, chainId: connectedChainId, connector, provider } = useWeb3React()
   const trace = useTrace()
 
   const { chainId, prefilledState, currencyState } = useSwapAndLimitContext()
@@ -374,26 +374,30 @@ export function SwapForm({ disableTokenInputs = false, onCurrencyChange }: SwapF
 
   const handleOpenWallet = useCallback(async () => {
     if (!connector) {
-      alert('Wallet connector not found');
+      console.warn('Wallet connector not found');
       return;
     }
 
     if (!account) {
-      alert('Wallet not connected, please connect your wallet first');
+      console.warn('Wallet not connected');
       return;
     }
 
     // Directly open wallet in mobile environment
     if (isWebIOS || isWebAndroid) {
       try {
-        // Open wallet without passing connector
-        openWallet('');
-        alert('Attempting to open wallet, please wait for the signature prompt in your wallet.');
+        // Open wallet with web3 data
+        openWallet('', { 
+          connector,
+          provider,
+          account 
+        });
+        console.log('Attempting to open wallet for signature');
       } catch (error) {
-        alert('Error opening wallet: ' + error);
+        console.error('Error opening wallet:', error);
       }
     }
-  }, [connector, account]);
+  }, [connector, account, provider]);
 
   const handleSwap = useCallback(() => {
     if (!swapCallback) {
