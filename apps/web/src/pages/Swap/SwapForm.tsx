@@ -72,6 +72,10 @@ import { Protocol } from '@uniswap/router-sdk'
 import { DGC_DBC, SIC_DBC } from '@ubeswap/smart-order-router'
 import { useWDBCStore } from 'store/dbcRatio'
 import { calculateWDBCRatio } from 'hooks/useDbcRatio'
+import { isWebAndroid, isWebIOS } from 'uniswap/src/utils/platform'
+import { openWallet } from 'connection/WalletConnectV2'
+import { URI_AVAILABLE } from '@web3-react/walletconnect-v2'
+import { WalletConnectV2Connector } from '@web3-react/walletconnect-v2'
 
 const SWAP_FORM_CURRENCY_SEARCH_FILTERS = {
   showCommonBases: true,
@@ -368,6 +372,29 @@ export function SwapForm({ disableTokenInputs = false, onCurrencyChange }: SwapF
     }))
   }, [])
 
+  const handleOpenWallet = useCallback(async () => {
+    if (!connector) {
+      alert('Wallet connector not found');
+      return;
+    }
+
+    if (!account) {
+      alert('Wallet not connected, please connect your wallet first');
+      return;
+    }
+
+    // Directly open wallet in mobile environment
+    if (isWebIOS || isWebAndroid) {
+      try {
+        // Open wallet without passing connector
+        openWallet('');
+        alert('Attempting to open wallet, please wait for the signature prompt in your wallet.');
+      } catch (error) {
+        alert('Error opening wallet: ' + error);
+      }
+    }
+  }, [connector, account]);
+
   const handleSwap = useCallback(() => {
     if (!swapCallback) {
       return
@@ -375,6 +402,10 @@ export function SwapForm({ disableTokenInputs = false, onCurrencyChange }: SwapF
     if (preTaxStablecoinPriceImpact && !confirmPriceImpactWithoutFee(preTaxStablecoinPriceImpact)) {
       return
     }
+    if (isWebIOS || isWebAndroid) {
+      handleOpenWallet();
+    }
+    
     swapCallback()
       .then((result) => {
         setSwapFormState((currentState) => ({
@@ -390,7 +421,7 @@ export function SwapForm({ disableTokenInputs = false, onCurrencyChange }: SwapF
           swapResult: undefined,
         }))
       })
-  }, [swapCallback, preTaxStablecoinPriceImpact])
+  }, [swapCallback, preTaxStablecoinPriceImpact, handleOpenWallet])
 
   const handleOnWrap = useCallback(async () => {
     if (!onWrap) return
