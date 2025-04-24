@@ -1,3 +1,4 @@
+import { ChainId } from '@ubeswap/sdk-core'
 import {
   BrowserEvent,
   InterfaceElementName,
@@ -62,7 +63,6 @@ import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { largerPercentValue } from 'utils/percent'
 import { computeRealizedPriceImpact, warningSeverity } from 'utils/prices'
 import { didUserReject } from 'utils/swapErrorToUserReadableMessage'
-
 import { CurrencyState } from 'state/swap/types'
 import { getIsReviewableQuote } from '.'
 import { OutputTaxTooltipBody } from './TaxTooltipBody'
@@ -74,8 +74,6 @@ import { useWDBCStore } from 'store/dbcRatio'
 import { calculateWDBCRatio } from 'hooks/useDbcRatio'
 import { isWebAndroid, isWebIOS } from 'uniswap/src/utils/platform'
 import { openWallet } from 'connection/WalletConnectV2'
-import { URI_AVAILABLE } from '@web3-react/walletconnect-v2'
-import { WalletConnectV2Connector } from '@web3-react/walletconnect-v2'
 
 const SWAP_FORM_CURRENCY_SEARCH_FILTERS = {
   showCommonBases: true,
@@ -406,7 +404,24 @@ export function SwapForm({ disableTokenInputs = false, onCurrencyChange }: SwapF
     if (preTaxStablecoinPriceImpact && !confirmPriceImpactWithoutFee(preTaxStablecoinPriceImpact)) {
       return
     }
-    if (isWebIOS || isWebAndroid) {
+
+    // 检查是否在内嵌钱包环境中
+    const ethereum = window.ethereum as any;
+    const isInWalletBrowser = Boolean(
+      ethereum?.isTokenPocket || 
+      ethereum?.isImToken || 
+      ethereum?.isTrust ||
+      ethereum?.isOKExWallet ||
+      ethereum?.isBitKeep ||
+      ethereum?.isCoin98 ||
+      ethereum?.isHuobiWallet ||
+      ethereum?.isMathWallet ||
+      ethereum?.isOneKey ||
+      /TokenPocket|imToken|Trust|OKEx|BitKeep|Coin98|HuobiWallet|MathWallet|OneKey/i.test(navigator.userAgent)
+    );
+
+    // 只有在非内嵌钱包环境下才需要唤起钱包
+    if ((isWebIOS || isWebAndroid) && !isInWalletBrowser) {
       handleOpenWallet();
     }
     
