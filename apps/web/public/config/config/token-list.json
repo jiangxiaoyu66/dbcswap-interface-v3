@@ -39,6 +39,14 @@
       "chainId": 19880818,
       "decimals": 18,
       "logoURI": "https://app.superimage.ai/static/logo.svg"
+    },
+    {
+      "address": "0xD78F268291f3fe244CB965C768EDb515b529eD02",
+      "name": "LogoLift Token",
+      "symbol": "LOGO",
+      "chainId": 19880818,
+      "decimals": 18,
+      "logoURI": "https://xaiagent.oss-ap-northeast-2.aliyuncs.com/logo/LogoLift.png"
     }
   ],
   "version": {
