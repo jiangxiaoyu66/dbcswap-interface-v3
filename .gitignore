@@ -56,3 +56,5 @@ packages/uniswap/src/i18n/locales/@types/resources.d.ts
 
 
 .specstory/*
+# SpecStory explanation file
+.specstory/.what-is-this.md

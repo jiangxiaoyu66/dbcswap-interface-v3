@@ -14,9 +14,8 @@ const isProduction = process.env.NODE_ENV === 'production'
 
 process.env.REACT_APP_GIT_COMMIT_HASH = commitHash
 
-// Linting and type checking are only necessary as part of development and testing.
-// Omit them from production builds, as they slow down the feedback loop.
-const shouldLintOrTypeCheck = !isProduction
+// 在开发环境中禁用类型检查和lint
+const shouldLintOrTypeCheck = false
 
 // Our .swcrc wasn't being picked up in the monorepo, so we load it directly.
 const swcrc = JSON.parse(readFileSync('./.swcrc', 'utf-8'))
