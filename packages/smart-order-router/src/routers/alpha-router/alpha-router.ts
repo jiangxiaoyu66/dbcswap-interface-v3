@@ -941,11 +941,10 @@ export class AlphaRouter implements IRouter<AlphaRouterConfig>, ISwapToRatio<Alp
       { blockNumber }
     )
 
-    console.log('routingConfig', JSON.stringify(routingConfig))
 
-    if (routingConfig.debugRouting) {
-      console.log(`Finalized routing config is ${JSON.stringify(routingConfig)}`)
-    }
+    // if (routingConfig.debugRouting) {
+    //   console.log(`Finalized routing config is ${JSON.stringify(routingConfig)}`)
+    // }
 
     const gasPriceWei = await this.getGasPriceWei()
 
@@ -971,7 +970,6 @@ export class AlphaRouter implements IRouter<AlphaRouterConfig>, ISwapToRatio<Alp
       routingConfig.overwriteCacheMode ??
       (await this.routeCachingProvider?.getCacheMode(this.chainId, amount, quoteToken, tradeType, protocols))
 
-    console.log('cacheMode', cacheMode)
 
     // Fetch CachedRoutes
     let cachedRoutes: CachedRoutes | undefined
@@ -995,34 +993,10 @@ export class AlphaRouter implements IRouter<AlphaRouterConfig>, ISwapToRatio<Alp
 
     if (cacheMode && routingConfig.useCachedRoutes && cacheMode !== CacheMode.Darkmode && !cachedRoutes) {
       metric.putMetric(`GetCachedRoute_miss_${cacheMode}`, 1, MetricLoggerUnit.Count)
-      console.log(
-        {
-          tokenIn: tokenIn.symbol,
-          tokenInAddress: tokenIn.address,
-          tokenOut: tokenOut.symbol,
-          tokenOutAddress: tokenOut.address,
-          cacheMode,
-          amount: amount.toExact(),
-          chainId: this.chainId,
-          tradeType: this.tradeTypeStr(tradeType),
-        },
-        `GetCachedRoute miss ${cacheMode} for ${this.tokenPairSymbolTradeTypeChainId(tokenIn, tokenOut, tradeType)}`
-      )
+  
     } else if (cachedRoutes && routingConfig.useCachedRoutes) {
       metric.putMetric(`GetCachedRoute_hit_${cacheMode}`, 1, MetricLoggerUnit.Count)
-      console.log(
-        {
-          tokenIn: tokenIn.symbol,
-          tokenInAddress: tokenIn.address,
-          tokenOut: tokenOut.symbol,
-          tokenOutAddress: tokenOut.address,
-          cacheMode,
-          amount: amount.toExact(),
-          chainId: this.chainId,
-          tradeType: this.tradeTypeStr(tradeType),
-        },
-        `GetCachedRoute hit ${cacheMode} for ${this.tokenPairSymbolTradeTypeChainId(tokenIn, tokenOut, tradeType)}`
-      )
+    
     }
 
     let swapRouteFromCachePromise: Promise<BestSwapRoute | null> = Promise.resolve(null)
@@ -1066,11 +1040,9 @@ export class AlphaRouter implements IRouter<AlphaRouterConfig>, ISwapToRatio<Alp
     let swapRouteRaw: BestSwapRoute | null
     let hitsCachedRoute = false
     if (cacheMode === CacheMode.Livemode && swapRouteFromCache) {
-      console.log(`CacheMode is ${cacheMode}, and we are using swapRoute from cache`)
       hitsCachedRoute = true
       swapRouteRaw = swapRouteFromCache
     } else {
-      console.log(`CacheMode is ${cacheMode}, and we are using materialized swapRoute`)
       swapRouteRaw = swapRouteFromChain
     }
 

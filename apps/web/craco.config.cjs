@@ -147,6 +147,13 @@ module.exports = {
           path: require.resolve('path-browserify'),
           fs: false,
           os: false,
+          // 添加缺失的Node.js核心模块polyfill
+          crypto: require.resolve('crypto-browserify'),
+          stream: require.resolve('stream-browserify'),
+          assert: require.resolve('assert/'),
+          http: require.resolve('stream-http'),
+          https: require.resolve('https-browserify'),
+          zlib: require.resolve('browserify-zlib'),
         },
       })
 

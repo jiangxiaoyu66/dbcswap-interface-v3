@@ -38,6 +38,12 @@ export const PUBLIC_RPC_URLS: Record<SupportedInterfaceChain, string[]> = {
     `https://alfajores-forno.celo-testnet.org`,
   ],
   [ChainId.DBC]: [`https://rpc2.dbcwallet.io`],
+  [ChainId.BNB]: [
+    'https://bsc-dataseed1.bnbchain.org',
+    'https://bsc-dataseed2.bnbchain.org',
+    'https://bsc-dataseed3.bnbchain.org',
+    'https://bsc-dataseed4.bnbchain.org',
+  ],
 }
 
 /**
@@ -53,6 +59,7 @@ export const APP_RPC_URLS: Record<SupportedInterfaceChain, string[]> = {
   ],
   [ChainId.CELO_ALFAJORES]: [`https://celo-alfajores.infura.io/v3/${INFURA_KEY}`],
   [ChainId.DBC]: [`https://rpc2.dbcwallet.io`],
+  [ChainId.BNB]: ['https://bsc-dataseed1.bnbchain.org'],
 }
 
 export const INFURA_PREFIX_TO_CHAIN_ID: { [prefix: string]: ChainId } = {

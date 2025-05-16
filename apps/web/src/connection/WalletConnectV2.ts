@@ -25,6 +25,34 @@ const WALLET_DOWNLOAD_URLS = {
   trustwallet: 'https://trustwallet.com/download',
 } as const;
 
+// DBC 网络配置
+export const DBC_NETWORK_CONFIG = {
+  chainId: '0x12F5B72', // 19880818 in hex
+  // chainId: '19880818', // 19880818 in hex
+  chainName: 'Deep Brain Chain',
+  nativeCurrency: {
+    name: 'DBC',
+    symbol: 'DBC',
+    decimals: 18
+  },
+  rpcUrls: ['https://rpc2.dbcwallet.io'],
+  blockExplorerUrls: ['https://www.dbcscan.io']
+};
+
+// BSC 网络配置
+export const BSC_NETWORK_CONFIG = {
+  chainId: '0x38', // 56 in hex
+  // chainId: '56', // 56 in hex
+  chainName: 'Binance Smart Chain',
+  nativeCurrency: {
+    name: 'BNB',
+    symbol: 'BNB',
+    decimals: 18
+  },
+  rpcUrls: ['https://bsc-dataseed1.bnbchain.org'],
+  blockExplorerUrls: ['https://bscscan.com']
+};
+
 type WalletType = keyof typeof WALLET_PROTOCOLS | undefined;
 
 // 获取应用URL

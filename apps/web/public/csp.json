@@ -122,7 +122,12 @@
     "https://dbchaininfo.congtu.cloud",
     "http://8.214.55.62:8028",
     "https://test.dbcswap.io",
-    "https://dbcswap.io"
+    "https://dbcswap.io",
+    "https://bsc-dataseed1.bnbchain.org",
+    "https://rpc.ankr.com",
+    "https://bsc.drpc.org",
+    "https://bscrpc.com",
+    "https://rpc.dbcwallet.io/"
   ],
   "workerSrc": [
     "'self'",

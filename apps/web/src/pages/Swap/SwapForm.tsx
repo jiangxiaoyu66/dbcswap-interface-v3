@@ -806,7 +806,8 @@ export function SwapForm({ disableTokenInputs = false, onCurrencyChange }: SwapF
                 }
               }}
             >
-              Connect to {getChainInfo(chainId)?.label}
+              {/* Connect to {getChainInfo(chainId)?.label} */}
+              Connect to DBC
             </ButtonPrimary>
           ) : showWrap ? (
             <ButtonPrimary

@@ -87,11 +87,28 @@ const DBC_ADDRESSES: ChainAddresses | any = {
   // "swapRouter02": "0x0348B9867862Aa638df274F0F861a677E0462Ea1"
 }
 
+// BSC (BNB Chain) 地址配置
+ const BNB_ADDRESSES: ChainAddresses = {
+  v3CoreFactoryAddress: '0xdB1d10011AD0Ff90774D0C6Bb92e5C5c8b4461F7',
+  multicallAddress: '0x963Df249eD09c358A4819E39d9Cd5736c3087184',
+  quoterAddress: '0x78D78E420Da98ad378D7799bE8f4AF69033EB077',
+  v3MigratorAddress: '0x32681814957e0C13117ddc0c2aba232b5c9e760f',
+  nonfungiblePositionManagerAddress: '0x7b8A01B39D58278b5DE7e48c8449c9f4F5170613',
+  tickLensAddress: '0xD9270014D396281579760619CCf4c3af0501A47C',
+  swapRouter02Address: '0xB971eF87ede563556b2ED4b1C0b0019111Dd85d2',
+
+  // v4PoolManagerAddress: '0x28e2ea090877bf75740558f6bfb36a5ffee9e9df',
+  // v4PositionManagerAddress: '0x7a4a5c919ae2541aed11041a1aeee68f1287f95b',
+  // v4StateView: '0xd13dd3d6e93f276fafc9db9e6bb47c1180aee0c4',
+  // v4QuoterAddress: '0x9f75dd27d6664c475b90e105573e550ff69437b0',
+}
+
 
 export const CHAIN_TO_ADDRESSES_MAP: Record<SupportedChainsType, ChainAddresses> = {
   [ChainId.CELO]: CELO_ADDRESSES,
   [ChainId.CELO_ALFAJORES]: CELO_ADDRESSES,
   [ChainId.DBC]: DBC_ADDRESSES,
+  [ChainId.BNB]: BNB_ADDRESSES,
 }
 
 /* V3 Contract Addresses */
@@ -226,3 +243,4 @@ export const OLD_UBE_ROMULUS_ADDRESSES: AddressMap = {
 export const UBE_VOTABLE_STAKE_ADDRESSES: AddressMap = {
   [ChainId.CELO]: '0x388D611A57Ac15dCC1B937f287E5E908Ba5ff5c9',
 }
+

@@ -6,6 +6,10 @@
     "@commitlint/config-conventional": "^17.4.2",
     "@crowdin/cli": "3.14.0",
     "@ethersproject/keccak256": "5.7.0",
+    "@hyperlane-xyz/registry": "12.1.0",
+    "@hyperlane-xyz/sdk": "9.2.1",
+    "@hyperlane-xyz/utils": "9.2.1",
+    "@hyperlane-xyz/widgets": "9.2.1",
     "@manypkg/cli": "^0.19.2",
     "danger": "11.2.6",
     "depcheck": "1.4.7",
@@ -120,5 +124,13 @@
     "apps/*",
     "packages/*",
     "config/*"
-  ]
+  ],
+  "devDependencies": {
+    "assert": "2.1.0",
+    "browserify-zlib": "0.2.0",
+    "crypto-browserify": "3.12.1",
+    "https-browserify": "1.0.0",
+    "stream-browserify": "3.0.0",
+    "stream-http": "3.2.0"
+  }
 }

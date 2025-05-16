@@ -1,597 +1,1258 @@
-import { TokenAmount, WarpCore } from '@hyperlane-xyz/sdk';
-import { ProtocolType, errorToString, isNullish, toWei } from '@hyperlane-xyz/utils';
-import {
-  AccountInfo,
-  ChevronIcon,
-  IconButton,
-  SpinnerIcon,
-  SwapIcon,
-  getAccountAddressAndPubKey,
-  useAccountAddressForChain,
-  useAccounts,
-  useModal,
-} from '@hyperlane-xyz/widgets';
-import BigNumber from 'bignumber.js';
-import { Form, Formik, useFormikContext } from 'formik';
-import { useMemo, useState } from 'react';
-import { toast } from 'react-toastify';
-import { ConnectAwareSubmitButton } from '../../components/buttons/ConnectAwareSubmitButton';
-import { SolidButton } from '../../components/buttons/SolidButton';
-import { TextField } from '../../components/input/TextField';
-import { WARP_QUERY_PARAMS } from '../../consts/args';
-import { config } from '../../consts/config';
-import { Color } from '../../styles/Color';
-import { logger } from '../../utils/logger';
-import { getQueryParams, updateQueryParam } from '../../utils/queryParams';
-import { ChainConnectionWarning } from '../chains/ChainConnectionWarning';
-import { ChainSelectField } from '../chains/ChainSelectField';
-import { ChainWalletWarning } from '../chains/ChainWalletWarning';
-import { useChainDisplayName, useMultiProvider } from '../chains/hooks';
-import { getNumRoutesWithSelectedChain, tryGetValidChainName } from '../chains/utils';
-import { useIsAccountSanctioned } from '../sanctions/hooks/useIsAccountSanctioned';
-import { useStore } from '../store';
-import { SelectOrInputTokenIds } from '../tokens/SelectOrInputTokenIds';
-import { TokenSelectField } from '../tokens/TokenSelectField';
-import { useIsApproveRequired } from '../tokens/approval';
-import {
-  getDestinationNativeBalance,
-  useDestinationBalance,
-  useOriginBalance,
-} from '../tokens/balances';
-import {
-  getInitialTokenIndex,
-  getTokenByIndex,
-  getTokenIndexFromChains,
-  useWarpCore,
-} from '../tokens/hooks';
-import { RecipientConfirmationModal } from './RecipientConfirmationModal';
-import { useFetchMaxAmount } from './maxAmount';
-import { TransferFormValues } from './types';
-import { useRecipientBalanceWatcher } from './useBalanceWatcher';
-import { useFeeQuotes } from './useFeeQuotes';
-import { useTokenTransfer } from './useTokenTransfer';
+import { MultiProtocolProvider, WarpCore } from '@hyperlane-xyz/sdk';
+import { useState, useEffect, useCallback } from 'react';
+import { useWeb3React } from '@web3-react/core';
+import { ethers } from 'ethers';
+import styled, { keyframes } from 'styled-components';
+import { ButtonPrimary } from 'components/Button';
+import Column, { AutoColumn } from 'components/Column';
+import { RowBetween } from 'components/Row';
+import { ArrowLeft, ArrowRight } from 'react-feather';
+import useSelectChain from 'hooks/useSelectChain';
+import { ChainId } from '@ubeswap/sdk-core';
+import { ChainLogo } from 'components/Logo/ChainLogo';
+
+// Update debug messages
+const NETWORK_SWITCH_DEBUG = true;
+// 全局变量，防止循环切换
+let isNetworkSwitchPending = false;
+
+const chainConfigs = {
+  deepbrainchain: {
+    chainId: 19880818,
+    chainIdHex: '0x12F5B72',
+    name: 'Deep Brain Chain',
+    nativeCurrency: {
+      name: 'Deep Brain Chain',
+      symbol: 'DBC',
+      decimals: 18
+    },
+    rpcUrls: ['https://rpc2.dbcwallet.io'],
+    blockExplorerUrls: ['https://www.dbcscan.io'],
+    iconUrls: ['https://raw.githubusercontent.com/dbchaincloud/media/main/logo.png']
+  },
+  bsc: {
+    chainId: 56,
+    chainIdHex: '0x38',
+    name: 'BNB Smart Chain',
+    nativeCurrency: {
+      name: 'BNB',
+      symbol: 'BNB',
+      decimals: 18
+    },
+    rpcUrls: ['https://bsc-dataseed1.bnbchain.org'],
+    blockExplorerUrls: ['https://bscscan.com'],
+    iconUrls: ['https://raw.githubusercontent.com/binance-chain/binance-chain-wiki/master/assets/bnb.png']
+  }
+};
+
+// 样式组件
+const FormWrapper = styled(Column)`
+  // max-width: 480px;
+  width: 100%;
+  margin: 0 auto;
+  background-color: ${({ theme }) => theme.surface1};
+  border-radius: 16px;
+  padding: 1.5rem;
+  border: 1px solid ${({ theme }) => theme.surface3};
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  
+  @media (max-width: 500px) {
+    max-width: 100%;
+    padding: 1rem;
+  }
+`;
+
+const SectionTitle = styled.div`
+  font-size: 14px;
+  font-weight: 500;
+  color: ${({ theme }) => theme.neutral2};
+  margin-bottom: 8px;
+`;
+
+const ChainSelectorContainer = styled.div`
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  gap: 12px;
+`;
+
+const ChainSelector = styled.div`
+  position: relative;
+  min-width: 200px;
+`;
+
+const ChainLabel = styled.div`
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: ${({ theme }) => theme.neutral1};
+`;
+
+const ChainSelect = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background-color: ${({ theme }) => theme.surface2};
+  border: 1px solid ${({ theme }) => theme.surface3};
+  border-radius: 12px;
+  cursor: pointer;
+  
+  &:hover {
+    border-color: ${({ theme }) => theme.accent1};
+  }
+`;
+
+const ChainOption = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  cursor: pointer;
+  
+  &:hover {
+    background: ${({ theme }) => theme.surface3};
+  }
+`;
+
+const ChainIcon = styled.div`
+  width: 24px;
+  height: 24px;
+  margin-right: 8px;
+`;
+
+const ChainName = styled.div`
+  font-size: 16px;
+  color: ${({ theme }) => theme.neutral1};
+`;
+
+const rotate180 = keyframes`
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(180deg);
+  }
+`;
+
+const SwitchButton = styled.button`
+  background: ${({ theme }) => theme.surface2};
+  border: 1px solid ${({ theme }) => theme.surface3};
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 6px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: ${({ theme }) => theme.surface3};
+    opacity: 0.7;
+    svg {
+      animation: ${rotate180} 0.3s forwards;
+    }
+  }
+  
+  &:active {
+    opacity: 0.6;
+  }
+  
+  &:disabled {
+    opacity: 0.3;
+    cursor: default;
+  }
+`;
+
+const InputContainer = styled.div`
+  margin-bottom: 1.5rem;
+`;
+
+const InputLabel = styled.div`
+  font-size: 14px;
+  color: ${({ theme }) => theme.neutral2};
+  margin-bottom: 8px;
+`;
+
+const InputField = styled.input`
+  width: 100%;
+  padding: 0.75rem 1rem;
+  padding-right: 80px;
+  background-color: ${({ theme }) => theme.surface2};
+  border: 1px solid ${({ theme }) => theme.surface3};
+  border-radius: 12px;
+  font-size: 16px;
+  color: ${({ theme }) => theme.neutral1};
+  outline: none;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+
+  &:focus {
+    border-color: ${({ theme }) => theme.accent1};
+  }
+`;
+
+const ErrorText = styled.div`
+  color: ${({ theme }) => theme.critical};
+  padding: 0.75rem;
+  background-color: rgba(240, 50, 50, 0.1);
+  border-radius: 12px;
+  margin: 1rem 0;
+  font-size: 14px;
+  max-width: 100%;
+  overflow: hidden;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+`;
+
+const TransactionPreview = styled.div`
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: ${({ theme }) => theme.surface2};
+  border-radius: 12px;
+  border: 1px solid ${({ theme }) => theme.surface3};
+  max-width: 100%;
+  overflow: hidden;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+`;
+
+const TransactionData = styled.pre`
+  background-color: ${({ theme }) => theme.surface1};
+  padding: 0.75rem;
+  border-radius: 8px;
+  overflow-x: auto;
+  font-size: 12px;
+  margin-bottom: 1rem;
+  color: ${({ theme }) => theme.neutral2};
+  max-height: 200px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  word-wrap: break-word;
+  display: block;
+`;
+
+const ActionButton = styled(ButtonPrimary)`
+  padding: 0.75rem;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 500;
+`;
+
+// 添加自动切换控制的样式组件
+const AutoSwitchContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+  font-size: 14px;
+`;
+
+const SwitchLabel = styled.label`
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+`;
+
+const SwitchInput = styled.input`
+  height: 0;
+  width: 0;
+  visibility: hidden;
+  margin: 0;
+  &:checked + span {
+    background: ${({ theme }) => theme.accent1};
+  }
+  &:checked + span:after {
+    left: calc(100% - 2px);
+    transform: translateX(-100%);
+  }
+`;
+
+const SwitchSlider = styled.span`
+  cursor: pointer;
+  width: 40px;
+  height: 20px;
+  background: ${({ theme }) => theme.surface3};
+  display: block;
+  border-radius: 100px;
+  position: relative;
+  margin-left: 8px;
+  transition: 0.2s;
+  &:after {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    background: ${({ theme }) => theme.white || '#fff'};
+    border-radius: 16px;
+    transition: 0.2s;
+  }
+`;
+
+const NetworkMismatchWarning = styled.div`
+  color: ${({ theme }) => theme.deprecated_accentWarning};
+  background-color: ${({ theme }) => theme.deprecated_accentWarningSoft || '#fff8e2'};
+  padding: 12px;
+  border-radius: 12px;
+  margin: 12px 0;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+// 添加新的样式组件
+const TransactionLink = styled.a`
+  color: ${({ theme }) => theme.accent1};
+  text-decoration: none;
+  font-weight: 500;
+  
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
+const TransactionStatus = styled.div<{ status: 'success' | 'pending' | 'error' }>`
+  padding: 12px;
+  border-radius: 12px;
+  background-color: ${({ status, theme }) => 
+    status === 'success' ? 'rgba(0, 168, 107, 0.1)' :
+    status === 'error' ? 'rgba(240, 50, 50, 0.1)' :
+    'rgba(255, 171, 0, 0.06)'};
+  color: ${({ status, theme }) => 
+    status === 'success' ? '#00a86b' :
+    status === 'error' ? '#e53935' :
+    '#ff9800'};
+  margin-bottom: 12px;
+  font-size: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`;
+
+// Add new styled components
+const InputGroup = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+`;
+
+const RecipientInfo = styled.div`
+  padding: 12px;
+  background: ${({ theme }) => theme.surface2};
+  border-radius: 12px;
+  font-size: 14px;
+  color: ${({ theme }) => theme.neutral2};
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const AddressText = styled.span`
+  color: ${({ theme }) => theme.neutral1};
+  font-family: monospace;
+`;
+
+// 处理交易对象显示的函数
+const formatTransactionData = (tx: any) => {
+  if (!tx) return '';
+  
+  // 长字符串格式化（添加实际换行，不仅是软换行）
+  const formatLongString = (str: string) => {
+    if (!str || typeof str !== 'string' || str.length < 40) return str;
+    // 每30个字符添加一个实际换行
+    let formatted = '';
+    for (let i = 0; i < str.length; i += 30) {
+      formatted += str.slice(i, Math.min(i + 30, str.length));
+      if (i + 30 < str.length) {
+        formatted += '\n';
+      }
+    }
+    return formatted;
+  };
+  
+  // 格式化值（如ETH值）
+  const formatValue = (value: any) => {
+    if (!value) return '0';
+    try {
+      if (typeof value === 'string' && value.startsWith('0x')) {
+        const etherValue = ethers.utils.formatEther(value);
+        return `${parseFloat(parseFloat(etherValue).toFixed(6))} ETH`;
+      } else if (value._hex) {
+        const etherValue = ethers.utils.formatEther(value._hex);
+        return `${parseFloat(parseFloat(etherValue).toFixed(6))} ETH`;
+      }
+    } catch (e) {
+      // 如果转换失败，返回原始值
+    }
+    return String(value);
+  };
+  
+  // 提取关键信息，转为简化文本
+  try {
+    const txType = tx.type || 'unknown';
+    const txTo = tx.transaction?.to || 'N/A';
+    const txValue = formatValue(tx.transaction?.value);
+    
+    const tokenInfo = tx.token ? 
+      `Token: ${tx.token.symbol} (${tx.token.chainName})` : '';
+    
+    // 构造格式化文本
+    return `Type: ${txType}\nSent to:\n${formatLongString(txTo)}\n\nAmount: ${txValue}\n${tokenInfo}`;
+  } catch (e) {
+    // 如果处理失败，返回基本JSON字符串
+    const simple = {
+      type: tx.type,
+      to: tx.transaction?.to || '',
+      value: tx.transaction?.value || '0x0'
+    };
+    return JSON.stringify(simple, null, 2);
+  }
+};
+
+// Add validation function
+const validateAmount = (value: string): string => {
+  // Remove any non-numeric characters except decimal point
+  const numericValue = value.replace(/[^0-9.]/g, '');
+  
+  // Ensure only one decimal point
+  const parts = numericValue.split('.');
+  if (parts.length > 2) {
+    return parts[0] + '.' + parts[1];
+  }
+  
+  // Limit decimal places to 18 (standard for most tokens)
+  if (parts.length === 2 && parts[1].length > 18) {
+    return parts[0] + '.' + parts[1].slice(0, 18);
+  }
+  
+  return numericValue;
+};
+
+// 添加防抖hook
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}
 
 export function TransferTokenForm() {
-  const multiProvider = useMultiProvider();
-  const warpCore = useWarpCore();
+  const [txs, setTxs] = useState<any>(null);
+  const [error, setError] = useState<string>('');
+  const [amount, setAmount] = useState<string>('');
+  const [sourceChain, setSourceChain] = useState<'deepbrainchain' | 'bsc'>('deepbrainchain');
+  const [destinationChain, setDestinationChain] = useState<'deepbrainchain' | 'bsc'>('bsc');
+  const [autoSwitchNetwork, setAutoSwitchNetwork] = useState<boolean>(true);
+  const [txStatus, setTxStatus] = useState<string>('');
+  const [isProcessing, setIsProcessing] = useState<boolean>(false);
+  const [isNetworkSwitching, setIsNetworkSwitching] = useState<boolean>(false);
+  const [lastSwitchTime, setLastSwitchTime] = useState<number>(0);
+  const { provider, account, chainId } = useWeb3React();
+  const selectChain = useSelectChain();
+  const [lastTxHash, setLastTxHash] = useState<string>('');
+  const [lastTxChain, setLastTxChain] = useState<'deepbrainchain' | 'bsc'>('deepbrainchain');
+  const [targetChain, setTargetChain] = useState<'deepbrainchain' | 'bsc' | null>(null);
 
-  const initialValues = useFormInitialValues();
-  const { accounts } = useAccounts(multiProvider, config.addressBlacklist);
+  // 网络切换锁定时间常量
+  const NETWORK_SWITCH_LOCK_TIME = 3000; // 3秒
 
-  // Flag for if form is in input vs review mode
-  const [isReview, setIsReview] = useState(false);
-  // Flag for check current type of token
-  const [isNft, setIsNft] = useState(false);
-  // Modal for confirming address
-  const {
-    open: openConfirmationModal,
-    close: closeConfirmationModal,
-    isOpen: isConfirmationModalOpen,
-  } = useModal();
+  // 使用防抖的chainId
+  const debouncedChainId = useDebounce(chainId, 1000);
 
-  const validate = (values: TransferFormValues) => validateForm(warpCore, values, accounts);
-
-  const onSubmitForm = async (values: TransferFormValues) => {
-    logger.debug('Checking destination native balance for:', values.destination, values.recipient);
-    const balance = await getDestinationNativeBalance(multiProvider, values);
-    if (isNullish(balance)) return;
-    else if (balance > 0n) {
-      logger.debug('Reviewing transfer form values for:', values.origin, values.destination);
-      setIsReview(true);
-    } else {
-      logger.debug('Recipient has no balance on destination. Confirming address.');
-      openConfirmationModal();
+  // 将链名称映射到ChainId枚举
+  const getChainId = (chainName: string): ChainId => {
+    switch (chainName) {
+      case 'deepbrainchain':
+        return ChainId.DBC;
+      case 'bsc':
+        return ChainId.BNB;
+      default:
+        return ChainId.DBC;
     }
   };
 
-  return (
-    <Formik<TransferFormValues>
-      initialValues={initialValues}
-      onSubmit={onSubmitForm}
-      validate={validate}
-      validateOnChange={false}
-      validateOnBlur={false}
-    >
-      {({ isValidating }) => (
-        <Form className="flex w-full flex-col items-stretch">
-          <WarningBanners />
-          <ChainSelectSection isReview={isReview} />
-          <div className="mt-3.5 flex items-end justify-between space-x-4">
-            <TokenSection setIsNft={setIsNft} isReview={isReview} />
-            <AmountSection isNft={isNft} isReview={isReview} />
-          </div>
-          <RecipientSection isReview={isReview} />
-          <ReviewDetails visible={isReview} />
-          <ButtonSection
-            isReview={isReview}
-            isValidating={isValidating}
-            setIsReview={setIsReview}
-          />
-          <RecipientConfirmationModal
-            isOpen={isConfirmationModalOpen}
-            close={closeConfirmationModal}
-            onConfirm={() => setIsReview(true)}
-          />
-        </Form>
-      )}
-    </Formik>
-  );
-}
+  // 当前链ID对应的链名称
+  const getCurrentChainName = useCallback((): 'deepbrainchain' | 'bsc' | undefined => {
+    if (NETWORK_SWITCH_DEBUG) {
+      console.log("Current detected chain ID:", chainId);
+    }
+    
+    // 添加额外检查，避免临时状态造成误判
+    if (chainId === 19880818) return 'deepbrainchain';
+    if (chainId === 56) return 'bsc';
+    
+    // 检查provider中的信息
+    if (provider) {
+      try {
+        const network = provider.network;
+        if (NETWORK_SWITCH_DEBUG) {
+          console.log("Provider network info:", network);
+        }
+        if (network && network.chainId === 19880818) return 'deepbrainchain';
+        if (network && network.chainId === 56) return 'bsc';
+      } catch (e) {
+        console.log("Error getting network info:", e);
+      }
+    }
+    
+    return undefined;
+  }, [chainId, provider]);
 
-function SwapChainsButton({
-  disabled,
-  onSwapChain,
-}: {
-  disabled?: boolean;
-  onSwapChain: (origin: string, destination: string) => void;
-}) {
-  const { values, setFieldValue } = useFormikContext<TransferFormValues>();
-  const { origin, destination } = values;
+  // 修改网络切换函数
+  const switchToNetwork = useCallback(async (chainName: 'deepbrainchain' | 'bsc') => {
+    const now = Date.now();
+    if (now - lastSwitchTime < NETWORK_SWITCH_LOCK_TIME) {
+      console.log('Network switch locked, please wait');
+      return false;
+    }
 
-  const onClick = () => {
-    if (disabled) return;
-    setFieldValue('origin', destination);
-    setFieldValue('destination', origin);
-    // Reset other fields on chain change
-    setFieldValue('recipient', '');
-    onSwapChain(destination, origin);
-  };
+    if (isNetworkSwitching) {
+      console.log('Network switch already in progress');
+      return false;
+    }
 
-  return (
-    <IconButton
-      width={20}
-      height={20}
-      title="Swap chains"
-      className={!disabled ? 'hover:rotate-180' : undefined}
-      onClick={onClick}
-      disabled={disabled}
-    >
-      <SwapIcon width={20} height={20} />
-    </IconButton>
-  );
-}
+    const targetChainId = getChainId(chainName);
+    
+    try {
+      setIsNetworkSwitching(true);
+      setLastSwitchTime(now);
+      setTargetChain(chainName);
+      
+      if (!selectChain) {
+        throw new Error('Network switch function not available');
+      }
 
-function ChainSelectSection({ isReview }: { isReview: boolean }) {
-  const warpCore = useWarpCore();
+      // 检查当前链是否已经是目标链
+      if (chainId === targetChainId) {
+        console.log('Already on target chain');
+        setTargetChain(null);
+        return true;
+      }
 
-  const { values, setFieldValue } = useFormikContext<TransferFormValues>();
+      console.log(`Attempting to switch to ${chainName} (${targetChainId})`);
+      const success = await selectChain(targetChainId);
+      
+      if (success) {
+        // 等待链切换生效
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        setError('');
+        return true;
+      }
+      
+      throw new Error(`Failed to switch to ${chainName}`);
+    } catch (error) {
+      console.error('Network switch error:', error);
+      setError(`Network switch error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      return false;
+    } finally {
+      setIsNetworkSwitching(false);
+      // 不在这里清除targetChain，等待chainId变化确认后再清除
+    }
+  }, [selectChain, chainId, isNetworkSwitching, lastSwitchTime, setIsNetworkSwitching, setLastSwitchTime, setError]);
 
-  const originRouteCounts = useMemo(() => {
-    return getNumRoutesWithSelectedChain(warpCore, values.origin, true);
-  }, [values.origin, warpCore]);
-
-  const destinationRouteCounts = useMemo(() => {
-    return getNumRoutesWithSelectedChain(warpCore, values.destination, false);
-  }, [values.destination, warpCore]);
-
-  const setTokenOnChainChange = (origin: string, destination: string) => {
-    const tokenIndex = getTokenIndexFromChains(warpCore, null, origin, destination);
-    const token = getTokenByIndex(warpCore, tokenIndex);
-    updateQueryParam(WARP_QUERY_PARAMS.TOKEN, token?.addressOrDenom);
-    setFieldValue('tokenIndex', tokenIndex);
-  };
-
-  const handleChange = (chainName: string, fieldName: string) => {
-    if (fieldName === WARP_QUERY_PARAMS.ORIGIN)
-      setTokenOnChainChange(chainName, values.destination);
-    else if (fieldName === WARP_QUERY_PARAMS.DESTINATION)
-      setTokenOnChainChange(values.origin, chainName);
-    updateQueryParam(fieldName, chainName);
-  };
-
-  const onSwapChain = (origin: string, destination: string) => {
-    updateQueryParam(WARP_QUERY_PARAMS.ORIGIN, origin);
-    updateQueryParam(WARP_QUERY_PARAMS.DESTINATION, destination);
-    setTokenOnChainChange(origin, destination);
-  };
-
-  return (
-    <div className="mt-2 flex items-center justify-between gap-4">
-      <ChainSelectField
-        name="origin"
-        label="From"
-        disabled={isReview}
-        customListItemField={destinationRouteCounts}
-        onChange={handleChange}
-      />
-      <div className="flex flex-1 flex-col items-center">
-        <SwapChainsButton disabled={isReview} onSwapChain={onSwapChain} />
-      </div>
-      <ChainSelectField
-        name="destination"
-        label="To"
-        disabled={isReview}
-        customListItemField={originRouteCounts}
-        onChange={handleChange}
-      />
-    </div>
-  );
-}
-
-function TokenSection({
-  setIsNft,
-  isReview,
-}: {
-  setIsNft: (b: boolean) => void;
-  isReview: boolean;
-}) {
-  const onChangeToken = (addressOrDenom: string) => {
-    updateQueryParam(WARP_QUERY_PARAMS.TOKEN, addressOrDenom);
-  };
-
-  return (
-    <div className="flex-1">
-      <label htmlFor="tokenIndex" className="block pl-0.5 text-sm text-gray-600">
-        Token
-      </label>
-      <TokenSelectField
-        name="tokenIndex"
-        disabled={isReview}
-        setIsNft={setIsNft}
-        onChangeToken={onChangeToken}
-      />
-    </div>
-  );
-}
-
-function AmountSection({ isNft, isReview }: { isNft: boolean; isReview: boolean }) {
-  const { values } = useFormikContext<TransferFormValues>();
-  const { balance } = useOriginBalance(values);
-
-  return (
-    <div className="flex-1">
-      <div className="flex justify-between pr-1">
-        <label htmlFor="amount" className="block pl-0.5 text-sm text-gray-600">
-          Amount
-        </label>
-        <TokenBalance label="My balance" balance={balance} />
-      </div>
-      {isNft ? (
-        <SelectOrInputTokenIds disabled={isReview} />
-      ) : (
-        <div className="relative w-full">
-          <TextField
-            name="amount"
-            placeholder="0.00"
-            className="w-full"
-            type="number"
-            step="any"
-            disabled={isReview}
-          />
-          <MaxButton disabled={isReview} balance={balance} />
-        </div>
-      )}
-    </div>
-  );
-}
-
-function RecipientSection({ isReview }: { isReview: boolean }) {
-  const { values } = useFormikContext<TransferFormValues>();
-  const { balance } = useDestinationBalance(values);
-  useRecipientBalanceWatcher(values.recipient, balance);
-
-  return (
-    <div className="mt-4">
-      <div className="flex justify-between pr-1">
-        <label htmlFor="recipient" className="block pl-0.5 text-sm text-gray-600">
-          Recipient address
-        </label>
-        <TokenBalance label="Remote balance" balance={balance} />
-      </div>
-      <div className="relative w-full">
-        <TextField
-          name="recipient"
-          placeholder="0x123456..."
-          className="w-full"
-          disabled={isReview}
-        />
-        <SelfButton disabled={isReview} />
-      </div>
-    </div>
-  );
-}
-
-function TokenBalance({ label, balance }: { label: string; balance?: TokenAmount | null }) {
-  const value = balance?.getDecimalFormattedAmount().toFixed(5) || '0';
-  return <div className="text-right text-xs text-gray-600">{`${label}: ${value}`}</div>;
-}
-
-function ButtonSection({
-  isReview,
-  isValidating,
-  setIsReview,
-}: {
-  isReview: boolean;
-  isValidating: boolean;
-  setIsReview: (b: boolean) => void;
-}) {
-  const { values } = useFormikContext<TransferFormValues>();
-  const chainDisplayName = useChainDisplayName(values.destination);
-
-  const isSanctioned = useIsAccountSanctioned();
-
-  const onDoneTransactions = () => {
-    setIsReview(false);
-    setTransferLoading(false);
-    // resetForm();
-  };
-  const { triggerTransactions } = useTokenTransfer(onDoneTransactions);
-
-  const { setTransferLoading } = useStore((s) => ({
-    setTransferLoading: s.setTransferLoading,
-  }));
-
-  const triggerTransactionsHandler = async () => {
-    if (isSanctioned) {
+  // 修改网络切换的监听逻辑
+  useEffect(() => {
+    if (!provider || !autoSwitchNetwork || isNetworkSwitching) {
       return;
     }
-    setIsReview(false);
-    setTransferLoading(true);
-    await triggerTransactions(values);
+
+    const currentChain = getCurrentChainName();
+    
+    // 只有当目标链存在，且当前链不是目标链时才切换
+    if (targetChain && currentChain !== targetChain) {
+      const switchNetwork = async () => {
+        try {
+          await switchToNetwork(targetChain);
+        } catch (error) {
+          console.error('Network switch failed:', error);
+        }
+      };
+
+      const timer = setTimeout(switchNetwork, 1000);
+      return () => clearTimeout(timer);
+    } else if (currentChain === targetChain) {
+      // 如果已经切换到目标链，清除目标链
+      setTargetChain(null);
+    }
+  }, [debouncedChainId, provider, autoSwitchNetwork, isNetworkSwitching, getCurrentChainName, switchToNetwork, targetChain]);
+
+  // 处理源链变化
+  useEffect(() => {
+    if (sourceChain && !isNetworkSwitching) {
+      setTargetChain(sourceChain);
+    }
+  }, [sourceChain, isNetworkSwitching]);
+
+  // 检测钱包当前连接的链是否与源链匹配
+  const isConnectedToSourceChain = useCallback(() => {
+    const currentChain = getCurrentChainName();
+    const isMatched = currentChain === sourceChain;
+    console.log("Network match check: currentChain=", currentChain, ", sourceChain=", sourceChain, ", matched=", isMatched);
+    return isMatched;
+  }, [getCurrentChainName, sourceChain]);
+
+  // 处理链切换按钮点击
+  const handleSwapChains = () => {
+    const tempSource = sourceChain;
+    const tempDest = destinationChain;
+    
+    setSourceChain(tempDest);
+    setDestinationChain(tempSource);
   };
 
-  if (!isReview) {
-    return (
-      <ConnectAwareSubmitButton
-        chainName={values.origin}
-        text={isValidating ? 'Validating...' : 'Continue'}
-        classes="mt-4 px-3 py-1.5"
-      />
-    );
-  }
+  // 处理源链选择变化
+  const handleSourceChainChange = useCallback((newChain: 'deepbrainchain' | 'bsc') => {
+    setSourceChain(newChain);
+  }, []);
 
-  return (
-    <div className="mt-4 flex items-center justify-between space-x-4">
-      <SolidButton
-        type="button"
-        color="primary"
-        onClick={() => setIsReview(false)}
-        className="px-6 py-1.5"
-        icon={<ChevronIcon direction="w" width={10} height={6} color={Color.white} />}
-      >
-        <span>Edit</span>
-      </SolidButton>
-      <SolidButton
-        type="button"
-        color="accent"
-        onClick={triggerTransactionsHandler}
-        className="flex-1 px-3 py-1.5"
-      >
-        {`Send to ${chainDisplayName}`}
-      </SolidButton>
-    </div>
-  );
-}
+  const handleDestinationChainChange = useCallback((newChain: 'deepbrainchain' | 'bsc') => {
+    setDestinationChain(newChain);
+  }, []);
 
-function MaxButton({ balance, disabled }: { balance?: TokenAmount; disabled?: boolean }) {
-  const { values, setFieldValue } = useFormikContext<TransferFormValues>();
-  const { origin, destination, tokenIndex } = values;
-  const multiProvider = useMultiProvider();
-  const { accounts } = useAccounts(multiProvider);
-  const { fetchMaxAmount, isLoading } = useFetchMaxAmount();
+  const checkAndApproveToken = async (tokenAddress: string, spenderAddress: string, amount: string) => {
+    if (!provider || !account) return false;
+    
+    try {
+      const signer = provider.getSigner(account);
+      const tokenContract = new ethers.Contract(
+        tokenAddress,
+        ['function approve(address spender, uint256 amount) returns (bool)', 'function allowance(address owner, address spender) view returns (uint256)', 'function symbol() view returns (string)'],
+        signer
+      );
 
-  const onClick = async () => {
-    if (!balance || isNullish(tokenIndex) || disabled) return;
-    const maxAmount = await fetchMaxAmount({ balance, origin, destination, accounts });
-    if (isNullish(maxAmount)) return;
-    const decimalsAmount = maxAmount.getDecimalFormattedAmount();
-    const roundedAmount = new BigNumber(decimalsAmount).toFixed(4, BigNumber.ROUND_FLOOR);
-    setFieldValue('amount', roundedAmount);
+      console.log("Checking token approval:", {
+        owner: account,
+        spender: spenderAddress,
+        amount: amount
+      });
+      const allowance = await tokenContract.allowance(account, spenderAddress);
+      console.log(`Current allowance: ${ethers.utils.formatUnits(allowance, 18)}`);
+      
+      // 获取代币符号以增强用户体验
+      let tokenSymbol = '';
+      try {
+        tokenSymbol = await tokenContract.symbol();
+      } catch (e) {
+        console.log("Cannot get token symbol", e);
+        tokenSymbol = 'Token';
+      }
+      
+      if (allowance.lt(amount)) {
+        console.log(`Insufficient allowance, approving: ${amount}`);
+        setTxStatus(`Approving ${tokenSymbol}...`);
+        setError('Insufficient allowance, initiating approval transaction...');
+        
+        // 使用最大值进行授权，避免将来需要重复授权
+        const maxUint256 = ethers.constants.MaxUint256;
+        const approveTx = await tokenContract.approve(spenderAddress, maxUint256);
+        
+        console.log('Approval transaction sent:', approveTx.hash);
+        setError(`Approval transaction sent, waiting for confirmation...\nTransaction hash: ${approveTx.hash}`);
+        setTxStatus(`${tokenSymbol} approval in progress...`);
+        
+        const receipt = await approveTx.wait();
+        console.log('Approval transaction confirmed:', receipt.transactionHash);
+        setError('');
+        setTxStatus(`${tokenSymbol} approved! Processing cross-chain transfer...`);
+        
+        return true;
+      } else {
+        console.log('Sufficient allowance, no additional approval needed');
+        return true;
+      }
+    } catch (e: any) {
+      console.log('Approval process error:', e);
+      setError(`Approval process error: ${e?.message || String(e)}`);
+      setTxStatus('Authorization failed');
+      setIsProcessing(false);
+      
+      return false;
+    }
   };
 
-  return (
-    <SolidButton
-      type="button"
-      onClick={onClick}
-      color="primary"
-      disabled={disabled}
-      className="absolute bottom-1 right-1 top-2.5 px-2 text-xs opacity-90 all:rounded"
-    >
-      {isLoading ? (
-        <div className="flex items-center">
-          <SpinnerIcon className="h-5 w-5" color="white" />
-        </div>
-      ) : (
-        'Max'
-      )}
-    </SolidButton>
-  );
-}
+  // 执行单个交易
+  const executeTx = async (tx: any) => {
+    if (!provider || !account) {
+      setError('Please enter transfer amount and recipient address');
+      return false;
+    }
+    
+    try {
+      // 打印交易详情用于调试
+      console.log("Transaction details:", {
+        to: tx.transaction.to,
+        data: tx.transaction.data,
+        value: tx.transaction.value,
+        type: tx.type,
+        token: tx.token
+      });
 
-function SelfButton({ disabled }: { disabled?: boolean }) {
-  const { values, setFieldValue } = useFormikContext<TransferFormValues>();
-  const multiProvider = useMultiProvider();
-  const chainDisplayName = useChainDisplayName(values.destination);
-  const address = useAccountAddressForChain(multiProvider, values.destination);
-  const onClick = () => {
-    if (disabled) return;
-    if (address) setFieldValue('recipient', address);
-    else
-      toast.warn(`No account found for for chain ${chainDisplayName}, is your wallet connected?`);
+      const signer = provider.getSigner(account);
+      
+      // 构建交易请求
+      const txRequest: any = {
+        to: tx.transaction.to,
+        data: tx.transaction.data,
+      };
+
+      // 处理 value 字段
+      if (tx.transaction.value) {
+        // 确保 value 是有效的十六进制字符串
+        if (typeof tx.transaction.value === 'string' && tx.transaction.value.startsWith('0x')) {
+          txRequest.value = tx.transaction.value;
+        } else if (tx.transaction.value._hex) {
+          txRequest.value = tx.transaction.value._hex;
+        } else {
+          // 如果都不是，尝试转换为BigNumber
+          try {
+            const valueAsBN = ethers.BigNumber.from(tx.transaction.value);
+            txRequest.value = valueAsBN.toHexString();
+          } catch (error) {
+            console.error('无效的交易金额:', error);
+            setError('无效的交易金额');
+            return false;
+          }
+        }
+      } else {
+        txRequest.value = '0x0'; // 如果没有 value，设置为 0
+      }
+
+      // 检查余额
+      const balance = await provider.getBalance(account);
+      const valueInWei = txRequest.value ? ethers.BigNumber.from(txRequest.value) : ethers.BigNumber.from(0);
+      
+      console.log('Balance check:', {
+        balance: ethers.utils.formatEther(balance),
+        required: ethers.utils.formatEther(valueInWei),
+        valueHex: txRequest.value
+      });
+
+      if (balance.lt(valueInWei)) {
+        const errorMsg = `余额不足，需要 ${ethers.utils.formatEther(valueInWei)} 代币`;
+        setError(errorMsg);
+        return false;
+      }
+
+      // 自动处理代币授权
+      // 检查是否需要代币授权
+      if (tx.token?.addressOrDenom) {
+        console.log('Detected token transaction, preparing to check approval');
+        setTxStatus('Checking token approval...');
+        
+        // 对于所有涉及代币的交易，确保授权充足
+        const approved = await checkAndApproveToken(
+          tx.token.addressOrDenom,
+          tx.transaction.to,
+          tx.type === 'approve' && tx.transaction.value ? 
+            ethers.BigNumber.from(tx.transaction.value).toString() : 
+            ethers.utils.parseUnits(amount, 18).toString()
+        );
+        
+        if (!approved) {
+          // 授权失败信息已在checkAndApproveToken中设置
+          return false;
+        }
+      }
+
+      console.log('Sending transaction:', txRequest);
+      setTxStatus('Transaction sent, waiting for confirmation...');
+      setError('Transaction in progress, please wait for confirmation...');
+      
+      const txResponse = await signer.sendTransaction(txRequest);
+      console.log('Transaction sent:', txResponse.hash);
+      setLastTxHash(txResponse.hash);
+      setLastTxChain(sourceChain);
+      setError(`Transaction confirmed`);
+      setTxStatus('Transaction confirmed');
+      
+      await txResponse.wait();
+      console.log('Transaction confirmed');
+      return true;
+    } catch (e: any) {
+      console.log('Transaction execution error:', e);
+      handleTransactionError(e);
+      return false;
+    }
   };
+
+  // 执行所有交易
+  const executeAllTransactions = async (transactions: any[]) => {
+    if (!transactions || transactions.length === 0) {
+      setError('No executable transactions');
+      setIsProcessing(false);
+      return;
+    }
+
+    setIsProcessing(true);
+    setTxStatus('Starting cross-chain transaction...');
+    setError(''); // 清除之前的错误信息
+
+    // 按顺序执行所有交易
+    try {
+      for (let i = 0; i < transactions.length; i++) {
+        setTxStatus(`Processing step ${i+1}/${transactions.length}...`);
+        const success = await executeTx(transactions[i]);
+        if (!success) {
+          // 错误信息已经在executeTx中设置
+          setIsProcessing(false);
+          return;
+        }
+      }
+      
+      // 所有交易都成功
+      setTxStatus('All transactions completed! Cross-chain transfer successful');
+      setError('');
+      
+      // 交易成功后延迟重置表单状态
+      setTimeout(() => {
+        resetForm(true); // 重置表单但保留成功消息
+        
+        // 5秒后清除成功状态消息
+        setTimeout(() => {
+          setTxStatus('');
+        }, 5000);
+      }, 0);
+    } catch (e: any) {
+      console.log('Transaction generation failed:', e);
+      handleTransactionError(e);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // 统一处理交易错误
+  const handleTransactionError = (e: any) => {
+    console.log('Transaction failed:', e);
+    
+    let errorMessage = '';
+    
+    // 根据错误类型设置不同的错误信息
+    if (e?.code === 'ACTION_REJECTED') {
+      errorMessage = 'User canceled the transaction';
+    } else if (e?.data?.message?.includes('insufficient value')) {
+      errorMessage = 'Cross-chain transaction fee insufficient, please ensure sufficient tokens for transaction fees';
+    } else if (e?.message?.includes('transaction failed')) {
+      errorMessage = 'Transaction execution failed, please check your balance';
+    } else if (e?.message?.includes('gas required exceeds allowance')) {
+      errorMessage = 'Gas fee insufficient, please ensure sufficient tokens for mining fees';
+    } else if (e?.message?.includes('nonce too low')) {
+      errorMessage = 'Transaction Nonce value too low, please refresh page and try again';
+    } else if (e?.message?.includes('replacement fee too low')) {
+      errorMessage = 'Replacement transaction fee too low, please wait for current transaction to complete';
+    } else {
+      errorMessage = `Transaction failed: ${e?.message || 'Unknown error'}`;
+    }
+    
+    // 设置错误信息
+    setError(errorMessage);
+    // 清除之前的交易状态
+    setTxStatus('Transaction failed');
+  };
+
+  // 重置表单状态的函数
+  const resetForm = (keepSuccessMessage = false) => {
+    // 重置输入字段
+    setAmount('');
+    
+    // 重置交易相关状态
+    setTxs(null);
+    setIsProcessing(false);
+    
+    // 不再清除交易状态和哈希
+    if (!keepSuccessMessage) {
+      setError('');
+    }
+  };
+
+  // 获取链的浏览器URL
+  const getExplorerUrl = (chain: 'deepbrainchain' | 'bsc', hash: string) => {
+    if (chain === 'deepbrainchain') {
+      return `https://www.dbcscan.io/tx/${hash}`;
+    } else {
+      return `https://bscscan.com/tx/${hash}`;
+    }
+  };
+
+  const handleClick = async () => {
+    if (isProcessing) {
+      return;
+    }
+    
+    if (!amount) {
+      setError('Please enter transfer amount');
+      return;
+    }
+
+    if (!account) {
+      setError('Please connect your wallet');
+      return;
+    }
+
+    const recipient = account;
+    
+    // 检查网络并尝试切换
+    const isOnCorrectNetwork = isConnectedToSourceChain();
+    if (!isOnCorrectNetwork) {
+      setError('Switching to correct network...');
+      const success = await switchToNetwork(sourceChain);
+      if (!success) {
+        setError(`Unable to switch to ${sourceChain}. Please switch manually.`);
+        return;
+      }
+      // 等待网络切换完成
+      await new Promise(resolve => setTimeout(resolve, 2000));
+    }
+
+    setError('');
+    setTxs(null);
+    setIsProcessing(true);
+    setTxStatus('Preparing...');
+    
+    try {
+      const chainMetadata: any = {
+        "bsc": {
+          "blockExplorers": [
+            {
+              "name": "BscScan",
+              "url": "https://bscscan.com",
+              "apiUrl": "https://api.bscscan.com/api",
+              "family": "etherscan"
+            }
+          ],
+          "blocks": {
+            "confirmations": 1,
+            "estimateBlockTime": 3,
+            "reorgPeriod": "finalized"
+          },
+          "chainId": 56,
+          "deployer": {
+            "name": "Abacus Works",
+            "url": "https://www.hyperlane.xyz"
+          },
+          "displayName": "Binance Smart Chain",
+          "displayNameShort": "Binance",
+          "domainId": 56,
+          "gasCurrencyCoinGeckoId": "binancecoin",
+          "gnosisSafeTransactionServiceUrl": "https://safe-transaction-bsc.safe.global/",
+          "name": "bsc",
+          "nativeToken": {
+            "decimals": 18,
+            "name": "BNB",
+            "symbol": "BNB"
+          },
+          "protocol": "ethereum",
+          "rpcUrls": [
+            {
+              "http": "https://bsc-dataseed1.bnbchain.org"
+            }
+          ],
+          "technicalStack": "other",
+          "logoURI": "https://raw.githubusercontent.com/hyperlane-xyz/hyperlane-registry/main/chains/bsc/logo.svg"
+        },
+        "deepbrainchain": {
+          "blockExplorers": [
+            {
+              "apiUrl": "https://www.dbcscan.io/api",
+              "family": "blockscout",
+              "name": "dbcscan",
+              "url": "https://www.dbcscan.io"
+            }
+          ],
+          "blocks": {
+            "confirmations": 1,
+            "estimateBlockTime": 6,
+            "reorgPeriod": "finalized"
+          },
+          "chainId": 19880818,
+          "deployer": {
+            "name": "Abacus Works",
+            "url": "https://www.hyperlane.xyz"
+          },
+          "displayName": "Deep Brain Chain",
+          "domainId": 19880818,
+          "gasCurrencyCoinGeckoId": "deepbrain-chain",
+          "name": "deepbrainchain",
+          "nativeToken": {
+            "decimals": 18,
+            "name": "DBC",
+            "symbol": "DBC"
+          },
+          "protocol": "ethereum",
+          "rpcUrls": [
+            {
+              "http": "https://rpc2.dbcwallet.io"
+            }
+          ],
+          "technicalStack": "polkadotsubstrate",
+          "logoURI": "https://raw.githubusercontent.com/hyperlane-xyz/hyperlane-registry/main/chains/deepbrainchain/logo.svg"
+        }
+      };
+
+      const tokens = [
+        {
+          chainName: 'bsc',
+          standard: 'EvmHypCollateral',
+          decimals: 18,
+          symbol: 'USDT',
+          name: 'Tether USD',
+          addressOrDenom: '0xF528Aa0c86cBBbBb4288ecb8133D317DD528FD88',
+          collateralAddressOrDenom: '0x55d398326f99059fF775485246999027B3197955',
+          connections: [
+            { token: 'ethereum|deepbrainchain|0x5155101187F8Faa1aD8AfeC7820c801870F81D52' },
+          ],
+        },
+        {
+          chainName: 'deepbrainchain',
+          standard: 'EvmHypSynthetic',
+          decimals: 18,
+          symbol: 'USDT',
+          name: 'Tether USD',
+          addressOrDenom: '0x5155101187F8Faa1aD8AfeC7820c801870F81D52',
+          connections: [
+            { token: 'ethereum|bsc|0xF528Aa0c86cBBbBb4288ecb8133D317DD528FD88' },
+          ],
+        },
+      ];
+
+      const warpCoreConfig = { tokens, options: {} };
+      const multiProvider = new MultiProtocolProvider(chainMetadata);
+      
+      console.log('Initializing configuration:', {
+        amount,
+        recipient,
+        multiProvider,
+        warpCoreConfig,
+        chainMetadata,
+      });
+      
+      const warpCore = WarpCore.FromConfig(multiProvider, warpCoreConfig);
+
+      const tokenIndex = warpCore.tokens.findIndex((token: any) => token.chainName === sourceChain);
+
+      if (tokenIndex === -1) {
+        setError('Token configuration not found');
+        setIsProcessing(false);
+        return;
+      }
+
+      const originToken = warpCore.tokens[tokenIndex];
+      const originTokenAmount = originToken.amount(ethers.utils.parseUnits(amount, 18).toString());
+
+      setTxStatus('Generating cross-chain transaction...');
+      const transactions = await warpCore.getTransferRemoteTxs({
+        originTokenAmount,
+        destination: destinationChain,
+        sender: account || '',
+        recipient,
+      });
+
+      setTxs(transactions);
+      
+      // 自动执行所有交易
+      await executeAllTransactions(transactions);
+      
+    } catch (e: any) {
+      console.log('Transaction generation failed:', e);
+      handleTransactionError(e);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // 添加网络变化监听调试
+  useEffect(() => {
+    if (NETWORK_SWITCH_DEBUG) {
+      console.log("==== Network change listener ====");
+      console.log("Listener chainId change:", chainId);
+      console.log("Current source chain:", sourceChain);
+      console.log("=======================");
+    }
+  }, [chainId, sourceChain]);
+
+  // 添加组件卸载时的清理工作
+  useEffect(() => {
+    return () => {
+      if (NETWORK_SWITCH_DEBUG) {
+        console.log("Component will unmount, resetting network switch state");
+      }
+      // 重置网络切换状态
+      isNetworkSwitchPending = false;
+      setIsNetworkSwitching(false);
+      setIsProcessing(false);
+      setError('');
+      setTxStatus('');
+      setTargetChain(null);
+    };
+  }, []);
+
   return (
-    <SolidButton
-      type="button"
-      onClick={onClick}
-      color="primary"
-      disabled={disabled}
-      className="absolute bottom-1 right-1 top-2.5 px-2 text-xs opacity-90 all:rounded"
-    >
-      Self
-    </SolidButton>
-  );
-}
+    <FormWrapper>
+      <AutoColumn gap="16px">
+        {/* <AutoSwitchContainer>
+          <SwitchLabel>
+            <span>自动切换网络</span>
+            <SwitchInput 
+              type="checkbox" 
+              checked={autoSwitchNetwork} 
+              onChange={(e) => setAutoSwitchNetwork(e.target.checked)} 
+            />
+            <SwitchSlider />
+          </SwitchLabel>
+        </AutoSwitchContainer> */}
 
-function ReviewDetails({ visible }: { visible: boolean }) {
-  const { values } = useFormikContext<TransferFormValues>();
-  const { amount, destination, tokenIndex } = values;
-  const warpCore = useWarpCore();
-  const originToken = getTokenByIndex(warpCore, tokenIndex);
-  const originTokenSymbol = originToken?.symbol || '';
-  const connection = originToken?.getConnectionForChain(destination);
-  const destinationToken = connection?.token;
-  const isNft = originToken?.isNft();
-
-  const amountWei = isNft ? amount.toString() : toWei(amount, originToken?.decimals);
-
-  const { isLoading: isApproveLoading, isApproveRequired } = useIsApproveRequired(
-    originToken,
-    amountWei,
-    visible,
-  );
-  const { isLoading: isQuoteLoading, fees } = useFeeQuotes(values, visible);
-
-  const isLoading = isApproveLoading || isQuoteLoading;
-
-  return (
-    <div
-      className={`${
-        visible ? 'max-h-screen duration-1000 ease-in' : 'max-h-0 duration-500'
-      } overflow-hidden transition-all`}
-    >
-      <label className="mt-4 block pl-0.5 text-sm text-gray-600">Transactions</label>
-      <div className="mt-1.5 space-y-2 break-all rounded border border-gray-400 bg-gray-150 px-2.5 py-2 text-sm">
-        {isLoading ? (
-          <div className="flex items-center justify-center py-6">
-            <SpinnerIcon className="h-5 w-5" />
+  
+        
+        {/* 当网络不匹配且没有启用自动切换时显示警告 */}
+        {!isConnectedToSourceChain() && !autoSwitchNetwork && (
+          <NetworkMismatchWarning>
+            <div>
+              Current network does not match source chain.
+              Please switch to {sourceChain === 'deepbrainchain' ? 'DBC' : 'BNB'} chain.
+            </div>
+            <ButtonPrimary 
+              onClick={() => switchToNetwork(sourceChain)} 
+              style={{ padding: '6px 12px', fontSize: '14px', marginLeft: '8px' }}
+            >
+              Switch Network
+            </ButtonPrimary>
+          </NetworkMismatchWarning>
+        )}
+        
+        <ChainSelectorContainer>
+          <div className='flex flex-col'>
+          <ChainLabel>From:</ChainLabel>
+          <ChainSelector>
+            <ChainSelect 
+              as="div"
+              onClick={() => handleSourceChainChange(sourceChain === 'deepbrainchain' ? 'bsc' : 'deepbrainchain')}
+            >
+              <ChainIcon>
+                <ChainLogo chainId={chainConfigs[sourceChain].chainId} size={24} />
+              </ChainIcon>
+              <ChainName>{chainConfigs[sourceChain].name}</ChainName>
+            </ChainSelect>
+          </ChainSelector>
           </div>
-        ) : (
-          <>
-            {isApproveRequired && (
+       
+          
+          <SwitchButton onClick={handleSwapChains} type="button">
+            <svg viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg" width="20" height="20">
+              <path d="M7.56 17.01L8.68875 15.8812L6.48375 13.6762H11.55V12.1012H6.48375L8.68875 9.89625L7.56 8.7675L3.43875 12.8887L7.56 17.01ZM13.44 12.4425L17.5612 8.32125L13.4662 4.2L12.3112 5.32875L14.5162 7.53375H9.45V9.10875H14.5162L12.3112 11.3137L13.44 12.4425ZM10.5 21C9.065 21 7.70875 20.7244 6.43125 20.1731C5.15375 19.6219 4.03813 18.8694 3.08437 17.9156C2.13062 16.9619 1.37812 15.8462 0.826875 14.5687C0.275625 13.2912 0 11.935 0 10.5C0 9.0475 0.275625 7.6825 0.826875 6.405C1.37812 5.1275 2.13062 4.01625 3.08437 3.07125C4.03813 2.12625 5.15375 1.37812 6.43125 0.826875C7.70875 0.275625 9.065 0 10.5 0C11.9525 0 13.3175 0.275625 14.595 0.826875C15.8725 1.37812 16.9837 2.12625 17.9287 3.07125C18.8738 4.01625 19.6219 5.1275 20.1731 6.405C20.7244 7.6825 21 9.0475 21 10.5C21 11.935 20.7244 13.2912 20.1731 14.5687C19.6219 15.8462 18.8738 16.9619 17.9287 17.9156C16.9837 18.8694 15.8725 19.6219 14.595 20.1731C13.3175 20.7244 11.9525 21 10.5 21ZM10.5 19.425C12.985 19.425 15.0937 18.5544 16.8262 16.8131C18.5587 15.0719 19.425 12.9675 19.425 10.5C19.425 8.015 18.5587 5.90625 16.8262 4.17375C15.0937 2.44125 12.985 1.575 10.5 1.575C8.0325 1.575 5.92812 2.44125 4.18687 4.17375C2.44563 5.90625 1.575 8.015 1.575 10.5C1.575 12.9675 2.44563 15.0719 4.18687 16.8131C5.92812 18.5544 8.0325 19.425 10.5 19.425Z" fill="currentColor"></path>
+            </svg>
+          </SwitchButton>
+          
+          <div className='flex flex-col'>
+            <ChainLabel>To:</ChainLabel>
+            <ChainSelector>
+            <ChainSelect 
+              as="div"
+              onClick={() => handleDestinationChainChange(destinationChain === 'deepbrainchain' ? 'bsc' : 'deepbrainchain')}
+            >
+              <ChainIcon>
+                <ChainLogo chainId={chainConfigs[destinationChain].chainId} size={24} />
+              </ChainIcon>
+              <ChainName>{chainConfigs[destinationChain].name}</ChainName>
+            </ChainSelect>
+          </ChainSelector>
+          </div>
+        
+        </ChainSelectorContainer>
+        
+        <InputContainer>
+          <InputLabel>Amount</InputLabel>
+          <InputField
+            type="text"
+            inputMode="decimal"
+            pattern="[0-9]*[.]?[0-9]*"
+            placeholder={`Enter ${chainConfigs[sourceChain].name} amount`}
+            value={amount}
+            onChange={(e) => {
+              const validatedValue = validateAmount(e.target.value);
+              setAmount(validatedValue);
+            }}
+            onKeyDown={(e) => {
+              // Allow: backspace, delete, tab, escape, enter, decimal point
+              if (
+                ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', '.'].includes(e.key) ||
+                // Allow: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+                (['a', 'c', 'v', 'x'].includes(e.key.toLowerCase()) && e.ctrlKey) ||
+                // Allow: home, end, left, right
+                ['Home', 'End', 'ArrowLeft', 'ArrowRight'].includes(e.key)
+              ) {
+                return;
+              }
+              
+              // Block any non-number input
+              if (
+                (e.key < '0' || e.key > '9') && 
+                e.key !== '.' && 
+                !e.ctrlKey && 
+                !e.metaKey
+              ) {
+                e.preventDefault();
+              }
+            }}
+          />
+        </InputContainer>
+        
+        <RecipientInfo>
+          <span>Transfer to your address:</span>
+          <AddressText>
+            {account ? `${account.slice(0, 6)}...${account.slice(-4)}` : 'Please connect wallet'}
+          </AddressText>
+        </RecipientInfo>
+        
+        {/* 交易状态显示 */}
+        {txStatus && (
+          <TransactionStatus 
+            status={
+              txStatus.includes('failed') ? 'error' :
+              txStatus.includes('success') ? 'success' : 
+              'pending'
+            }
+          >
+            <div>{txStatus}</div>
+            {lastTxHash && (
               <div>
-                <h4>Transaction 1: Approve Transfer</h4>
-                <div className="ml-1.5 mt-1.5 space-y-1.5 border-l border-gray-300 pl-2 text-xs">
-                  <p>{`Router Address: ${originToken?.addressOrDenom}`}</p>
-                  {originToken?.collateralAddressOrDenom && (
-                    <p>{`Collateral Address: ${originToken.collateralAddressOrDenom}`}</p>
-                  )}
-                </div>
+                Transaction Hash: <TransactionLink 
+                  href={getExplorerUrl(lastTxChain, lastTxHash)} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                >
+                  {lastTxHash.slice(0, 6)}...{lastTxHash.slice(-4)}
+                </TransactionLink>
               </div>
             )}
-            <div>
-              <h4>{`Transaction${isApproveRequired ? ' 2' : ''}: Transfer Remote`}</h4>
-              <div className="ml-1.5 mt-1.5 space-y-1.5 border-l border-gray-300 pl-2 text-xs">
-                {destinationToken?.addressOrDenom && (
-                  <p className="flex">
-                    <span className="min-w-[6.5rem]">Remote Token</span>
-                    <span>{destinationToken.addressOrDenom}</span>
-                  </p>
-                )}
-                <p className="flex">
-                  <span className="min-w-[6.5rem]">{isNft ? 'Token ID' : 'Amount'}</span>
-                  <span>{`${amount} ${originTokenSymbol}`}</span>
-                </p>
-                {fees?.localQuote && fees.localQuote.amount > 0n && (
-                  <p className="flex">
-                    <span className="min-w-[6.5rem]">Local Gas (est.)</span>
-                    <span>{`${fees.localQuote.getDecimalFormattedAmount().toFixed(4) || '0'} ${
-                      fees.localQuote.token.symbol || ''
-                    }`}</span>
-                  </p>
-                )}
-                {fees?.interchainQuote && fees.interchainQuote.amount > 0n && (
-                  <p className="flex">
-                    <span className="min-w-[6.5rem]">Interchain Gas</span>
-                    <span>{`${fees.interchainQuote.getDecimalFormattedAmount().toFixed(4) || '0'} ${
-                      fees.interchainQuote.token.symbol || ''
-                    }`}</span>
-                  </p>
-                )}
-              </div>
-            </div>
-          </>
+          </TransactionStatus>
         )}
-      </div>
-    </div>
+        
+        {/* 错误信息显示 */}
+        {error && !error.includes('Transaction Hash') && <ErrorText>{error}</ErrorText>}
+        
+        <ActionButton onClick={handleClick} disabled={isProcessing}>
+          {isProcessing ? 'Processing...' : 'Cross-chain Transfer'}
+        </ActionButton>
+      </AutoColumn>
+    </FormWrapper>
   );
-}
-
-function WarningBanners() {
-  const { values } = useFormikContext<TransferFormValues>();
-  return (
-    // Max height to prevent double padding if multiple warnings are visible
-    <div className="max-h-10">
-      <ChainWalletWarning origin={values.origin} />
-      <ChainConnectionWarning origin={values.origin} destination={values.destination} />
-    </div>
-  );
-}
-
-function useFormInitialValues(): TransferFormValues {
-  const warpCore = useWarpCore();
-  const params = getQueryParams();
-
-  const originQuery = tryGetValidChainName(
-    params.get(WARP_QUERY_PARAMS.ORIGIN),
-    warpCore.multiProvider,
-  );
-  const destinationQuery = tryGetValidChainName(
-    params.get(WARP_QUERY_PARAMS.DESTINATION),
-    warpCore.multiProvider,
-  );
-  const defaultOriginToken = config.defaultOriginChain
-    ? warpCore.getTokensForChain(config.defaultOriginChain)?.[0]
-    : undefined;
-
-  const tokenIndex = getInitialTokenIndex(
-    warpCore,
-    params.get(WARP_QUERY_PARAMS.TOKEN),
-    originQuery,
-    destinationQuery,
-    defaultOriginToken,
-    config.defaultDestinationChain,
-  );
-
-  return useMemo(() => {
-    const firstToken = defaultOriginToken || warpCore.tokens[0];
-    const connectedToken = firstToken.connections?.[0];
-    const chainsValid = originQuery && destinationQuery;
-
-    return {
-      origin: chainsValid ? originQuery : firstToken.chainName,
-      destination: chainsValid
-        ? destinationQuery
-        : config.defaultDestinationChain || connectedToken?.token?.chainName || '',
-      tokenIndex: tokenIndex,
-      amount: '',
-      recipient: '',
-    };
-  }, [warpCore, destinationQuery, originQuery, tokenIndex, defaultOriginToken]);
-}
-
-const insufficientFundsErrMsg = /insufficient.[funds|lamports]/i;
-const emptyAccountErrMsg = /AccountNotFound/i;
-
-async function validateForm(
-  warpCore: WarpCore,
-  values: TransferFormValues,
-  accounts: Record<ProtocolType, AccountInfo>,
-) {
-  try {
-    const { origin, destination, tokenIndex, amount, recipient } = values;
-    const token = getTokenByIndex(warpCore, tokenIndex);
-    if (!token) return { token: 'Token is required' };
-    const amountWei = toWei(amount, token.decimals);
-    const { address, publicKey: senderPubKey } = getAccountAddressAndPubKey(
-      warpCore.multiProvider,
-      origin,
-      accounts,
-    );
-    const result = await warpCore.validateTransfer({
-      originTokenAmount: token.amount(amountWei),
-      destination,
-      recipient,
-      sender: address || '',
-      senderPubKey: await senderPubKey,
-    });
-    return result;
-  } catch (error: any) {
-    logger.error('Error validating form', error);
-    let errorMsg = errorToString(error, 40);
-    const fullError = `${errorMsg} ${error.message}`;
-    if (insufficientFundsErrMsg.test(fullError) || emptyAccountErrMsg.test(fullError)) {
-      errorMsg = 'Insufficient funds for gas fees';
-    }
-    return { form: errorMsg };
-  }
 }

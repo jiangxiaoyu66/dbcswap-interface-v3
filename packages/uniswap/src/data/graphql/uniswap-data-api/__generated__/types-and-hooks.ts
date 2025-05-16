@@ -153,9 +153,7 @@ export enum Chain {
   EthereumSepolia = 'ETHEREUM_SEPOLIA',
   Optimism = 'OPTIMISM',
   Polygon = 'POLYGON',
-  UnknownChain = 'UNKNOWN_CHAIN',
-  DBC = 'DBC',
-  DBCTEST = 'DBCTEST'
+  UnknownChain = 'UNKNOWN_CHAIN'
 }
 
 export enum CollectionSortableField {
@@ -2718,13 +2716,13 @@ export const NftsDocument = gql`
  * });
  */
 export function useNftsQuery(baseOptions: Apollo.QueryHookOptions<NftsQuery, NftsQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<NftsQuery, NftsQueryVariables>(NftsDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<NftsQuery, NftsQueryVariables>(NftsDocument, options);
+      }
 export function useNftsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<NftsQuery, NftsQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<NftsQuery, NftsQueryVariables>(NftsDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<NftsQuery, NftsQueryVariables>(NftsDocument, options);
+        }
 export type NftsQueryHookResult = ReturnType<typeof useNftsQuery>;
 export type NftsLazyQueryHookResult = ReturnType<typeof useNftsLazyQuery>;
 export type NftsQueryResult = Apollo.QueryResult<NftsQuery, NftsQueryVariables>;
@@ -2837,13 +2835,13 @@ export const NftItemScreenDocument = gql`
  * });
  */
 export function useNftItemScreenQuery(baseOptions: Apollo.QueryHookOptions<NftItemScreenQuery, NftItemScreenQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<NftItemScreenQuery, NftItemScreenQueryVariables>(NftItemScreenDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<NftItemScreenQuery, NftItemScreenQueryVariables>(NftItemScreenDocument, options);
+      }
 export function useNftItemScreenLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<NftItemScreenQuery, NftItemScreenQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<NftItemScreenQuery, NftItemScreenQueryVariables>(NftItemScreenDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<NftItemScreenQuery, NftItemScreenQueryVariables>(NftItemScreenDocument, options);
+        }
 export type NftItemScreenQueryHookResult = ReturnType<typeof useNftItemScreenQuery>;
 export type NftItemScreenLazyQueryHookResult = ReturnType<typeof useNftItemScreenLazyQuery>;
 export type NftItemScreenQueryResult = Apollo.QueryResult<NftItemScreenQuery, NftItemScreenQueryVariables>;
@@ -2955,13 +2953,13 @@ export const NftCollectionScreenDocument = gql`
  * });
  */
 export function useNftCollectionScreenQuery(baseOptions: Apollo.QueryHookOptions<NftCollectionScreenQuery, NftCollectionScreenQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<NftCollectionScreenQuery, NftCollectionScreenQueryVariables>(NftCollectionScreenDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<NftCollectionScreenQuery, NftCollectionScreenQueryVariables>(NftCollectionScreenDocument, options);
+      }
 export function useNftCollectionScreenLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<NftCollectionScreenQuery, NftCollectionScreenQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<NftCollectionScreenQuery, NftCollectionScreenQueryVariables>(NftCollectionScreenDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<NftCollectionScreenQuery, NftCollectionScreenQueryVariables>(NftCollectionScreenDocument, options);
+        }
 export type NftCollectionScreenQueryHookResult = ReturnType<typeof useNftCollectionScreenQuery>;
 export type NftCollectionScreenLazyQueryHookResult = ReturnType<typeof useNftCollectionScreenLazyQuery>;
 export type NftCollectionScreenQueryResult = Apollo.QueryResult<NftCollectionScreenQuery, NftCollectionScreenQueryVariables>;
@@ -3037,13 +3035,13 @@ export const NftsTabDocument = gql`
  * });
  */
 export function useNftsTabQuery(baseOptions: Apollo.QueryHookOptions<NftsTabQuery, NftsTabQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<NftsTabQuery, NftsTabQueryVariables>(NftsTabDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<NftsTabQuery, NftsTabQueryVariables>(NftsTabDocument, options);
+      }
 export function useNftsTabLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<NftsTabQuery, NftsTabQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<NftsTabQuery, NftsTabQueryVariables>(NftsTabDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<NftsTabQuery, NftsTabQueryVariables>(NftsTabDocument, options);
+        }
 export type NftsTabQueryHookResult = ReturnType<typeof useNftsTabQuery>;
 export type NftsTabLazyQueryHookResult = ReturnType<typeof useNftsTabLazyQuery>;
 export type NftsTabQueryResult = Apollo.QueryResult<NftsTabQuery, NftsTabQueryVariables>;
@@ -3115,13 +3113,13 @@ export const PortfolioBalancesDocument = gql`
  * });
  */
 export function usePortfolioBalancesQuery(baseOptions: Apollo.QueryHookOptions<PortfolioBalancesQuery, PortfolioBalancesQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<PortfolioBalancesQuery, PortfolioBalancesQueryVariables>(PortfolioBalancesDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<PortfolioBalancesQuery, PortfolioBalancesQueryVariables>(PortfolioBalancesDocument, options);
+      }
 export function usePortfolioBalancesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PortfolioBalancesQuery, PortfolioBalancesQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<PortfolioBalancesQuery, PortfolioBalancesQueryVariables>(PortfolioBalancesDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<PortfolioBalancesQuery, PortfolioBalancesQueryVariables>(PortfolioBalancesDocument, options);
+        }
 export type PortfolioBalancesQueryHookResult = ReturnType<typeof usePortfolioBalancesQuery>;
 export type PortfolioBalancesLazyQueryHookResult = ReturnType<typeof usePortfolioBalancesLazyQuery>;
 export type PortfolioBalancesQueryResult = Apollo.QueryResult<PortfolioBalancesQuery, PortfolioBalancesQueryVariables>;
@@ -3193,13 +3191,13 @@ export const MultiplePortfolioBalancesDocument = gql`
  * });
  */
 export function useMultiplePortfolioBalancesQuery(baseOptions: Apollo.QueryHookOptions<MultiplePortfolioBalancesQuery, MultiplePortfolioBalancesQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<MultiplePortfolioBalancesQuery, MultiplePortfolioBalancesQueryVariables>(MultiplePortfolioBalancesDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<MultiplePortfolioBalancesQuery, MultiplePortfolioBalancesQueryVariables>(MultiplePortfolioBalancesDocument, options);
+      }
 export function useMultiplePortfolioBalancesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MultiplePortfolioBalancesQuery, MultiplePortfolioBalancesQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<MultiplePortfolioBalancesQuery, MultiplePortfolioBalancesQueryVariables>(MultiplePortfolioBalancesDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<MultiplePortfolioBalancesQuery, MultiplePortfolioBalancesQueryVariables>(MultiplePortfolioBalancesDocument, options);
+        }
 export type MultiplePortfolioBalancesQueryHookResult = ReturnType<typeof useMultiplePortfolioBalancesQuery>;
 export type MultiplePortfolioBalancesLazyQueryHookResult = ReturnType<typeof useMultiplePortfolioBalancesLazyQuery>;
 export type MultiplePortfolioBalancesQueryResult = Apollo.QueryResult<MultiplePortfolioBalancesQuery, MultiplePortfolioBalancesQueryVariables>;
@@ -3235,13 +3233,13 @@ export const SelectWalletScreenDocument = gql`
  * });
  */
 export function useSelectWalletScreenQuery(baseOptions: Apollo.QueryHookOptions<SelectWalletScreenQuery, SelectWalletScreenQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<SelectWalletScreenQuery, SelectWalletScreenQueryVariables>(SelectWalletScreenDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<SelectWalletScreenQuery, SelectWalletScreenQueryVariables>(SelectWalletScreenDocument, options);
+      }
 export function useSelectWalletScreenLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SelectWalletScreenQuery, SelectWalletScreenQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<SelectWalletScreenQuery, SelectWalletScreenQueryVariables>(SelectWalletScreenDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<SelectWalletScreenQuery, SelectWalletScreenQueryVariables>(SelectWalletScreenDocument, options);
+        }
 export type SelectWalletScreenQueryHookResult = ReturnType<typeof useSelectWalletScreenQuery>;
 export type SelectWalletScreenLazyQueryHookResult = ReturnType<typeof useSelectWalletScreenLazyQuery>;
 export type SelectWalletScreenQueryResult = Apollo.QueryResult<SelectWalletScreenQuery, SelectWalletScreenQueryVariables>;
@@ -3284,13 +3282,13 @@ export const TransactionHistoryUpdaterDocument = gql`
  * });
  */
 export function useTransactionHistoryUpdaterQuery(baseOptions: Apollo.QueryHookOptions<TransactionHistoryUpdaterQuery, TransactionHistoryUpdaterQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<TransactionHistoryUpdaterQuery, TransactionHistoryUpdaterQueryVariables>(TransactionHistoryUpdaterDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TransactionHistoryUpdaterQuery, TransactionHistoryUpdaterQueryVariables>(TransactionHistoryUpdaterDocument, options);
+      }
 export function useTransactionHistoryUpdaterLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TransactionHistoryUpdaterQuery, TransactionHistoryUpdaterQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<TransactionHistoryUpdaterQuery, TransactionHistoryUpdaterQueryVariables>(TransactionHistoryUpdaterDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TransactionHistoryUpdaterQuery, TransactionHistoryUpdaterQueryVariables>(TransactionHistoryUpdaterDocument, options);
+        }
 export type TransactionHistoryUpdaterQueryHookResult = ReturnType<typeof useTransactionHistoryUpdaterQuery>;
 export type TransactionHistoryUpdaterLazyQueryHookResult = ReturnType<typeof useTransactionHistoryUpdaterLazyQuery>;
 export type TransactionHistoryUpdaterQueryResult = Apollo.QueryResult<TransactionHistoryUpdaterQuery, TransactionHistoryUpdaterQueryVariables>;
@@ -3331,13 +3329,13 @@ export const TokenDocument = gql`
  * });
  */
 export function useTokenQuery(baseOptions: Apollo.QueryHookOptions<TokenQuery, TokenQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<TokenQuery, TokenQueryVariables>(TokenDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TokenQuery, TokenQueryVariables>(TokenDocument, options);
+      }
 export function useTokenLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TokenQuery, TokenQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<TokenQuery, TokenQueryVariables>(TokenDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TokenQuery, TokenQueryVariables>(TokenDocument, options);
+        }
 export type TokenQueryHookResult = ReturnType<typeof useTokenQuery>;
 export type TokenLazyQueryHookResult = ReturnType<typeof useTokenLazyQuery>;
 export type TokenQueryResult = Apollo.QueryResult<TokenQuery, TokenQueryVariables>;
@@ -3430,13 +3428,13 @@ export const TokenDetailsScreenDocument = gql`
  * });
  */
 export function useTokenDetailsScreenQuery(baseOptions: Apollo.QueryHookOptions<TokenDetailsScreenQuery, TokenDetailsScreenQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<TokenDetailsScreenQuery, TokenDetailsScreenQueryVariables>(TokenDetailsScreenDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TokenDetailsScreenQuery, TokenDetailsScreenQueryVariables>(TokenDetailsScreenDocument, options);
+      }
 export function useTokenDetailsScreenLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TokenDetailsScreenQuery, TokenDetailsScreenQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<TokenDetailsScreenQuery, TokenDetailsScreenQueryVariables>(TokenDetailsScreenDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TokenDetailsScreenQuery, TokenDetailsScreenQueryVariables>(TokenDetailsScreenDocument, options);
+        }
 export type TokenDetailsScreenQueryHookResult = ReturnType<typeof useTokenDetailsScreenQuery>;
 export type TokenDetailsScreenLazyQueryHookResult = ReturnType<typeof useTokenDetailsScreenLazyQuery>;
 export type TokenDetailsScreenQueryResult = Apollo.QueryResult<TokenDetailsScreenQuery, TokenDetailsScreenQueryVariables>;
@@ -3474,13 +3472,13 @@ export const TokenProjectsDocument = gql`
  * });
  */
 export function useTokenProjectsQuery(baseOptions: Apollo.QueryHookOptions<TokenProjectsQuery, TokenProjectsQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<TokenProjectsQuery, TokenProjectsQueryVariables>(TokenProjectsDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TokenProjectsQuery, TokenProjectsQueryVariables>(TokenProjectsDocument, options);
+      }
 export function useTokenProjectsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TokenProjectsQuery, TokenProjectsQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<TokenProjectsQuery, TokenProjectsQueryVariables>(TokenProjectsDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TokenProjectsQuery, TokenProjectsQueryVariables>(TokenProjectsDocument, options);
+        }
 export type TokenProjectsQueryHookResult = ReturnType<typeof useTokenProjectsQuery>;
 export type TokenProjectsLazyQueryHookResult = ReturnType<typeof useTokenProjectsLazyQuery>;
 export type TokenProjectsQueryResult = Apollo.QueryResult<TokenProjectsQuery, TokenProjectsQueryVariables>;
@@ -3598,13 +3596,13 @@ export const TransactionListDocument = gql`
  * });
  */
 export function useTransactionListQuery(baseOptions: Apollo.QueryHookOptions<TransactionListQuery, TransactionListQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<TransactionListQuery, TransactionListQueryVariables>(TransactionListDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TransactionListQuery, TransactionListQueryVariables>(TransactionListDocument, options);
+      }
 export function useTransactionListLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TransactionListQuery, TransactionListQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<TransactionListQuery, TransactionListQueryVariables>(TransactionListDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TransactionListQuery, TransactionListQueryVariables>(TransactionListDocument, options);
+        }
 export type TransactionListQueryHookResult = ReturnType<typeof useTransactionListQuery>;
 export type TransactionListLazyQueryHookResult = ReturnType<typeof useTransactionListLazyQuery>;
 export type TransactionListQueryResult = Apollo.QueryResult<TransactionListQuery, TransactionListQueryVariables>;
@@ -3722,13 +3720,13 @@ export const FeedTransactionListDocument = gql`
  * });
  */
 export function useFeedTransactionListQuery(baseOptions: Apollo.QueryHookOptions<FeedTransactionListQuery, FeedTransactionListQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<FeedTransactionListQuery, FeedTransactionListQueryVariables>(FeedTransactionListDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<FeedTransactionListQuery, FeedTransactionListQueryVariables>(FeedTransactionListDocument, options);
+      }
 export function useFeedTransactionListLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<FeedTransactionListQuery, FeedTransactionListQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<FeedTransactionListQuery, FeedTransactionListQueryVariables>(FeedTransactionListDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<FeedTransactionListQuery, FeedTransactionListQueryVariables>(FeedTransactionListDocument, options);
+        }
 export type FeedTransactionListQueryHookResult = ReturnType<typeof useFeedTransactionListQuery>;
 export type FeedTransactionListLazyQueryHookResult = ReturnType<typeof useFeedTransactionListLazyQuery>;
 export type FeedTransactionListQueryResult = Apollo.QueryResult<FeedTransactionListQuery, FeedTransactionListQueryVariables>;
@@ -3771,13 +3769,13 @@ export const TopTokensDocument = gql`
  * });
  */
 export function useTopTokensQuery(baseOptions?: Apollo.QueryHookOptions<TopTokensQuery, TopTokensQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<TopTokensQuery, TopTokensQueryVariables>(TopTokensDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TopTokensQuery, TopTokensQueryVariables>(TopTokensDocument, options);
+      }
 export function useTopTokensLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TopTokensQuery, TopTokensQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<TopTokensQuery, TopTokensQueryVariables>(TopTokensDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TopTokensQuery, TopTokensQueryVariables>(TopTokensDocument, options);
+        }
 export type TopTokensQueryHookResult = ReturnType<typeof useTopTokensQuery>;
 export type TopTokensLazyQueryHookResult = ReturnType<typeof useTopTokensLazyQuery>;
 export type TopTokensQueryResult = Apollo.QueryResult<TopTokensQuery, TopTokensQueryVariables>;
@@ -3817,13 +3815,13 @@ export const SearchTokensDocument = gql`
  * });
  */
 export function useSearchTokensQuery(baseOptions: Apollo.QueryHookOptions<SearchTokensQuery, SearchTokensQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<SearchTokensQuery, SearchTokensQueryVariables>(SearchTokensDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<SearchTokensQuery, SearchTokensQueryVariables>(SearchTokensDocument, options);
+      }
 export function useSearchTokensLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SearchTokensQuery, SearchTokensQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<SearchTokensQuery, SearchTokensQueryVariables>(SearchTokensDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<SearchTokensQuery, SearchTokensQueryVariables>(SearchTokensDocument, options);
+        }
 export type SearchTokensQueryHookResult = ReturnType<typeof useSearchTokensQuery>;
 export type SearchTokensLazyQueryHookResult = ReturnType<typeof useSearchTokensLazyQuery>;
 export type SearchTokensQueryResult = Apollo.QueryResult<SearchTokensQuery, SearchTokensQueryVariables>;
@@ -3886,13 +3884,13 @@ export const ExploreSearchDocument = gql`
  * });
  */
 export function useExploreSearchQuery(baseOptions: Apollo.QueryHookOptions<ExploreSearchQuery, ExploreSearchQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<ExploreSearchQuery, ExploreSearchQueryVariables>(ExploreSearchDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ExploreSearchQuery, ExploreSearchQueryVariables>(ExploreSearchDocument, options);
+      }
 export function useExploreSearchLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ExploreSearchQuery, ExploreSearchQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<ExploreSearchQuery, ExploreSearchQueryVariables>(ExploreSearchDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ExploreSearchQuery, ExploreSearchQueryVariables>(ExploreSearchDocument, options);
+        }
 export type ExploreSearchQueryHookResult = ReturnType<typeof useExploreSearchQuery>;
 export type ExploreSearchLazyQueryHookResult = ReturnType<typeof useExploreSearchLazyQuery>;
 export type ExploreSearchQueryResult = Apollo.QueryResult<ExploreSearchQuery, ExploreSearchQueryVariables>;
@@ -3924,13 +3922,13 @@ export const ExploreTokensTabDocument = gql`
  * });
  */
 export function useExploreTokensTabQuery(baseOptions: Apollo.QueryHookOptions<ExploreTokensTabQuery, ExploreTokensTabQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<ExploreTokensTabQuery, ExploreTokensTabQueryVariables>(ExploreTokensTabDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ExploreTokensTabQuery, ExploreTokensTabQueryVariables>(ExploreTokensTabDocument, options);
+      }
 export function useExploreTokensTabLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ExploreTokensTabQuery, ExploreTokensTabQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<ExploreTokensTabQuery, ExploreTokensTabQueryVariables>(ExploreTokensTabDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ExploreTokensTabQuery, ExploreTokensTabQueryVariables>(ExploreTokensTabDocument, options);
+        }
 export type ExploreTokensTabQueryHookResult = ReturnType<typeof useExploreTokensTabQuery>;
 export type ExploreTokensTabLazyQueryHookResult = ReturnType<typeof useExploreTokensTabLazyQuery>;
 export type ExploreTokensTabQueryResult = Apollo.QueryResult<ExploreTokensTabQuery, ExploreTokensTabQueryVariables>;
@@ -3976,13 +3974,13 @@ export const FavoriteTokenCardDocument = gql`
  * });
  */
 export function useFavoriteTokenCardQuery(baseOptions: Apollo.QueryHookOptions<FavoriteTokenCardQuery, FavoriteTokenCardQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<FavoriteTokenCardQuery, FavoriteTokenCardQueryVariables>(FavoriteTokenCardDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<FavoriteTokenCardQuery, FavoriteTokenCardQueryVariables>(FavoriteTokenCardDocument, options);
+      }
 export function useFavoriteTokenCardLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<FavoriteTokenCardQuery, FavoriteTokenCardQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<FavoriteTokenCardQuery, FavoriteTokenCardQueryVariables>(FavoriteTokenCardDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<FavoriteTokenCardQuery, FavoriteTokenCardQueryVariables>(FavoriteTokenCardDocument, options);
+        }
 export type FavoriteTokenCardQueryHookResult = ReturnType<typeof useFavoriteTokenCardQuery>;
 export type FavoriteTokenCardLazyQueryHookResult = ReturnType<typeof useFavoriteTokenCardLazyQuery>;
 export type FavoriteTokenCardQueryResult = Apollo.QueryResult<FavoriteTokenCardQuery, FavoriteTokenCardQueryVariables>;
@@ -4016,13 +4014,13 @@ export const TokensDocument = gql`
  * });
  */
 export function useTokensQuery(baseOptions: Apollo.QueryHookOptions<TokensQuery, TokensQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<TokensQuery, TokensQueryVariables>(TokensDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TokensQuery, TokensQueryVariables>(TokensDocument, options);
+      }
 export function useTokensLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TokensQuery, TokensQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<TokensQuery, TokensQueryVariables>(TokensDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TokensQuery, TokensQueryVariables>(TokensDocument, options);
+        }
 export type TokensQueryHookResult = ReturnType<typeof useTokensQuery>;
 export type TokensLazyQueryHookResult = ReturnType<typeof useTokensLazyQuery>;
 export type TokensQueryResult = Apollo.QueryResult<TokensQuery, TokensQueryVariables>;
@@ -4056,13 +4054,13 @@ export const ConvertDocument = gql`
  * });
  */
 export function useConvertQuery(baseOptions: Apollo.QueryHookOptions<ConvertQuery, ConvertQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<ConvertQuery, ConvertQueryVariables>(ConvertDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ConvertQuery, ConvertQueryVariables>(ConvertDocument, options);
+      }
 export function useConvertLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ConvertQuery, ConvertQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<ConvertQuery, ConvertQueryVariables>(ConvertDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ConvertQuery, ConvertQueryVariables>(ConvertDocument, options);
+        }
 export type ConvertQueryHookResult = ReturnType<typeof useConvertQuery>;
 export type ConvertLazyQueryHookResult = ReturnType<typeof useConvertLazyQuery>;
 export type ConvertQueryResult = Apollo.QueryResult<ConvertQuery, ConvertQueryVariables>;
@@ -4093,13 +4091,13 @@ export const ConvertWebDocument = gql`
  * });
  */
 export function useConvertWebQuery(baseOptions: Apollo.QueryHookOptions<ConvertWebQuery, ConvertWebQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<ConvertWebQuery, ConvertWebQueryVariables>(ConvertWebDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ConvertWebQuery, ConvertWebQueryVariables>(ConvertWebDocument, options);
+      }
 export function useConvertWebLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ConvertWebQuery, ConvertWebQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<ConvertWebQuery, ConvertWebQueryVariables>(ConvertWebDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ConvertWebQuery, ConvertWebQueryVariables>(ConvertWebDocument, options);
+        }
 export type ConvertWebQueryHookResult = ReturnType<typeof useConvertWebQuery>;
 export type ConvertWebLazyQueryHookResult = ReturnType<typeof useConvertWebLazyQuery>;
 export type ConvertWebQueryResult = Apollo.QueryResult<ConvertWebQuery, ConvertWebQueryVariables>;
@@ -4144,13 +4142,13 @@ export const HistoricalProtocolVolumeDocument = gql`
  * });
  */
 export function useHistoricalProtocolVolumeQuery(baseOptions: Apollo.QueryHookOptions<HistoricalProtocolVolumeQuery, HistoricalProtocolVolumeQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<HistoricalProtocolVolumeQuery, HistoricalProtocolVolumeQueryVariables>(HistoricalProtocolVolumeDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<HistoricalProtocolVolumeQuery, HistoricalProtocolVolumeQueryVariables>(HistoricalProtocolVolumeDocument, options);
+      }
 export function useHistoricalProtocolVolumeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<HistoricalProtocolVolumeQuery, HistoricalProtocolVolumeQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<HistoricalProtocolVolumeQuery, HistoricalProtocolVolumeQueryVariables>(HistoricalProtocolVolumeDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<HistoricalProtocolVolumeQuery, HistoricalProtocolVolumeQueryVariables>(HistoricalProtocolVolumeDocument, options);
+        }
 export type HistoricalProtocolVolumeQueryHookResult = ReturnType<typeof useHistoricalProtocolVolumeQuery>;
 export type HistoricalProtocolVolumeLazyQueryHookResult = ReturnType<typeof useHistoricalProtocolVolumeLazyQuery>;
 export type HistoricalProtocolVolumeQueryResult = Apollo.QueryResult<HistoricalProtocolVolumeQuery, HistoricalProtocolVolumeQueryVariables>;
@@ -4186,13 +4184,13 @@ export const DailyProtocolTvlDocument = gql`
  * });
  */
 export function useDailyProtocolTvlQuery(baseOptions: Apollo.QueryHookOptions<DailyProtocolTvlQuery, DailyProtocolTvlQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<DailyProtocolTvlQuery, DailyProtocolTvlQueryVariables>(DailyProtocolTvlDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<DailyProtocolTvlQuery, DailyProtocolTvlQueryVariables>(DailyProtocolTvlDocument, options);
+      }
 export function useDailyProtocolTvlLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<DailyProtocolTvlQuery, DailyProtocolTvlQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<DailyProtocolTvlQuery, DailyProtocolTvlQueryVariables>(DailyProtocolTvlDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<DailyProtocolTvlQuery, DailyProtocolTvlQueryVariables>(DailyProtocolTvlDocument, options);
+        }
 export type DailyProtocolTvlQueryHookResult = ReturnType<typeof useDailyProtocolTvlQuery>;
 export type DailyProtocolTvlLazyQueryHookResult = ReturnType<typeof useDailyProtocolTvlLazyQuery>;
 export type DailyProtocolTvlQueryResult = Apollo.QueryResult<DailyProtocolTvlQuery, DailyProtocolTvlQueryVariables>;
@@ -4309,13 +4307,13 @@ export const RecentTokenTransfersDocument = gql`
  * });
  */
 export function useRecentTokenTransfersQuery(baseOptions: Apollo.QueryHookOptions<RecentTokenTransfersQuery, RecentTokenTransfersQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<RecentTokenTransfersQuery, RecentTokenTransfersQueryVariables>(RecentTokenTransfersDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<RecentTokenTransfersQuery, RecentTokenTransfersQueryVariables>(RecentTokenTransfersDocument, options);
+      }
 export function useRecentTokenTransfersLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<RecentTokenTransfersQuery, RecentTokenTransfersQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<RecentTokenTransfersQuery, RecentTokenTransfersQueryVariables>(RecentTokenTransfersDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<RecentTokenTransfersQuery, RecentTokenTransfersQueryVariables>(RecentTokenTransfersDocument, options);
+        }
 export type RecentTokenTransfersQueryHookResult = ReturnType<typeof useRecentTokenTransfersQuery>;
 export type RecentTokenTransfersLazyQueryHookResult = ReturnType<typeof useRecentTokenTransfersLazyQuery>;
 export type RecentTokenTransfersQueryResult = Apollo.QueryResult<RecentTokenTransfersQuery, RecentTokenTransfersQueryVariables>;
@@ -4395,13 +4393,13 @@ export const RecentlySearchedAssetsDocument = gql`
  * });
  */
 export function useRecentlySearchedAssetsQuery(baseOptions: Apollo.QueryHookOptions<RecentlySearchedAssetsQuery, RecentlySearchedAssetsQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<RecentlySearchedAssetsQuery, RecentlySearchedAssetsQueryVariables>(RecentlySearchedAssetsDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<RecentlySearchedAssetsQuery, RecentlySearchedAssetsQueryVariables>(RecentlySearchedAssetsDocument, options);
+      }
 export function useRecentlySearchedAssetsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<RecentlySearchedAssetsQuery, RecentlySearchedAssetsQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<RecentlySearchedAssetsQuery, RecentlySearchedAssetsQueryVariables>(RecentlySearchedAssetsDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<RecentlySearchedAssetsQuery, RecentlySearchedAssetsQueryVariables>(RecentlySearchedAssetsDocument, options);
+        }
 export type RecentlySearchedAssetsQueryHookResult = ReturnType<typeof useRecentlySearchedAssetsQuery>;
 export type RecentlySearchedAssetsLazyQueryHookResult = ReturnType<typeof useRecentlySearchedAssetsLazyQuery>;
 export type RecentlySearchedAssetsQueryResult = Apollo.QueryResult<RecentlySearchedAssetsQuery, RecentlySearchedAssetsQueryVariables>;
@@ -4442,13 +4440,13 @@ export const SearchPopularTokensWebDocument = gql`
  * });
  */
 export function useSearchPopularTokensWebQuery(baseOptions: Apollo.QueryHookOptions<SearchPopularTokensWebQuery, SearchPopularTokensWebQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<SearchPopularTokensWebQuery, SearchPopularTokensWebQueryVariables>(SearchPopularTokensWebDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<SearchPopularTokensWebQuery, SearchPopularTokensWebQueryVariables>(SearchPopularTokensWebDocument, options);
+      }
 export function useSearchPopularTokensWebLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SearchPopularTokensWebQuery, SearchPopularTokensWebQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<SearchPopularTokensWebQuery, SearchPopularTokensWebQueryVariables>(SearchPopularTokensWebDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<SearchPopularTokensWebQuery, SearchPopularTokensWebQueryVariables>(SearchPopularTokensWebDocument, options);
+        }
 export type SearchPopularTokensWebQueryHookResult = ReturnType<typeof useSearchPopularTokensWebQuery>;
 export type SearchPopularTokensWebLazyQueryHookResult = ReturnType<typeof useSearchPopularTokensWebLazyQuery>;
 export type SearchPopularTokensWebQueryResult = Apollo.QueryResult<SearchPopularTokensWebQuery, SearchPopularTokensWebQueryVariables>;
@@ -4493,13 +4491,13 @@ export const SimpleTokenDocument = gql`
  * });
  */
 export function useSimpleTokenQuery(baseOptions: Apollo.QueryHookOptions<SimpleTokenQuery, SimpleTokenQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<SimpleTokenQuery, SimpleTokenQueryVariables>(SimpleTokenDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<SimpleTokenQuery, SimpleTokenQueryVariables>(SimpleTokenDocument, options);
+      }
 export function useSimpleTokenLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SimpleTokenQuery, SimpleTokenQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<SimpleTokenQuery, SimpleTokenQueryVariables>(SimpleTokenDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<SimpleTokenQuery, SimpleTokenQueryVariables>(SimpleTokenDocument, options);
+        }
 export type SimpleTokenQueryHookResult = ReturnType<typeof useSimpleTokenQuery>;
 export type SimpleTokenLazyQueryHookResult = ReturnType<typeof useSimpleTokenLazyQuery>;
 export type SimpleTokenQueryResult = Apollo.QueryResult<SimpleTokenQuery, SimpleTokenQueryVariables>;
@@ -4543,33 +4541,13 @@ export const TokenSpotPriceDocument = gql`
  * });
  */
 export function useTokenSpotPriceQuery(baseOptions: Apollo.QueryHookOptions<TokenSpotPriceQuery, TokenSpotPriceQueryVariables>) {
-
-  // // 添加调试日志
-  // console.log('TokenSpotPrice Query Params:', {
-  //   chain: baseOptions.variables?.chain,
-  //   address: baseOptions.variables?.address,
-  //   skip: baseOptions.skip,
-  //   pollInterval: baseOptions.pollInterval
-  // });
-
-
-  const options = { ...defaultOptions, ...baseOptions }
-  const result = Apollo.useQuery<TokenSpotPriceQuery, TokenSpotPriceQueryVariables>(TokenSpotPriceDocument, options);
-
-  // // 添加结果调试日志
-  // console.log('TokenSpotPrice Query Result:', {
-  //   data: result?.data,
-  //   loading: result?.loading,
-  //   error: result?.error,
-  //   networkStatus: result?.networkStatus,
-  //   price: result?.data?.token?.project?.markets?.[0]?.price?.value
-  // });
-  // return result;
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TokenSpotPriceQuery, TokenSpotPriceQueryVariables>(TokenSpotPriceDocument, options);
+      }
 export function useTokenSpotPriceLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TokenSpotPriceQuery, TokenSpotPriceQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<TokenSpotPriceQuery, TokenSpotPriceQueryVariables>(TokenSpotPriceDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TokenSpotPriceQuery, TokenSpotPriceQueryVariables>(TokenSpotPriceDocument, options);
+        }
 export type TokenSpotPriceQueryHookResult = ReturnType<typeof useTokenSpotPriceQuery>;
 export type TokenSpotPriceLazyQueryHookResult = ReturnType<typeof useTokenSpotPriceLazyQuery>;
 export type TokenSpotPriceQueryResult = Apollo.QueryResult<TokenSpotPriceQuery, TokenSpotPriceQueryVariables>;
@@ -4611,13 +4589,13 @@ export const UniswapPricesDocument = gql`
  * });
  */
 export function useUniswapPricesQuery(baseOptions: Apollo.QueryHookOptions<UniswapPricesQuery, UniswapPricesQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<UniswapPricesQuery, UniswapPricesQueryVariables>(UniswapPricesDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<UniswapPricesQuery, UniswapPricesQueryVariables>(UniswapPricesDocument, options);
+      }
 export function useUniswapPricesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<UniswapPricesQuery, UniswapPricesQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<UniswapPricesQuery, UniswapPricesQueryVariables>(UniswapPricesDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<UniswapPricesQuery, UniswapPricesQueryVariables>(UniswapPricesDocument, options);
+        }
 export type UniswapPricesQueryHookResult = ReturnType<typeof useUniswapPricesQuery>;
 export type UniswapPricesLazyQueryHookResult = ReturnType<typeof useUniswapPricesLazyQuery>;
 export type UniswapPricesQueryResult = Apollo.QueryResult<UniswapPricesQuery, UniswapPricesQueryVariables>;
@@ -4650,13 +4628,13 @@ export const ActivityWebDocument = gql`
  * });
  */
 export function useActivityWebQuery(baseOptions: Apollo.QueryHookOptions<ActivityWebQuery, ActivityWebQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<ActivityWebQuery, ActivityWebQueryVariables>(ActivityWebDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ActivityWebQuery, ActivityWebQueryVariables>(ActivityWebDocument, options);
+      }
 export function useActivityWebLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ActivityWebQuery, ActivityWebQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<ActivityWebQuery, ActivityWebQueryVariables>(ActivityWebDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ActivityWebQuery, ActivityWebQueryVariables>(ActivityWebDocument, options);
+        }
 export type ActivityWebQueryHookResult = ReturnType<typeof useActivityWebQuery>;
 export type ActivityWebLazyQueryHookResult = ReturnType<typeof useActivityWebLazyQuery>;
 export type ActivityWebQueryResult = Apollo.QueryResult<ActivityWebQuery, ActivityWebQueryVariables>;
@@ -4686,9 +4664,9 @@ export const OnAssetActivityDocument = gql`
  * });
  */
 export function useOnAssetActivitySubscription(baseOptions: Apollo.SubscriptionHookOptions<OnAssetActivitySubscription, OnAssetActivitySubscriptionVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useSubscription<OnAssetActivitySubscription, OnAssetActivitySubscriptionVariables>(OnAssetActivityDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useSubscription<OnAssetActivitySubscription, OnAssetActivitySubscriptionVariables>(OnAssetActivityDocument, options);
+      }
 export type OnAssetActivitySubscriptionHookResult = ReturnType<typeof useOnAssetActivitySubscription>;
 export type OnAssetActivitySubscriptionResult = Apollo.SubscriptionResult<OnAssetActivitySubscription>;
 export const TokenPromoDocument = gql`
@@ -4730,13 +4708,13 @@ export const TokenPromoDocument = gql`
  * });
  */
 export function useTokenPromoQuery(baseOptions: Apollo.QueryHookOptions<TokenPromoQuery, TokenPromoQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<TokenPromoQuery, TokenPromoQueryVariables>(TokenPromoDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TokenPromoQuery, TokenPromoQueryVariables>(TokenPromoDocument, options);
+      }
 export function useTokenPromoLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TokenPromoQuery, TokenPromoQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<TokenPromoQuery, TokenPromoQueryVariables>(TokenPromoDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TokenPromoQuery, TokenPromoQueryVariables>(TokenPromoDocument, options);
+        }
 export type TokenPromoQueryHookResult = ReturnType<typeof useTokenPromoQuery>;
 export type TokenPromoLazyQueryHookResult = ReturnType<typeof useTokenPromoLazyQuery>;
 export type TokenPromoQueryResult = Apollo.QueryResult<TokenPromoQuery, TokenPromoQueryVariables>;
@@ -4773,13 +4751,13 @@ export const CollectionPromoDocument = gql`
  * });
  */
 export function useCollectionPromoQuery(baseOptions: Apollo.QueryHookOptions<CollectionPromoQuery, CollectionPromoQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<CollectionPromoQuery, CollectionPromoQueryVariables>(CollectionPromoDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<CollectionPromoQuery, CollectionPromoQueryVariables>(CollectionPromoDocument, options);
+      }
 export function useCollectionPromoLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CollectionPromoQuery, CollectionPromoQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<CollectionPromoQuery, CollectionPromoQueryVariables>(CollectionPromoDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<CollectionPromoQuery, CollectionPromoQueryVariables>(CollectionPromoDocument, options);
+        }
 export type CollectionPromoQueryHookResult = ReturnType<typeof useCollectionPromoQuery>;
 export type CollectionPromoLazyQueryHookResult = ReturnType<typeof useCollectionPromoLazyQuery>;
 export type CollectionPromoQueryResult = Apollo.QueryResult<CollectionPromoQuery, CollectionPromoQueryVariables>;
@@ -4808,13 +4786,13 @@ export const DailyProtocolVolumeDocument = gql`
  * });
  */
 export function useDailyProtocolVolumeQuery(baseOptions: Apollo.QueryHookOptions<DailyProtocolVolumeQuery, DailyProtocolVolumeQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<DailyProtocolVolumeQuery, DailyProtocolVolumeQueryVariables>(DailyProtocolVolumeDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<DailyProtocolVolumeQuery, DailyProtocolVolumeQueryVariables>(DailyProtocolVolumeDocument, options);
+      }
 export function useDailyProtocolVolumeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<DailyProtocolVolumeQuery, DailyProtocolVolumeQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<DailyProtocolVolumeQuery, DailyProtocolVolumeQueryVariables>(DailyProtocolVolumeDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<DailyProtocolVolumeQuery, DailyProtocolVolumeQueryVariables>(DailyProtocolVolumeDocument, options);
+        }
 export type DailyProtocolVolumeQueryHookResult = ReturnType<typeof useDailyProtocolVolumeQuery>;
 export type DailyProtocolVolumeLazyQueryHookResult = ReturnType<typeof useDailyProtocolVolumeLazyQuery>;
 export type DailyProtocolVolumeQueryResult = Apollo.QueryResult<DailyProtocolVolumeQuery, DailyProtocolVolumeQueryVariables>;
@@ -4872,13 +4850,13 @@ export const CollectionSearchDocument = gql`
  * });
  */
 export function useCollectionSearchQuery(baseOptions: Apollo.QueryHookOptions<CollectionSearchQuery, CollectionSearchQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<CollectionSearchQuery, CollectionSearchQueryVariables>(CollectionSearchDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<CollectionSearchQuery, CollectionSearchQueryVariables>(CollectionSearchDocument, options);
+      }
 export function useCollectionSearchLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CollectionSearchQuery, CollectionSearchQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<CollectionSearchQuery, CollectionSearchQueryVariables>(CollectionSearchDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<CollectionSearchQuery, CollectionSearchQueryVariables>(CollectionSearchDocument, options);
+        }
 export type CollectionSearchQueryHookResult = ReturnType<typeof useCollectionSearchQuery>;
 export type CollectionSearchLazyQueryHookResult = ReturnType<typeof useCollectionSearchLazyQuery>;
 export type CollectionSearchQueryResult = Apollo.QueryResult<CollectionSearchQuery, CollectionSearchQueryVariables>;
@@ -4986,13 +4964,13 @@ export const NftDetailsDocument = gql`
  * });
  */
 export function useNftDetailsQuery(baseOptions: Apollo.QueryHookOptions<NftDetailsQuery, NftDetailsQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<NftDetailsQuery, NftDetailsQueryVariables>(NftDetailsDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<NftDetailsQuery, NftDetailsQueryVariables>(NftDetailsDocument, options);
+      }
 export function useNftDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<NftDetailsQuery, NftDetailsQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<NftDetailsQuery, NftDetailsQueryVariables>(NftDetailsDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<NftDetailsQuery, NftDetailsQueryVariables>(NftDetailsDocument, options);
+        }
 export type NftDetailsQueryHookResult = ReturnType<typeof useNftDetailsQuery>;
 export type NftDetailsLazyQueryHookResult = ReturnType<typeof useNftDetailsLazyQuery>;
 export type NftDetailsQueryResult = Apollo.QueryResult<NftDetailsQuery, NftDetailsQueryVariables>;
@@ -5079,13 +5057,13 @@ export const NftActivityDocument = gql`
  * });
  */
 export function useNftActivityQuery(baseOptions?: Apollo.QueryHookOptions<NftActivityQuery, NftActivityQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<NftActivityQuery, NftActivityQueryVariables>(NftActivityDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<NftActivityQuery, NftActivityQueryVariables>(NftActivityDocument, options);
+      }
 export function useNftActivityLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<NftActivityQuery, NftActivityQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<NftActivityQuery, NftActivityQueryVariables>(NftActivityDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<NftActivityQuery, NftActivityQueryVariables>(NftActivityDocument, options);
+        }
 export type NftActivityQueryHookResult = ReturnType<typeof useNftActivityQuery>;
 export type NftActivityLazyQueryHookResult = ReturnType<typeof useNftActivityLazyQuery>;
 export type NftActivityQueryResult = Apollo.QueryResult<NftActivityQuery, NftActivityQueryVariables>;
@@ -5213,13 +5191,13 @@ export const NftBalanceDocument = gql`
  * });
  */
 export function useNftBalanceQuery(baseOptions: Apollo.QueryHookOptions<NftBalanceQuery, NftBalanceQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<NftBalanceQuery, NftBalanceQueryVariables>(NftBalanceDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<NftBalanceQuery, NftBalanceQueryVariables>(NftBalanceDocument, options);
+      }
 export function useNftBalanceLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<NftBalanceQuery, NftBalanceQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<NftBalanceQuery, NftBalanceQueryVariables>(NftBalanceDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<NftBalanceQuery, NftBalanceQueryVariables>(NftBalanceDocument, options);
+        }
 export type NftBalanceQueryHookResult = ReturnType<typeof useNftBalanceQuery>;
 export type NftBalanceLazyQueryHookResult = ReturnType<typeof useNftBalanceLazyQuery>;
 export type NftBalanceQueryResult = Apollo.QueryResult<NftBalanceQuery, NftBalanceQueryVariables>;
@@ -5281,13 +5259,13 @@ export const NftRouteDocument = gql`
  * });
  */
 export function useNftRouteQuery(baseOptions: Apollo.QueryHookOptions<NftRouteQuery, NftRouteQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<NftRouteQuery, NftRouteQueryVariables>(NftRouteDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<NftRouteQuery, NftRouteQueryVariables>(NftRouteDocument, options);
+      }
 export function useNftRouteLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<NftRouteQuery, NftRouteQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<NftRouteQuery, NftRouteQueryVariables>(NftRouteDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<NftRouteQuery, NftRouteQueryVariables>(NftRouteDocument, options);
+        }
 export type NftRouteQueryHookResult = ReturnType<typeof useNftRouteQuery>;
 export type NftRouteLazyQueryHookResult = ReturnType<typeof useNftRouteLazyQuery>;
 export type NftRouteQueryResult = Apollo.QueryResult<NftRouteQuery, NftRouteQueryVariables>;
@@ -5316,13 +5294,13 @@ export const NftUniversalRouterAddressDocument = gql`
  * });
  */
 export function useNftUniversalRouterAddressQuery(baseOptions?: Apollo.QueryHookOptions<NftUniversalRouterAddressQuery, NftUniversalRouterAddressQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<NftUniversalRouterAddressQuery, NftUniversalRouterAddressQueryVariables>(NftUniversalRouterAddressDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<NftUniversalRouterAddressQuery, NftUniversalRouterAddressQueryVariables>(NftUniversalRouterAddressDocument, options);
+      }
 export function useNftUniversalRouterAddressLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<NftUniversalRouterAddressQuery, NftUniversalRouterAddressQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<NftUniversalRouterAddressQuery, NftUniversalRouterAddressQueryVariables>(NftUniversalRouterAddressDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<NftUniversalRouterAddressQuery, NftUniversalRouterAddressQueryVariables>(NftUniversalRouterAddressDocument, options);
+        }
 export type NftUniversalRouterAddressQueryHookResult = ReturnType<typeof useNftUniversalRouterAddressQuery>;
 export type NftUniversalRouterAddressLazyQueryHookResult = ReturnType<typeof useNftUniversalRouterAddressLazyQuery>;
 export type NftUniversalRouterAddressQueryResult = Apollo.QueryResult<NftUniversalRouterAddressQuery, NftUniversalRouterAddressQueryVariables>;
@@ -5391,13 +5369,13 @@ export const TrendingCollectionsDocument = gql`
  * });
  */
 export function useTrendingCollectionsQuery(baseOptions?: Apollo.QueryHookOptions<TrendingCollectionsQuery, TrendingCollectionsQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<TrendingCollectionsQuery, TrendingCollectionsQueryVariables>(TrendingCollectionsDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TrendingCollectionsQuery, TrendingCollectionsQueryVariables>(TrendingCollectionsDocument, options);
+      }
 export function useTrendingCollectionsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TrendingCollectionsQuery, TrendingCollectionsQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<TrendingCollectionsQuery, TrendingCollectionsQueryVariables>(TrendingCollectionsDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TrendingCollectionsQuery, TrendingCollectionsQueryVariables>(TrendingCollectionsDocument, options);
+        }
 export type TrendingCollectionsQueryHookResult = ReturnType<typeof useTrendingCollectionsQuery>;
 export type TrendingCollectionsLazyQueryHookResult = ReturnType<typeof useTrendingCollectionsLazyQuery>;
 export type TrendingCollectionsQueryResult = Apollo.QueryResult<TrendingCollectionsQuery, TrendingCollectionsQueryVariables>;
@@ -5501,13 +5479,13 @@ export const AssetDocument = gql`
  * });
  */
 export function useAssetQuery(baseOptions: Apollo.QueryHookOptions<AssetQuery, AssetQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<AssetQuery, AssetQueryVariables>(AssetDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<AssetQuery, AssetQueryVariables>(AssetDocument, options);
+      }
 export function useAssetLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<AssetQuery, AssetQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<AssetQuery, AssetQueryVariables>(AssetDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<AssetQuery, AssetQueryVariables>(AssetDocument, options);
+        }
 export type AssetQueryHookResult = ReturnType<typeof useAssetQuery>;
 export type AssetLazyQueryHookResult = ReturnType<typeof useAssetLazyQuery>;
 export type AssetQueryResult = Apollo.QueryResult<AssetQuery, AssetQueryVariables>;
@@ -5610,13 +5588,13 @@ export const CollectionDocument = gql`
  * });
  */
 export function useCollectionQuery(baseOptions: Apollo.QueryHookOptions<CollectionQuery, CollectionQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<CollectionQuery, CollectionQueryVariables>(CollectionDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<CollectionQuery, CollectionQueryVariables>(CollectionDocument, options);
+      }
 export function useCollectionLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<CollectionQuery, CollectionQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<CollectionQuery, CollectionQueryVariables>(CollectionDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<CollectionQuery, CollectionQueryVariables>(CollectionDocument, options);
+        }
 export type CollectionQueryHookResult = ReturnType<typeof useCollectionQuery>;
 export type CollectionLazyQueryHookResult = ReturnType<typeof useCollectionLazyQuery>;
 export type CollectionQueryResult = Apollo.QueryResult<CollectionQuery, CollectionQueryVariables>;
@@ -5699,13 +5677,13 @@ export const V3PoolDocument = gql`
  * });
  */
 export function useV3PoolQuery(baseOptions: Apollo.QueryHookOptions<V3PoolQuery, V3PoolQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<V3PoolQuery, V3PoolQueryVariables>(V3PoolDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<V3PoolQuery, V3PoolQueryVariables>(V3PoolDocument, options);
+      }
 export function useV3PoolLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<V3PoolQuery, V3PoolQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<V3PoolQuery, V3PoolQueryVariables>(V3PoolDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<V3PoolQuery, V3PoolQueryVariables>(V3PoolDocument, options);
+        }
 export type V3PoolQueryHookResult = ReturnType<typeof useV3PoolQuery>;
 export type V3PoolLazyQueryHookResult = ReturnType<typeof useV3PoolLazyQuery>;
 export type V3PoolQueryResult = Apollo.QueryResult<V3PoolQuery, V3PoolQueryVariables>;
@@ -5752,13 +5730,13 @@ export const PoolPriceHistoryDocument = gql`
  * });
  */
 export function usePoolPriceHistoryQuery(baseOptions: Apollo.QueryHookOptions<PoolPriceHistoryQuery, PoolPriceHistoryQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<PoolPriceHistoryQuery, PoolPriceHistoryQueryVariables>(PoolPriceHistoryDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<PoolPriceHistoryQuery, PoolPriceHistoryQueryVariables>(PoolPriceHistoryDocument, options);
+      }
 export function usePoolPriceHistoryLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PoolPriceHistoryQuery, PoolPriceHistoryQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<PoolPriceHistoryQuery, PoolPriceHistoryQueryVariables>(PoolPriceHistoryDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<PoolPriceHistoryQuery, PoolPriceHistoryQueryVariables>(PoolPriceHistoryDocument, options);
+        }
 export type PoolPriceHistoryQueryHookResult = ReturnType<typeof usePoolPriceHistoryQuery>;
 export type PoolPriceHistoryLazyQueryHookResult = ReturnType<typeof usePoolPriceHistoryLazyQuery>;
 export type PoolPriceHistoryQueryResult = Apollo.QueryResult<PoolPriceHistoryQuery, PoolPriceHistoryQueryVariables>;
@@ -5803,13 +5781,13 @@ export const PoolVolumeHistoryDocument = gql`
  * });
  */
 export function usePoolVolumeHistoryQuery(baseOptions: Apollo.QueryHookOptions<PoolVolumeHistoryQuery, PoolVolumeHistoryQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<PoolVolumeHistoryQuery, PoolVolumeHistoryQueryVariables>(PoolVolumeHistoryDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<PoolVolumeHistoryQuery, PoolVolumeHistoryQueryVariables>(PoolVolumeHistoryDocument, options);
+      }
 export function usePoolVolumeHistoryLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PoolVolumeHistoryQuery, PoolVolumeHistoryQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<PoolVolumeHistoryQuery, PoolVolumeHistoryQueryVariables>(PoolVolumeHistoryDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<PoolVolumeHistoryQuery, PoolVolumeHistoryQueryVariables>(PoolVolumeHistoryDocument, options);
+        }
 export type PoolVolumeHistoryQueryHookResult = ReturnType<typeof usePoolVolumeHistoryQuery>;
 export type PoolVolumeHistoryLazyQueryHookResult = ReturnType<typeof usePoolVolumeHistoryLazyQuery>;
 export type PoolVolumeHistoryQueryResult = Apollo.QueryResult<PoolVolumeHistoryQuery, PoolVolumeHistoryQueryVariables>;
@@ -5890,13 +5868,13 @@ export const V2PairDocument = gql`
  * });
  */
 export function useV2PairQuery(baseOptions: Apollo.QueryHookOptions<V2PairQuery, V2PairQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<V2PairQuery, V2PairQueryVariables>(V2PairDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<V2PairQuery, V2PairQueryVariables>(V2PairDocument, options);
+      }
 export function useV2PairLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<V2PairQuery, V2PairQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<V2PairQuery, V2PairQueryVariables>(V2PairDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<V2PairQuery, V2PairQueryVariables>(V2PairDocument, options);
+        }
 export type V2PairQueryHookResult = ReturnType<typeof useV2PairQuery>;
 export type V2PairLazyQueryHookResult = ReturnType<typeof useV2PairLazyQuery>;
 export type V2PairQueryResult = Apollo.QueryResult<V2PairQuery, V2PairQueryVariables>;
@@ -5945,13 +5923,13 @@ export const V3PoolTransactionsDocument = gql`
  * });
  */
 export function useV3PoolTransactionsQuery(baseOptions: Apollo.QueryHookOptions<V3PoolTransactionsQuery, V3PoolTransactionsQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<V3PoolTransactionsQuery, V3PoolTransactionsQueryVariables>(V3PoolTransactionsDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<V3PoolTransactionsQuery, V3PoolTransactionsQueryVariables>(V3PoolTransactionsDocument, options);
+      }
 export function useV3PoolTransactionsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<V3PoolTransactionsQuery, V3PoolTransactionsQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<V3PoolTransactionsQuery, V3PoolTransactionsQueryVariables>(V3PoolTransactionsDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<V3PoolTransactionsQuery, V3PoolTransactionsQueryVariables>(V3PoolTransactionsDocument, options);
+        }
 export type V3PoolTransactionsQueryHookResult = ReturnType<typeof useV3PoolTransactionsQuery>;
 export type V3PoolTransactionsLazyQueryHookResult = ReturnType<typeof useV3PoolTransactionsLazyQuery>;
 export type V3PoolTransactionsQueryResult = Apollo.QueryResult<V3PoolTransactionsQuery, V3PoolTransactionsQueryVariables>;
@@ -5999,13 +5977,13 @@ export const V2PairTransactionsDocument = gql`
  * });
  */
 export function useV2PairTransactionsQuery(baseOptions: Apollo.QueryHookOptions<V2PairTransactionsQuery, V2PairTransactionsQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<V2PairTransactionsQuery, V2PairTransactionsQueryVariables>(V2PairTransactionsDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<V2PairTransactionsQuery, V2PairTransactionsQueryVariables>(V2PairTransactionsDocument, options);
+      }
 export function useV2PairTransactionsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<V2PairTransactionsQuery, V2PairTransactionsQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<V2PairTransactionsQuery, V2PairTransactionsQueryVariables>(V2PairTransactionsDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<V2PairTransactionsQuery, V2PairTransactionsQueryVariables>(V2PairTransactionsDocument, options);
+        }
 export type V2PairTransactionsQueryHookResult = ReturnType<typeof useV2PairTransactionsQuery>;
 export type V2PairTransactionsLazyQueryHookResult = ReturnType<typeof useV2PairTransactionsLazyQuery>;
 export type V2PairTransactionsQueryResult = Apollo.QueryResult<V2PairTransactionsQuery, V2PairTransactionsQueryVariables>;
@@ -6052,13 +6030,13 @@ export const PortfolioBalancesWebDocument = gql`
  * });
  */
 export function usePortfolioBalancesWebQuery(baseOptions: Apollo.QueryHookOptions<PortfolioBalancesWebQuery, PortfolioBalancesWebQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<PortfolioBalancesWebQuery, PortfolioBalancesWebQueryVariables>(PortfolioBalancesWebDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<PortfolioBalancesWebQuery, PortfolioBalancesWebQueryVariables>(PortfolioBalancesWebDocument, options);
+      }
 export function usePortfolioBalancesWebLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<PortfolioBalancesWebQuery, PortfolioBalancesWebQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<PortfolioBalancesWebQuery, PortfolioBalancesWebQueryVariables>(PortfolioBalancesWebDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<PortfolioBalancesWebQuery, PortfolioBalancesWebQueryVariables>(PortfolioBalancesWebDocument, options);
+        }
 export type PortfolioBalancesWebQueryHookResult = ReturnType<typeof usePortfolioBalancesWebQuery>;
 export type PortfolioBalancesWebLazyQueryHookResult = ReturnType<typeof usePortfolioBalancesWebLazyQuery>;
 export type PortfolioBalancesWebQueryResult = Apollo.QueryResult<PortfolioBalancesWebQuery, PortfolioBalancesWebQueryVariables>;
@@ -6115,13 +6093,13 @@ export const TrendingTokensDocument = gql`
  * });
  */
 export function useTrendingTokensQuery(baseOptions: Apollo.QueryHookOptions<TrendingTokensQuery, TrendingTokensQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<TrendingTokensQuery, TrendingTokensQueryVariables>(TrendingTokensDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TrendingTokensQuery, TrendingTokensQueryVariables>(TrendingTokensDocument, options);
+      }
 export function useTrendingTokensLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TrendingTokensQuery, TrendingTokensQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<TrendingTokensQuery, TrendingTokensQueryVariables>(TrendingTokensDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TrendingTokensQuery, TrendingTokensQueryVariables>(TrendingTokensDocument, options);
+        }
 export type TrendingTokensQueryHookResult = ReturnType<typeof useTrendingTokensQuery>;
 export type TrendingTokensLazyQueryHookResult = ReturnType<typeof useTrendingTokensLazyQuery>;
 export type TrendingTokensQueryResult = Apollo.QueryResult<TrendingTokensQuery, TrendingTokensQueryVariables>;
@@ -6180,13 +6158,13 @@ export const SearchTokensWebDocument = gql`
  * });
  */
 export function useSearchTokensWebQuery(baseOptions: Apollo.QueryHookOptions<SearchTokensWebQuery, SearchTokensWebQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<SearchTokensWebQuery, SearchTokensWebQueryVariables>(SearchTokensWebDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<SearchTokensWebQuery, SearchTokensWebQueryVariables>(SearchTokensWebDocument, options);
+      }
 export function useSearchTokensWebLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<SearchTokensWebQuery, SearchTokensWebQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<SearchTokensWebQuery, SearchTokensWebQueryVariables>(SearchTokensWebDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<SearchTokensWebQuery, SearchTokensWebQueryVariables>(SearchTokensWebDocument, options);
+        }
 export type SearchTokensWebQueryHookResult = ReturnType<typeof useSearchTokensWebQuery>;
 export type SearchTokensWebLazyQueryHookResult = ReturnType<typeof useSearchTokensWebLazyQuery>;
 export type SearchTokensWebQueryResult = Apollo.QueryResult<SearchTokensWebQuery, SearchTokensWebQueryVariables>;
@@ -6266,13 +6244,13 @@ export const TopTokens100Document = gql`
  * });
  */
 export function useTopTokens100Query(baseOptions: Apollo.QueryHookOptions<TopTokens100Query, TopTokens100QueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<TopTokens100Query, TopTokens100QueryVariables>(TopTokens100Document, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TopTokens100Query, TopTokens100QueryVariables>(TopTokens100Document, options);
+      }
 export function useTopTokens100LazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TopTokens100Query, TopTokens100QueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<TopTokens100Query, TopTokens100QueryVariables>(TopTokens100Document, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TopTokens100Query, TopTokens100QueryVariables>(TopTokens100Document, options);
+        }
 export type TopTokens100QueryHookResult = ReturnType<typeof useTopTokens100Query>;
 export type TopTokens100LazyQueryHookResult = ReturnType<typeof useTopTokens100LazyQuery>;
 export type TopTokens100QueryResult = Apollo.QueryResult<TopTokens100Query, TopTokens100QueryVariables>;
@@ -6312,13 +6290,13 @@ export const TopTokensSparklineDocument = gql`
  * });
  */
 export function useTopTokensSparklineQuery(baseOptions: Apollo.QueryHookOptions<TopTokensSparklineQuery, TopTokensSparklineQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<TopTokensSparklineQuery, TopTokensSparklineQueryVariables>(TopTokensSparklineDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TopTokensSparklineQuery, TopTokensSparklineQueryVariables>(TopTokensSparklineDocument, options);
+      }
 export function useTopTokensSparklineLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TopTokensSparklineQuery, TopTokensSparklineQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<TopTokensSparklineQuery, TopTokensSparklineQueryVariables>(TopTokensSparklineDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TopTokensSparklineQuery, TopTokensSparklineQueryVariables>(TopTokensSparklineDocument, options);
+        }
 export type TopTokensSparklineQueryHookResult = ReturnType<typeof useTopTokensSparklineQuery>;
 export type TopTokensSparklineLazyQueryHookResult = ReturnType<typeof useTopTokensSparklineLazyQuery>;
 export type TopTokensSparklineQueryResult = Apollo.QueryResult<TopTokensSparklineQuery, TopTokensSparklineQueryVariables>;
@@ -6405,13 +6383,13 @@ export const TokenWebDocument = gql`
  * });
  */
 export function useTokenWebQuery(baseOptions: Apollo.QueryHookOptions<TokenWebQuery, TokenWebQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<TokenWebQuery, TokenWebQueryVariables>(TokenWebDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TokenWebQuery, TokenWebQueryVariables>(TokenWebDocument, options);
+      }
 export function useTokenWebLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TokenWebQuery, TokenWebQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<TokenWebQuery, TokenWebQueryVariables>(TokenWebDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TokenWebQuery, TokenWebQueryVariables>(TokenWebDocument, options);
+        }
 export type TokenWebQueryHookResult = ReturnType<typeof useTokenWebQuery>;
 export type TokenWebLazyQueryHookResult = ReturnType<typeof useTokenWebLazyQuery>;
 export type TokenWebQueryResult = Apollo.QueryResult<TokenWebQuery, TokenWebQueryVariables>;
@@ -6459,13 +6437,13 @@ export const TokenProjectWebDocument = gql`
  * });
  */
 export function useTokenProjectWebQuery(baseOptions: Apollo.QueryHookOptions<TokenProjectWebQuery, TokenProjectWebQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<TokenProjectWebQuery, TokenProjectWebQueryVariables>(TokenProjectWebDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TokenProjectWebQuery, TokenProjectWebQueryVariables>(TokenProjectWebDocument, options);
+      }
 export function useTokenProjectWebLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TokenProjectWebQuery, TokenProjectWebQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<TokenProjectWebQuery, TokenProjectWebQueryVariables>(TokenProjectWebDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TokenProjectWebQuery, TokenProjectWebQueryVariables>(TokenProjectWebDocument, options);
+        }
 export type TokenProjectWebQueryHookResult = ReturnType<typeof useTokenProjectWebQuery>;
 export type TokenProjectWebLazyQueryHookResult = ReturnType<typeof useTokenProjectWebLazyQuery>;
 export type TokenProjectWebQueryResult = Apollo.QueryResult<TokenProjectWebQuery, TokenProjectWebQueryVariables>;
@@ -6513,13 +6491,13 @@ ${PriceHistoryFallbackFragmentDoc}`;
  * });
  */
 export function useTokenPriceQuery(baseOptions: Apollo.QueryHookOptions<TokenPriceQuery, TokenPriceQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<TokenPriceQuery, TokenPriceQueryVariables>(TokenPriceDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TokenPriceQuery, TokenPriceQueryVariables>(TokenPriceDocument, options);
+      }
 export function useTokenPriceLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TokenPriceQuery, TokenPriceQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<TokenPriceQuery, TokenPriceQueryVariables>(TokenPriceDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TokenPriceQuery, TokenPriceQueryVariables>(TokenPriceDocument, options);
+        }
 export type TokenPriceQueryHookResult = ReturnType<typeof useTokenPriceQuery>;
 export type TokenPriceLazyQueryHookResult = ReturnType<typeof useTokenPriceLazyQuery>;
 export type TokenPriceQueryResult = Apollo.QueryResult<TokenPriceQuery, TokenPriceQueryVariables>;
@@ -6560,13 +6538,13 @@ export const TokenHistoricalVolumesDocument = gql`
  * });
  */
 export function useTokenHistoricalVolumesQuery(baseOptions: Apollo.QueryHookOptions<TokenHistoricalVolumesQuery, TokenHistoricalVolumesQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<TokenHistoricalVolumesQuery, TokenHistoricalVolumesQueryVariables>(TokenHistoricalVolumesDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TokenHistoricalVolumesQuery, TokenHistoricalVolumesQueryVariables>(TokenHistoricalVolumesDocument, options);
+      }
 export function useTokenHistoricalVolumesLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TokenHistoricalVolumesQuery, TokenHistoricalVolumesQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<TokenHistoricalVolumesQuery, TokenHistoricalVolumesQueryVariables>(TokenHistoricalVolumesDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TokenHistoricalVolumesQuery, TokenHistoricalVolumesQueryVariables>(TokenHistoricalVolumesDocument, options);
+        }
 export type TokenHistoricalVolumesQueryHookResult = ReturnType<typeof useTokenHistoricalVolumesQuery>;
 export type TokenHistoricalVolumesLazyQueryHookResult = ReturnType<typeof useTokenHistoricalVolumesLazyQuery>;
 export type TokenHistoricalVolumesQueryResult = Apollo.QueryResult<TokenHistoricalVolumesQuery, TokenHistoricalVolumesQueryVariables>;
@@ -6612,13 +6590,13 @@ export const TokenHistoricalTvlsDocument = gql`
  * });
  */
 export function useTokenHistoricalTvlsQuery(baseOptions: Apollo.QueryHookOptions<TokenHistoricalTvlsQuery, TokenHistoricalTvlsQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<TokenHistoricalTvlsQuery, TokenHistoricalTvlsQueryVariables>(TokenHistoricalTvlsDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TokenHistoricalTvlsQuery, TokenHistoricalTvlsQueryVariables>(TokenHistoricalTvlsDocument, options);
+      }
 export function useTokenHistoricalTvlsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TokenHistoricalTvlsQuery, TokenHistoricalTvlsQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<TokenHistoricalTvlsQuery, TokenHistoricalTvlsQueryVariables>(TokenHistoricalTvlsDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TokenHistoricalTvlsQuery, TokenHistoricalTvlsQueryVariables>(TokenHistoricalTvlsDocument, options);
+        }
 export type TokenHistoricalTvlsQueryHookResult = ReturnType<typeof useTokenHistoricalTvlsQuery>;
 export type TokenHistoricalTvlsLazyQueryHookResult = ReturnType<typeof useTokenHistoricalTvlsLazyQuery>;
 export type TokenHistoricalTvlsQueryResult = Apollo.QueryResult<TokenHistoricalTvlsQuery, TokenHistoricalTvlsQueryVariables>;
@@ -6667,13 +6645,13 @@ export const V3TokenTransactionsDocument = gql`
  * });
  */
 export function useV3TokenTransactionsQuery(baseOptions: Apollo.QueryHookOptions<V3TokenTransactionsQuery, V3TokenTransactionsQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<V3TokenTransactionsQuery, V3TokenTransactionsQueryVariables>(V3TokenTransactionsDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<V3TokenTransactionsQuery, V3TokenTransactionsQueryVariables>(V3TokenTransactionsDocument, options);
+      }
 export function useV3TokenTransactionsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<V3TokenTransactionsQuery, V3TokenTransactionsQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<V3TokenTransactionsQuery, V3TokenTransactionsQueryVariables>(V3TokenTransactionsDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<V3TokenTransactionsQuery, V3TokenTransactionsQueryVariables>(V3TokenTransactionsDocument, options);
+        }
 export type V3TokenTransactionsQueryHookResult = ReturnType<typeof useV3TokenTransactionsQuery>;
 export type V3TokenTransactionsLazyQueryHookResult = ReturnType<typeof useV3TokenTransactionsLazyQuery>;
 export type V3TokenTransactionsQueryResult = Apollo.QueryResult<V3TokenTransactionsQuery, V3TokenTransactionsQueryVariables>;
@@ -6721,13 +6699,13 @@ export const V2TokenTransactionsDocument = gql`
  * });
  */
 export function useV2TokenTransactionsQuery(baseOptions: Apollo.QueryHookOptions<V2TokenTransactionsQuery, V2TokenTransactionsQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<V2TokenTransactionsQuery, V2TokenTransactionsQueryVariables>(V2TokenTransactionsDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<V2TokenTransactionsQuery, V2TokenTransactionsQueryVariables>(V2TokenTransactionsDocument, options);
+      }
 export function useV2TokenTransactionsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<V2TokenTransactionsQuery, V2TokenTransactionsQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<V2TokenTransactionsQuery, V2TokenTransactionsQueryVariables>(V2TokenTransactionsDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<V2TokenTransactionsQuery, V2TokenTransactionsQueryVariables>(V2TokenTransactionsDocument, options);
+        }
 export type V2TokenTransactionsQueryHookResult = ReturnType<typeof useV2TokenTransactionsQuery>;
 export type V2TokenTransactionsLazyQueryHookResult = ReturnType<typeof useV2TokenTransactionsLazyQuery>;
 export type V2TokenTransactionsQueryResult = Apollo.QueryResult<V2TokenTransactionsQuery, V2TokenTransactionsQueryVariables>;
@@ -6783,13 +6761,13 @@ export const TopV3PoolsDocument = gql`
  * });
  */
 export function useTopV3PoolsQuery(baseOptions: Apollo.QueryHookOptions<TopV3PoolsQuery, TopV3PoolsQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<TopV3PoolsQuery, TopV3PoolsQueryVariables>(TopV3PoolsDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TopV3PoolsQuery, TopV3PoolsQueryVariables>(TopV3PoolsDocument, options);
+      }
 export function useTopV3PoolsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TopV3PoolsQuery, TopV3PoolsQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<TopV3PoolsQuery, TopV3PoolsQueryVariables>(TopV3PoolsDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TopV3PoolsQuery, TopV3PoolsQueryVariables>(TopV3PoolsDocument, options);
+        }
 export type TopV3PoolsQueryHookResult = ReturnType<typeof useTopV3PoolsQuery>;
 export type TopV3PoolsLazyQueryHookResult = ReturnType<typeof useTopV3PoolsLazyQuery>;
 export type TopV3PoolsQueryResult = Apollo.QueryResult<TopV3PoolsQuery, TopV3PoolsQueryVariables>;
@@ -6843,13 +6821,13 @@ export const TopV2PairsDocument = gql`
  * });
  */
 export function useTopV2PairsQuery(baseOptions: Apollo.QueryHookOptions<TopV2PairsQuery, TopV2PairsQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<TopV2PairsQuery, TopV2PairsQueryVariables>(TopV2PairsDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<TopV2PairsQuery, TopV2PairsQueryVariables>(TopV2PairsDocument, options);
+      }
 export function useTopV2PairsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<TopV2PairsQuery, TopV2PairsQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<TopV2PairsQuery, TopV2PairsQueryVariables>(TopV2PairsDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<TopV2PairsQuery, TopV2PairsQueryVariables>(TopV2PairsDocument, options);
+        }
 export type TopV2PairsQueryHookResult = ReturnType<typeof useTopV2PairsQuery>;
 export type TopV2PairsLazyQueryHookResult = ReturnType<typeof useTopV2PairsLazyQuery>;
 export type TopV2PairsQueryResult = Apollo.QueryResult<TopV2PairsQuery, TopV2PairsQueryVariables>;
@@ -6898,13 +6876,13 @@ export const V3TransactionsDocument = gql`
  * });
  */
 export function useV3TransactionsQuery(baseOptions: Apollo.QueryHookOptions<V3TransactionsQuery, V3TransactionsQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<V3TransactionsQuery, V3TransactionsQueryVariables>(V3TransactionsDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<V3TransactionsQuery, V3TransactionsQueryVariables>(V3TransactionsDocument, options);
+      }
 export function useV3TransactionsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<V3TransactionsQuery, V3TransactionsQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<V3TransactionsQuery, V3TransactionsQueryVariables>(V3TransactionsDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<V3TransactionsQuery, V3TransactionsQueryVariables>(V3TransactionsDocument, options);
+        }
 export type V3TransactionsQueryHookResult = ReturnType<typeof useV3TransactionsQuery>;
 export type V3TransactionsLazyQueryHookResult = ReturnType<typeof useV3TransactionsLazyQuery>;
 export type V3TransactionsQueryResult = Apollo.QueryResult<V3TransactionsQuery, V3TransactionsQueryVariables>;
@@ -6952,13 +6930,13 @@ export const V2TransactionsDocument = gql`
  * });
  */
 export function useV2TransactionsQuery(baseOptions: Apollo.QueryHookOptions<V2TransactionsQuery, V2TransactionsQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<V2TransactionsQuery, V2TransactionsQueryVariables>(V2TransactionsDocument, options);
-}
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<V2TransactionsQuery, V2TransactionsQueryVariables>(V2TransactionsDocument, options);
+      }
 export function useV2TransactionsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<V2TransactionsQuery, V2TransactionsQueryVariables>) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<V2TransactionsQuery, V2TransactionsQueryVariables>(V2TransactionsDocument, options);
-}
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<V2TransactionsQuery, V2TransactionsQueryVariables>(V2TransactionsDocument, options);
+        }
 export type V2TransactionsQueryHookResult = ReturnType<typeof useV2TransactionsQuery>;
 export type V2TransactionsLazyQueryHookResult = ReturnType<typeof useV2TransactionsLazyQuery>;
 export type V2TransactionsQueryResult = Apollo.QueryResult<V2TransactionsQuery, V2TransactionsQueryVariables>;
@@ -7031,14 +7009,14 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 
 /** Mapping of union types */
 export type ResolversUnionTypes = {
-  ActivityDetails: (SwapOrderDetails) | (Omit<TransactionDetails, 'assetChanges'> & { assetChanges: Array<Maybe<ResolversTypes['AssetChange']>> });
-  AssetChange: (NftApproval) | (NftApproveForAll) | (NftTransfer) | (TokenApproval) | (TokenTransfer);
+  ActivityDetails: ( SwapOrderDetails ) | ( Omit<TransactionDetails, 'assetChanges'> & { assetChanges: Array<Maybe<ResolversTypes['AssetChange']>> } );
+  AssetChange: ( NftApproval ) | ( NftApproveForAll ) | ( NftTransfer ) | ( TokenApproval ) | ( TokenTransfer );
 };
 
 /** Mapping of union parent types */
 export type ResolversUnionParentTypes = {
-  ActivityDetails: (SwapOrderDetails) | (Omit<TransactionDetails, 'assetChanges'> & { assetChanges: Array<Maybe<ResolversParentTypes['AssetChange']>> });
-  AssetChange: (NftApproval) | (NftApproveForAll) | (NftTransfer) | (TokenApproval) | (TokenTransfer);
+  ActivityDetails: ( SwapOrderDetails ) | ( Omit<TransactionDetails, 'assetChanges'> & { assetChanges: Array<Maybe<ResolversParentTypes['AssetChange']>> } );
+  AssetChange: ( NftApproval ) | ( NftApproveForAll ) | ( NftTransfer ) | ( TokenApproval ) | ( TokenTransfer );
 };
 
 /** Mapping between all available schema types and the resolvers types */
@@ -7307,7 +7285,7 @@ export type ResolversParentTypes = {
   V3PoolTick: V3PoolTick;
 };
 
-export type Aws_Api_KeyDirectiveArgs = {};
+export type Aws_Api_KeyDirectiveArgs = { };
 
 export type Aws_Api_KeyDirectiveResolver<Result, Parent, ContextType = any, Args = Aws_Api_KeyDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
@@ -7323,15 +7301,15 @@ export type Aws_Cognito_User_PoolsDirectiveArgs = {
 
 export type Aws_Cognito_User_PoolsDirectiveResolver<Result, Parent, ContextType = any, Args = Aws_Cognito_User_PoolsDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
-export type Aws_IamDirectiveArgs = {};
+export type Aws_IamDirectiveArgs = { };
 
 export type Aws_IamDirectiveResolver<Result, Parent, ContextType = any, Args = Aws_IamDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
-export type Aws_LambdaDirectiveArgs = {};
+export type Aws_LambdaDirectiveArgs = { };
 
 export type Aws_LambdaDirectiveResolver<Result, Parent, ContextType = any, Args = Aws_LambdaDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
-export type Aws_OidcDirectiveArgs = {};
+export type Aws_OidcDirectiveArgs = { };
 
 export type Aws_OidcDirectiveResolver<Result, Parent, ContextType = any, Args = Aws_OidcDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
@@ -7347,7 +7325,7 @@ export type Aws_SubscribeDirectiveArgs = {
 
 export type Aws_SubscribeDirectiveResolver<Result, Parent, ContextType = any, Args = Aws_SubscribeDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
-export type DeferDirectiveArgs = {};
+export type DeferDirectiveArgs = { };
 
 export type DeferDirectiveResolver<Result, Parent, ContextType = any, Args = DeferDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 

@@ -2,7 +2,7 @@ import { useWeb3React } from '@web3-react/core'
 import { CHAIN_IDS_TO_NAMES, isSupportedChain } from 'constants/chains'
 import { ParsedQs } from 'qs'
 import { useEffect, useRef } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useLocation, useSearchParams } from 'react-router-dom'
 
 import useParsedQueryString from './useParsedQueryString'
 import useSelectChain from './useSelectChain'
@@ -13,11 +13,12 @@ function getChainIdFromName(name: string) {
   return chainId ? parseInt(chainId) : undefined
 }
 
-function getParsedChainId(parsedQs?: ParsedQs) {
-  const chain = parsedQs?.chain
-  if (!chain || typeof chain !== 'string') return
+function getParsedChainId(parsedQs: ParsedQs) {
+  const chain = parsedQs.chain
+  if (typeof chain !== 'string') return
 
-  return getChainIdFromName(chain)
+  const chainId = getChainIdFromName(chain)
+  if (chainId) return chainId
 }
 
 export default function useSyncChainQuery() {
@@ -25,6 +26,7 @@ export default function useSyncChainQuery() {
   const parsedQs = useParsedQueryString()
   const chainIdRef = useRef(chainId)
   const accountRef = useRef(account)
+  const { pathname } = useLocation()
 
   useEffect(() => {
     // Update chainIdRef when the account is retrieved from Web3React
@@ -41,6 +43,11 @@ export default function useSyncChainQuery() {
   const [searchParams, setSearchParams] = useSearchParams()
 
   useEffect(() => {
+    // 如果是在 Warp 页面，不执行自动链切换
+    if (pathname.startsWith('/warp')) {
+      return
+    }
+
     // Change a user's chain on pageload if the connected chainId does not match the query param chain
     if (isActive && urlChainId && chainIdRef.current === chainId && chainId !== urlChainId) {
       selectChain(urlChainId)
@@ -58,5 +65,5 @@ export default function useSyncChainQuery() {
     else if (isActive && chainId === urlChainId) {
       chainIdRef.current = urlChainId
     }
-  }, [urlChainId, selectChain, searchParams, isActive, chainId, account, setSearchParams])
+  }, [urlChainId, selectChain, searchParams, isActive, chainId, account, setSearchParams, pathname])
 }

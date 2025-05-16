@@ -26,7 +26,7 @@ export enum ChainId {
   DBCTEST = 19850819,
 }
 
-export const SUPPORTED_CHAINS = [ChainId.CELO_ALFAJORES, ChainId.CELO, ChainId.DBC] as const
+export const SUPPORTED_CHAINS = [ChainId.CELO_ALFAJORES, ChainId.CELO, ChainId.DBC, ChainId.BNB] as const
 export type SupportedChainsType = (typeof SUPPORTED_CHAINS)[number]
 
 export enum NativeCurrencyName {

@@ -1,4 +1,5 @@
 import { useWeb3React } from '@web3-react/core'
+import { Connector } from '@web3-react/types'
 import { UniIcon } from 'components/Logo/UniIcon'
 import Web3Status from 'components/Web3Status'
 // import { chainIdToBackendName } from 'graphql/data/util'
@@ -37,6 +38,7 @@ import { relevantDigits } from 'utils/relevantDigits'
 import UbeBalanceContent from './UbeBalanceContent'
 import * as styles from './style.css'
 import { ButtonPrimary } from 'components/Button'
+import useSelectChain from 'hooks/useSelectChain'
 
 const Nav = styled.nav`
   padding: ${({ theme }) => `${theme.navVerticalPad}px 12px`};
@@ -122,9 +124,10 @@ interface MenuItemProps {
   isActive?: boolean
   children: ReactNode
   dataTestId?: string
+  onClick?: (e: React.MouseEvent) => void
 }
 
-const MenuItem = ({ href, dataTestId, id, isActive, children }: MenuItemProps) => {
+const MenuItem = ({ href, dataTestId, id, isActive, children, onClick }: MenuItemProps) => {
   return (
     <NavLink
       to={href}
@@ -132,6 +135,7 @@ const MenuItem = ({ href, dataTestId, id, isActive, children }: MenuItemProps) =
       id={id}
       style={{ textDecoration: 'none' }}
       data-testid={dataTestId}
+      onClick={onClick}
     >
       {children}
     </NavLink>
@@ -140,47 +144,78 @@ const MenuItem = ({ href, dataTestId, id, isActive, children }: MenuItemProps) =
 
 export const PageTabs = () => {
   const { pathname } = useLocation()
-  // const { chainId: connectedChainId } = useWeb3React()
-  // const chainName = chainIdToBackendName(connectedChainId)
-
+  const navigate = useNavigate()
+  const selectChain = useSelectChain()
+  const { chainId: currentChainId } = useWeb3React()
+  
   const isPoolActive = useIsPoolsPage()
   const isNftPage = useIsNftPage()
-
   const shouldDisableNFTRoutes = useDisableNFTRoutes()
+
+  // 确保切换到 DBC 链并导航 - 仅用于 Swap 和 Pool 页面
+  const ensureDBCChainAndNavigate = useCallback(async (path: string) => {
+    const DBC_CHAIN_ID = 19880818 // DBC 链的 chainId
+    
+    console.log('Navigation attempt:', {
+      path,
+      currentChainId,
+      targetChainId: DBC_CHAIN_ID,
+      needsChainSwitch: currentChainId !== DBC_CHAIN_ID
+    })
+
+    if (currentChainId !== DBC_CHAIN_ID) {
+      console.log('Attempting to switch to DBC chain...')
+      try {
+        await selectChain(DBC_CHAIN_ID)
+        console.log('Successfully switched to DBC chain')
+      } catch (error) {
+        console.error('Failed to switch to DBC chain:', error)
+        return // 如果切换失败，不进行导航
+      }
+    }
+
+    console.log('Navigating to:', path)
+    navigate(path)
+  }, [currentChainId, selectChain, navigate])
 
   return (
     <>
-      <MenuItem href="/swap" isActive={pathname.startsWith('/swap')}>
+      <MenuItem 
+        href="/swap" 
+        isActive={pathname.startsWith('/swap')}
+        onClick={(e) => {
+          console.log('Swap link clicked')
+          e.preventDefault()
+          ensureDBCChainAndNavigate('/swap')
+        }}
+      >
         <Trans>Swap</Trans>
       </MenuItem>
       <Box display={{ sm: 'flex', xxl: 'flex' }} width="full">
-        <MenuItem href="/pool" dataTestId="pool-nav-link" isActive={isPoolActive}>
+        <MenuItem 
+          href="/pool" 
+          dataTestId="pool-nav-link" 
+          isActive={isPoolActive}
+          onClick={(e) => {
+            console.log('Pool link clicked')
+            e.preventDefault()
+            ensureDBCChainAndNavigate('/pool')
+          }}
+        >
           <Trans>Pool</Trans>
         </MenuItem>
       </Box>
-      {/* <MenuItem href="/earn" isActive={pathname.startsWith('/earn')}>
-        <Trans>Earn</Trans>
+      <MenuItem 
+        href="/warp" 
+        isActive={pathname.startsWith('/warp')}
+        onClick={(e) => {
+          console.log('Warp link clicked')
+          // 直接导航到 Warp 页面，不切换链
+          navigate('/warp')
+        }}
+      >
+        <Trans>Warp</Trans>
       </MenuItem>
-      <MenuItem href="/claim-new-ube" isActive={pathname.startsWith('/claim-new')}>
-        <Trans>Convert</Trans>
-      </MenuItem> */}
-      {/*<MenuItem href="/stake" isActive={pathname.startsWith('/stake')}>
-        <Trans>Stake</Trans>
-      </MenuItem>
-      <MenuItem href="/farm" isActive={pathname.startsWith('/farm')}>
-        <Trans>Farm</Trans>
-      </MenuItem>*/}
-      {/* {!shouldDisableNFTRoutes && (
-        <MenuItem dataTestId="nft-nav" href="/nfts" isActive={isNftPage}>
-          <Trans>NFTs</Trans>
-        </MenuItem>
-      )} */}
-      {/*<MenuItem
-          href={'/explore' + (chainName !== Chain.Ethereum ? `/${chainName.toLowerCase()}` : '')}
-          isActive={pathname.startsWith('/explore')}
-        >
-          <Trans>Explore</Trans>
-      </MenuItem>*/}
       <More />
     </>
   )
