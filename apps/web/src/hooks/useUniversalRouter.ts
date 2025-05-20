@@ -111,7 +111,25 @@ export function useUniversalRouterSwapCallback(
             { name: 'Send transaction', op: 'wallet.send_transaction' },
             async (walletTrace) => {
               try {
-                return await provider.getSigner().sendTransaction({ ...tx, gasLimit })
+                // 检查是否是WalletConnect钱包
+                const walletMeta = provider ? getWalletMeta(provider)?.agent : undefined
+                const isWalletConnect = walletMeta?.includes('WalletConnect')
+                
+                if (isWalletConnect) {
+                  // 移动钱包需要特殊处理：强制使用传统交易类型
+                  console.log('检测到WalletConnect钱包，使用兼容模式发送交易')
+                  const gasPrice = await provider.getGasPrice()
+                  const txParams = { 
+                    ...tx, 
+                    gasLimit,
+                    type: 0, // 传统交易类型
+                    gasPrice // 使用当前gasPrice
+                  }
+                  return await provider.getSigner().sendTransaction(txParams)
+                } else {
+                  // 其他钱包使用默认行为
+                  return await provider.getSigner().sendTransaction({ ...tx, gasLimit })
+                }
               } catch (error) {
                 if (didUserReject(error)) {
                   walletTrace.setStatus('cancelled')

@@ -183,7 +183,7 @@ export default function BuyDBC() {
           </NetworkItem>
           <NetworkItem>
             <strong>Chain RPC URL:</strong>
-            <StyledExternalLink href="https://rpc2.dbcwallet.io">https://rpc2.dbcwallet.io</StyledExternalLink>
+            <StyledExternalLink href="https://rpc.dbcwallet.io">https://rpc.dbcwallet.io</StyledExternalLink>
           </NetworkItem>
           <NetworkItem>
             <strong>Chain ID:</strong>

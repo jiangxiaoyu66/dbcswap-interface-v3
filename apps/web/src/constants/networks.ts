@@ -37,7 +37,7 @@ export const PUBLIC_RPC_URLS: Record<SupportedInterfaceChain, string[]> = {
     // "Safe" URLs
     `https://alfajores-forno.celo-testnet.org`,
   ],
-  [ChainId.DBC]: [`https://rpc2.dbcwallet.io`],
+  [ChainId.DBC]: [`https://rpc.dbcwallet.io`],
 }
 
 /**
@@ -52,7 +52,7 @@ export const APP_RPC_URLS: Record<SupportedInterfaceChain, string[]> = {
     QUICKNODE_MAINNET_RPC_URL,
   ],
   [ChainId.CELO_ALFAJORES]: [`https://celo-alfajores.infura.io/v3/${INFURA_KEY}`],
-  [ChainId.DBC]: [`https://rpc2.dbcwallet.io`],
+  [ChainId.DBC]: [`https://rpc.dbcwallet.io`],
 }
 
 export const INFURA_PREFIX_TO_CHAIN_ID: { [prefix: string]: ChainId } = {

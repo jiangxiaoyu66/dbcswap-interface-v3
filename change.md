@@ -3,7 +3,7 @@
 testnet -> mainnet
 
 # RPC URL
-https://rpc-testnet.dbcwallet.io -> https://rpc2.dbcwallet.io
+https://rpc-testnet.dbcwallet.io -> https://rpc.dbcwallet.io
 
 # Contract Addresses
 REACT_APP_ROUTER_ADDRESS:
