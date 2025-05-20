@@ -152,30 +152,17 @@ export const PageTabs = () => {
   const isNftPage = useIsNftPage()
   const shouldDisableNFTRoutes = useDisableNFTRoutes()
 
-  // 确保切换到 DBC 链并导航 - 仅用于 Swap 和 Pool 页面
-  const ensureDBCChainAndNavigate = useCallback(async (path: string) => {
-    const DBC_CHAIN_ID = 19880818 // DBC 链的 chainId
-    
-    console.log('Navigation attempt:', {
-      path,
-      currentChainId,
-      targetChainId: DBC_CHAIN_ID,
-      needsChainSwitch: currentChainId !== DBC_CHAIN_ID
-    })
-
-    if (currentChainId !== DBC_CHAIN_ID) {
-      console.log('Attempting to switch to DBC chain...')
+  const navigateWithDBC = useCallback(async (path: string) => {
+    // 先切换到 DBC 链
+    if (currentChainId !== 19880818) {
       try {
-        await selectChain(DBC_CHAIN_ID)
-        console.log('Successfully switched to DBC chain')
+        await selectChain(19880818)
       } catch (error) {
         console.error('Failed to switch to DBC chain:', error)
-        return // 如果切换失败，不进行导航
       }
     }
-
-    console.log('Navigating to:', path)
-    navigate(path)
+    // 使用 React Router 导航
+    navigate(`${path}?chain=dbc`)
   }, [currentChainId, selectChain, navigate])
 
   return (
@@ -184,9 +171,8 @@ export const PageTabs = () => {
         href="/swap" 
         isActive={pathname.startsWith('/swap')}
         onClick={(e) => {
-          console.log('Swap link clicked')
           e.preventDefault()
-          ensureDBCChainAndNavigate('/swap')
+          navigateWithDBC('/swap')
         }}
       >
         <Trans>Swap</Trans>
@@ -197,9 +183,8 @@ export const PageTabs = () => {
           dataTestId="pool-nav-link" 
           isActive={isPoolActive}
           onClick={(e) => {
-            console.log('Pool link clicked')
             e.preventDefault()
-            ensureDBCChainAndNavigate('/pool')
+            navigateWithDBC('/pool')
           }}
         >
           <Trans>Pool</Trans>
@@ -209,9 +194,8 @@ export const PageTabs = () => {
         href="/warp" 
         isActive={pathname.startsWith('/warp')}
         onClick={(e) => {
-          console.log('Warp link clicked')
-          // 直接导航到 Warp 页面，不切换链
-          navigate('/warp')
+          e.preventDefault()
+          navigateWithDBC('/warp')
         }}
       >
         <Trans>Warp</Trans>

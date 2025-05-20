@@ -13,9 +13,8 @@ import { ChainLogo } from 'components/Logo/ChainLogo';
 
 // Update debug messages
 const NETWORK_SWITCH_DEBUG = true;
-// 全局变量，防止循环切换
-let isNetworkSwitchPending = false;
 
+// 简化配置
 const chainConfigs = {
   deepbrainchain: {
     chainId: 19880818,
@@ -422,21 +421,39 @@ const formatTransactionData = (tx: any) => {
 
 // Add validation function
 const validateAmount = (value: string): string => {
-  // Remove any non-numeric characters except decimal point
-  const numericValue = value.replace(/[^0-9.]/g, '');
+  // 直接允许数字和一个小数点
+  if (value === '.') return '0.';
   
-  // Ensure only one decimal point
-  const parts = numericValue.split('.');
-  if (parts.length > 2) {
-    return parts[0] + '.' + parts[1];
+  // 如果为空，返回空字符串
+  if (!value) return '';
+  
+  // 处理输入的数字和小数点
+  let result = '';
+  let hasDecimal = false;
+  
+  for (let i = 0; i < value.length; i++) {
+    const char = value[i];
+    
+    // 允许数字
+    if (char >= '0' && char <= '9') {
+      result += char;
+    }
+    // 只允许一个小数点
+    else if (char === '.' && !hasDecimal) {
+      result += char;
+      hasDecimal = true;
+    }
   }
   
-  // Limit decimal places to 18 (standard for most tokens)
-  if (parts.length === 2 && parts[1].length > 18) {
-    return parts[0] + '.' + parts[1].slice(0, 18);
+  // 确保小数位不超过18位
+  if (hasDecimal) {
+    const parts = result.split('.');
+    if (parts.length === 2 && parts[1].length > 18) {
+      result = parts[0] + '.' + parts[1].slice(0, 18);
+    }
   }
   
-  return numericValue;
+  return result;
 };
 
 // 添加防抖hook
@@ -462,172 +479,60 @@ export function TransferTokenForm() {
   const [amount, setAmount] = useState<string>('');
   const [sourceChain, setSourceChain] = useState<'deepbrainchain' | 'bsc'>('deepbrainchain');
   const [destinationChain, setDestinationChain] = useState<'deepbrainchain' | 'bsc'>('bsc');
-  const [autoSwitchNetwork, setAutoSwitchNetwork] = useState<boolean>(true);
   const [txStatus, setTxStatus] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
-  const [isNetworkSwitching, setIsNetworkSwitching] = useState<boolean>(false);
-  const [lastSwitchTime, setLastSwitchTime] = useState<number>(0);
-  const { provider, account, chainId } = useWeb3React();
-  const selectChain = useSelectChain();
   const [lastTxHash, setLastTxHash] = useState<string>('');
   const [lastTxChain, setLastTxChain] = useState<'deepbrainchain' | 'bsc'>('deepbrainchain');
-  const [targetChain, setTargetChain] = useState<'deepbrainchain' | 'bsc' | null>(null);
+  
+  const { provider, account, chainId } = useWeb3React();
+  const selectChain = useSelectChain();
 
-  // 网络切换锁定时间常量
-  const NETWORK_SWITCH_LOCK_TIME = 3000; // 3秒
+  // 将链名称映射到ChainId枚举 - 简单化映射
+  const getChainId = useCallback((chainName: 'deepbrainchain' | 'bsc'): ChainId => {
+    return chainName === 'deepbrainchain' ? ChainId.DBC : ChainId.BNB;
+  }, []);
 
-  // 使用防抖的chainId
-  const debouncedChainId = useDebounce(chainId, 1000);
+  // 当前连接的链 - 极简实现
+  const currentChain = useCallback((): 'deepbrainchain' | 'bsc' | undefined => {
+    return chainId === ChainId.DBC ? 'deepbrainchain' : 
+           chainId === ChainId.BNB ? 'bsc' : undefined;
+  }, [chainId]);
 
-  // 将链名称映射到ChainId枚举
-  const getChainId = (chainName: string): ChainId => {
-    switch (chainName) {
-      case 'deepbrainchain':
-        return ChainId.DBC;
-      case 'bsc':
-        return ChainId.BNB;
-      default:
-        return ChainId.DBC;
-    }
-  };
-
-  // 当前链ID对应的链名称
-  const getCurrentChainName = useCallback((): 'deepbrainchain' | 'bsc' | undefined => {
-    if (NETWORK_SWITCH_DEBUG) {
-      console.log("Current detected chain ID:", chainId);
-    }
-    
-    // 添加额外检查，避免临时状态造成误判
-    if (chainId === 19880818) return 'deepbrainchain';
-    if (chainId === 56) return 'bsc';
-    
-    // 检查provider中的信息
-    if (provider) {
-      try {
-        const network = provider.network;
-        if (NETWORK_SWITCH_DEBUG) {
-          console.log("Provider network info:", network);
-        }
-        if (network && network.chainId === 19880818) return 'deepbrainchain';
-        if (network && network.chainId === 56) return 'bsc';
-      } catch (e) {
-        console.log("Error getting network info:", e);
-      }
-    }
-    
-    return undefined;
-  }, [chainId, provider]);
-
-  // 修改网络切换函数
-  const switchToNetwork = useCallback(async (chainName: 'deepbrainchain' | 'bsc') => {
-    const now = Date.now();
-    if (now - lastSwitchTime < NETWORK_SWITCH_LOCK_TIME) {
-      console.log('Network switch locked, please wait');
-      return false;
-    }
-
-    if (isNetworkSwitching) {
-      console.log('Network switch already in progress');
-      return false;
-    }
-
-    const targetChainId = getChainId(chainName);
-    
+  // 极简化网络切换函数
+  const switchNetwork = useCallback(async (targetChain: 'deepbrainchain' | 'bsc'): Promise<boolean> => {
     try {
-      setIsNetworkSwitching(true);
-      setLastSwitchTime(now);
-      setTargetChain(chainName);
+      if (currentChain() === targetChain) return true;
       
-      if (!selectChain) {
-        throw new Error('Network switch function not available');
-      }
-
-      // 检查当前链是否已经是目标链
-      if (chainId === targetChainId) {
-        console.log('Already on target chain');
-        setTargetChain(null);
-        return true;
-      }
-
-      console.log(`Attempting to switch to ${chainName} (${targetChainId})`);
+      const targetChainId = getChainId(targetChain);
+      if (!selectChain) throw new Error('Network switching not available');
+      
+      // 确保返回值为 boolean
       const success = await selectChain(targetChainId);
-      
-      if (success) {
-        // 等待链切换生效
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        setError('');
-        return true;
-      }
-      
-      throw new Error(`Failed to switch to ${chainName}`);
+      return !!success;
     } catch (error) {
-      console.error('Network switch error:', error);
+      console.error('Network switch failed:', error);
       setError(`Network switch error: ${error instanceof Error ? error.message : 'Unknown error'}`);
       return false;
-    } finally {
-      setIsNetworkSwitching(false);
-      // 不在这里清除targetChain，等待chainId变化确认后再清除
     }
-  }, [selectChain, chainId, isNetworkSwitching, lastSwitchTime, setIsNetworkSwitching, setLastSwitchTime, setError]);
+  }, [currentChain, getChainId, selectChain]);
 
-  // 修改网络切换的监听逻辑
+  // 自动切换到源链
   useEffect(() => {
-    if (!provider || !autoSwitchNetwork || isNetworkSwitching) {
-      return;
+    // 当链ID变化或源链变化时，检查是否需要切换
+    const current = currentChain();
+    if (provider && current !== sourceChain) {
+      switchNetwork(sourceChain).catch(console.error);
     }
+  }, [chainId, sourceChain, provider, currentChain, switchNetwork]);
 
-    const currentChain = getCurrentChainName();
-    
-    // 只有当目标链存在，且当前链不是目标链时才切换
-    if (targetChain && currentChain !== targetChain) {
-      const switchNetwork = async () => {
-        try {
-          await switchToNetwork(targetChain);
-        } catch (error) {
-          console.error('Network switch failed:', error);
-        }
-      };
-
-      const timer = setTimeout(switchNetwork, 1000);
-      return () => clearTimeout(timer);
-    } else if (currentChain === targetChain) {
-      // 如果已经切换到目标链，清除目标链
-      setTargetChain(null);
-    }
-  }, [debouncedChainId, provider, autoSwitchNetwork, isNetworkSwitching, getCurrentChainName, switchToNetwork, targetChain]);
-
-  // 处理源链变化
-  useEffect(() => {
-    if (sourceChain && !isNetworkSwitching) {
-      setTargetChain(sourceChain);
-    }
-  }, [sourceChain, isNetworkSwitching]);
-
-  // 检测钱包当前连接的链是否与源链匹配
-  const isConnectedToSourceChain = useCallback(() => {
-    const currentChain = getCurrentChainName();
-    const isMatched = currentChain === sourceChain;
-    console.log("Network match check: currentChain=", currentChain, ", sourceChain=", sourceChain, ", matched=", isMatched);
-    return isMatched;
-  }, [getCurrentChainName, sourceChain]);
-
-  // 处理链切换按钮点击
-  const handleSwapChains = () => {
-    const tempSource = sourceChain;
-    const tempDest = destinationChain;
-    
-    setSourceChain(tempDest);
-    setDestinationChain(tempSource);
-  };
-
-  // 处理源链选择变化
-  const handleSourceChainChange = useCallback((newChain: 'deepbrainchain' | 'bsc') => {
-    setSourceChain(newChain);
-  }, []);
-
-  const handleDestinationChainChange = useCallback((newChain: 'deepbrainchain' | 'bsc') => {
-    setDestinationChain(newChain);
-  }, []);
+  // 处理链切换按钮点击 - 交换源链和目标链
+  const handleSwapChains = useCallback(() => {
+    // 直接交换源链和目标链
+    const newSourceChain = destinationChain;
+    const newDestinationChain = sourceChain;
+    setSourceChain(newSourceChain);
+    setDestinationChain(newDestinationChain);
+  }, [sourceChain, destinationChain]);
 
   const checkAndApproveToken = async (tokenAddress: string, spenderAddress: string, amount: string) => {
     if (!provider || !account) return false;
@@ -881,6 +786,8 @@ export function TransferTokenForm() {
     // 不再清除交易状态和哈希
     if (!keepSuccessMessage) {
       setError('');
+      setTxStatus('');
+      setLastTxHash('');  // 清除上一次的交易哈希
     }
   };
 
@@ -894,9 +801,7 @@ export function TransferTokenForm() {
   };
 
   const handleClick = async () => {
-    if (isProcessing) {
-      return;
-    }
+    if (isProcessing) return;
     
     if (!amount) {
       setError('Please enter transfer amount');
@@ -910,23 +815,24 @@ export function TransferTokenForm() {
 
     const recipient = account;
     
-    // 检查网络并尝试切换
-    const isOnCorrectNetwork = isConnectedToSourceChain();
-    if (!isOnCorrectNetwork) {
+    // 确保当前在正确的网络上
+    if (currentChain() !== sourceChain) {
       setError('Switching to correct network...');
-      const success = await switchToNetwork(sourceChain);
+      const success = await switchNetwork(sourceChain);
       if (!success) {
         setError(`Unable to switch to ${sourceChain}. Please switch manually.`);
         return;
       }
-      // 等待网络切换完成
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise(resolve => setTimeout(resolve, 1000));
     }
 
+    // 重置所有交易相关的状态
     setError('');
     setTxs(null);
     setIsProcessing(true);
     setTxStatus('Preparing...');
+    setLastTxHash('');  // 清除上一次的交易哈希
+    setLastTxChain(sourceChain);  // 重置为当前源链
     
     try {
       const chainMetadata: any = {
@@ -1079,73 +985,14 @@ export function TransferTokenForm() {
     }
   };
 
-  // 添加网络变化监听调试
-  useEffect(() => {
-    if (NETWORK_SWITCH_DEBUG) {
-      console.log("==== Network change listener ====");
-      console.log("Listener chainId change:", chainId);
-      console.log("Current source chain:", sourceChain);
-      console.log("=======================");
-    }
-  }, [chainId, sourceChain]);
-
-  // 添加组件卸载时的清理工作
-  useEffect(() => {
-    return () => {
-      if (NETWORK_SWITCH_DEBUG) {
-        console.log("Component will unmount, resetting network switch state");
-      }
-      // 重置网络切换状态
-      isNetworkSwitchPending = false;
-      setIsNetworkSwitching(false);
-      setIsProcessing(false);
-      setError('');
-      setTxStatus('');
-      setTargetChain(null);
-    };
-  }, []);
-
   return (
     <FormWrapper>
       <AutoColumn gap="16px">
-        {/* <AutoSwitchContainer>
-          <SwitchLabel>
-            <span>自动切换网络</span>
-            <SwitchInput 
-              type="checkbox" 
-              checked={autoSwitchNetwork} 
-              onChange={(e) => setAutoSwitchNetwork(e.target.checked)} 
-            />
-            <SwitchSlider />
-          </SwitchLabel>
-        </AutoSwitchContainer> */}
-
-  
-        
-        {/* 当网络不匹配且没有启用自动切换时显示警告 */}
-        {!isConnectedToSourceChain() && !autoSwitchNetwork && (
-          <NetworkMismatchWarning>
-            <div>
-              Current network does not match source chain.
-              Please switch to {sourceChain === 'deepbrainchain' ? 'DBC' : 'BNB'} chain.
-            </div>
-            <ButtonPrimary 
-              onClick={() => switchToNetwork(sourceChain)} 
-              style={{ padding: '6px 12px', fontSize: '14px', marginLeft: '8px' }}
-            >
-              Switch Network
-            </ButtonPrimary>
-          </NetworkMismatchWarning>
-        )}
-        
         <ChainSelectorContainer>
           <div className='flex flex-col'>
           <ChainLabel>From:</ChainLabel>
           <ChainSelector>
-            <ChainSelect 
-              as="div"
-              onClick={() => handleSourceChainChange(sourceChain === 'deepbrainchain' ? 'bsc' : 'deepbrainchain')}
-            >
+            <ChainSelect as="div">
               <ChainIcon>
                 <ChainLogo chainId={chainConfigs[sourceChain].chainId} size={24} />
               </ChainIcon>
@@ -1164,10 +1011,7 @@ export function TransferTokenForm() {
           <div className='flex flex-col'>
             <ChainLabel>To:</ChainLabel>
             <ChainSelector>
-            <ChainSelect 
-              as="div"
-              onClick={() => handleDestinationChainChange(destinationChain === 'deepbrainchain' ? 'bsc' : 'deepbrainchain')}
-            >
+            <ChainSelect as="div">
               <ChainIcon>
                 <ChainLogo chainId={chainConfigs[destinationChain].chainId} size={24} />
               </ChainIcon>
@@ -1183,34 +1027,12 @@ export function TransferTokenForm() {
           <InputField
             type="text"
             inputMode="decimal"
-            pattern="[0-9]*[.]?[0-9]*"
-            placeholder={`Enter ${chainConfigs[sourceChain].name} amount`}
+            placeholder={`Enter USDT amount for cross-chain transfer`}
             value={amount}
             onChange={(e) => {
+              // 直接设置输入值，然后通过验证函数清理
               const validatedValue = validateAmount(e.target.value);
               setAmount(validatedValue);
-            }}
-            onKeyDown={(e) => {
-              // Allow: backspace, delete, tab, escape, enter, decimal point
-              if (
-                ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', '.'].includes(e.key) ||
-                // Allow: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
-                (['a', 'c', 'v', 'x'].includes(e.key.toLowerCase()) && e.ctrlKey) ||
-                // Allow: home, end, left, right
-                ['Home', 'End', 'ArrowLeft', 'ArrowRight'].includes(e.key)
-              ) {
-                return;
-              }
-              
-              // Block any non-number input
-              if (
-                (e.key < '0' || e.key > '9') && 
-                e.key !== '.' && 
-                !e.ctrlKey && 
-                !e.metaKey
-              ) {
-                e.preventDefault();
-              }
             }}
           />
         </InputContainer>
@@ -1250,7 +1072,7 @@ export function TransferTokenForm() {
         {error && !error.includes('Transaction Hash') && <ErrorText>{error}</ErrorText>}
         
         <ActionButton onClick={handleClick} disabled={isProcessing}>
-          {isProcessing ? 'Processing...' : 'Cross-chain Transfer'}
+          {isProcessing ? 'Processing...' : 'Cross-chain USDT'}
         </ActionButton>
       </AutoColumn>
     </FormWrapper>

@@ -19,7 +19,7 @@ import { getSupportedChainIdsFromWalletConnectSession } from 'utils/getSupported
 import { DropdownSelector, StyledMenuContent } from 'components/DropdownSelector'
 import ChainSelectorRow from './ChainSelectorRow'
 
-const NETWORK_SELECTOR_CHAINS = [ChainId.DBC]
+const NETWORK_SELECTOR_CHAINS = [ChainId.DBC, ChainId.BNB]
 
 const StyledDropdownButton = css`
   display: flex;
@@ -111,6 +111,13 @@ export const ChainSelector = ({ leftAlign }: { leftAlign?: boolean }) => {
     ${styledMobileMenuCss};
   `
 
+  // 仅在下拉菜单中显示DBC链，过滤掉BNB链
+  const filteredSupportedChains = supportedChains.filter(chain => chain === ChainId.DBC)
+  const filteredUnsupportedChains = unsupportedChains.filter(chain => chain === ChainId.DBC)
+
+  // 安全的chainId，用于ChainLogo组件
+  const safeChainId = chainId ?? ChainId.DBC
+
   return (
     <DropdownSelector
       isOpen={isOpen}
@@ -119,7 +126,7 @@ export const ChainSelector = ({ leftAlign }: { leftAlign?: boolean }) => {
         !isSupported ? (
           <AlertTriangle size={20} color={theme.neutral2} />
         ) : (
-          <ChainLogo chainId={chainId} size={20} style={{ borderRadius: '3px' }} testId="chain-selector-logo" />
+          <ChainLogo chainId={safeChainId as ChainId} size={20} style={{ borderRadius: '3px' }} testId="chain-selector-logo" />
         )
       }
       tooltipText={isSupported ? undefined : t`Your wallet's current network is unsupported.`}
@@ -127,7 +134,7 @@ export const ChainSelector = ({ leftAlign }: { leftAlign?: boolean }) => {
       optionsContainerTestId="chain-selector-options"
       internalMenuItems={
         <>
-          {supportedChains.map((selectorChain) => (
+          {filteredSupportedChains.map((selectorChain) => (
             <ChainSelectorRow
               disabled={!walletSupportsChain.includes(selectorChain)}
               onSelectChain={onSelectChain}
@@ -136,7 +143,7 @@ export const ChainSelector = ({ leftAlign }: { leftAlign?: boolean }) => {
               isPending={selectorChain === pendingChainId}
             />
           ))}
-          {unsupportedChains.map((selectorChain) => (
+          {filteredUnsupportedChains.map((selectorChain) => (
             <ChainSelectorRow
               disabled
               onSelectChain={() => undefined}
