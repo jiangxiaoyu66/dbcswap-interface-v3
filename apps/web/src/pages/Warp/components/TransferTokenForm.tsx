@@ -2,14 +2,16 @@ import { MultiProtocolProvider, WarpCore } from '@hyperlane-xyz/sdk';
 import { useState, useEffect, useCallback } from 'react';
 import { useWeb3React } from '@web3-react/core';
 import { ethers } from 'ethers';
+import { Web3Provider } from '@ethersproject/providers';
 import styled, { keyframes } from 'styled-components';
 import { ButtonPrimary } from 'components/Button';
 import Column, { AutoColumn } from 'components/Column';
 import { RowBetween } from 'components/Row';
-import { ArrowLeft, ArrowRight } from 'react-feather';
+import { ArrowLeft, ArrowRight, ExternalLink } from 'react-feather';
 import useSelectChain from 'hooks/useSelectChain';
 import { ChainId } from '@ubeswap/sdk-core';
 import { ChainLogo } from 'components/Logo/ChainLogo';
+import { useSearchParams } from 'react-router-dom';
 
 // Update debug messages
 const NETWORK_SWITCH_DEBUG = true;
@@ -44,21 +46,31 @@ const chainConfigs = {
   }
 };
 
+// USDT合约地址
+const USDT_CONTRACT_ADDRESSES = {
+  deepbrainchain: '0x5155101187F8Faa1aD8AfeC7820c801870F81D52',
+  bsc: '0x55d398326f99059fF775485246999027B3197955'
+};
+
 // 样式组件
 const FormWrapper = styled(Column)`
-  // max-width: 480px;
   width: 100%;
-  margin: 0 auto;
+  max-width: 600px;
+  margin: 0.5rem auto;
   background-color: ${({ theme }) => theme.surface1};
-  border-radius: 16px;
+  border-radius: 24px;
   padding: 1.5rem;
   border: 1px solid ${({ theme }) => theme.surface3};
-  word-wrap: break-word;
-  overflow-wrap: break-word;
+  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.04);
+  border-radius: 16px;
   
-  @media (max-width: 500px) {
+  @media (max-width: 768px) {
     max-width: 100%;
+    margin: 0;
     padding: 1rem;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
   }
 `;
 
@@ -71,59 +83,95 @@ const SectionTitle = styled.div`
 
 const ChainSelectorContainer = styled.div`
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
   margin-bottom: 1.5rem;
-  gap: 12px;
+  gap: 0.75rem;
+  position: relative;
+  min-height: 120px;
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    min-height: auto;
+  }
 `;
 
 const ChainSelector = styled.div`
-  position: relative;
-  min-width: 200px;
-`;
-
-const ChainLabel = styled.div`
-  font-size: 16px;
-  font-weight: bold;
-  margin-bottom: 8px;
-  color: ${({ theme }) => theme.neutral1};
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  height: 100%; /* 确保高度一致 */
 `;
 
 const ChainSelect = styled.div`
   display: flex;
   align-items: center;
-  padding: 0.75rem 1rem;
+  padding: 0.875rem 1rem;
   background-color: ${({ theme }) => theme.surface2};
   border: 1px solid ${({ theme }) => theme.surface3};
-  border-radius: 12px;
+  border-radius: 16px;
   cursor: pointer;
+  transition: all 0.2s ease;
+  height: 64px;
+  margin-top: 4px; /* 增加顶部边距，使标签和选择器对齐更美观 */
   
   &:hover {
     border-color: ${({ theme }) => theme.accent1};
+    background-color: ${({ theme }) => `${theme.surface2}dd`};
   }
-`;
 
-const ChainOption = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px;
-  cursor: pointer;
-  
-  &:hover {
-    background: ${({ theme }) => theme.surface3};
+  @media (max-width: 480px) {
+    padding: 0.75rem;
+    height: 56px;
   }
 `;
 
 const ChainIcon = styled.div`
-  width: 24px;
-  height: 24px;
-  margin-right: 8px;
+  width: 36px;
+  height: 36px;
+  margin-right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+  }
+
+  @media (max-width: 480px) {
+    width: 32px;
+    height: 32px;
+    margin-right: 10px;
+  }
+`;
+
+const ChainLabel = styled.div`
+  font-size: 15px;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: ${({ theme }) => theme.neutral2};
+
+  @media (max-width: 480px) {
+    font-size: 14px;
+    margin-bottom: 0.25rem;
+  }
 `;
 
 const ChainName = styled.div`
   font-size: 16px;
+  font-weight: 500;
   color: ${({ theme }) => theme.neutral1};
+
+  @media (max-width: 480px) {
+    font-size: 15px;
+  }
 `;
 
 const rotate180 = keyframes`
@@ -146,66 +194,132 @@ const SwitchButton = styled.button`
   justify-content: center;
   cursor: pointer;
   padding: 0;
-  margin-bottom: 6px;
+  position: absolute;
+  left: 50%;
+  top: 60%;
+  transform: translate(-50%, -50%);
   transition: all 0.2s ease;
+  z-index: 2;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.08);
 
   &:hover {
     background: ${({ theme }) => theme.surface3};
-    opacity: 0.7;
-    svg {
-      animation: ${rotate180} 0.3s forwards;
-    }
+    transform: translate(-50%, -50%) scale(1.05);
+    box-shadow: 0px 6px 14px rgba(0, 0, 0, 0.12);
   }
   
   &:active {
-    opacity: 0.6;
+    transform: translate(-50%, -50%) scale(0.95);
   }
   
   &:disabled {
-    opacity: 0.3;
+    opacity: 0.5;
     cursor: default;
+  }
+
+  @media (max-width: 480px) {
+    position: relative;
+    left: auto;
+    top: auto;
+    transform: rotate(90deg);
+    margin: -0.5rem auto;
+    width: 40px;
+    height: 40px;
+
+    &:hover {
+      transform: rotate(90deg) scale(1.05);
+    }
+    
+    &:active {
+      transform: rotate(90deg) scale(0.95);
+    }
   }
 `;
 
 const InputContainer = styled.div`
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
+  position: relative;
 `;
 
 const InputLabel = styled.div`
-  font-size: 14px;
+  font-size: 15px;
   color: ${({ theme }) => theme.neutral2};
-  margin-bottom: 8px;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
 `;
 
 const InputField = styled.input`
   width: 100%;
-  padding: 0.75rem 1rem;
-  padding-right: 80px;
+  padding: 0.875rem 1rem;
   background-color: ${({ theme }) => theme.surface2};
   border: 1px solid ${({ theme }) => theme.surface3};
-  border-radius: 12px;
+  border-radius: 16px;
   font-size: 16px;
   color: ${({ theme }) => theme.neutral1};
   outline: none;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
+  transition: all 0.2s ease;
+  height: 56px;
+
+  &::placeholder {
+    color: ${({ theme }) => theme.neutral3};
+  }
 
   &:focus {
     border-color: ${({ theme }) => theme.accent1};
+    box-shadow: 0px 0px 0px 1px ${({ theme }) => theme.accent1}40;
+  }
+
+  @media (max-width: 480px) {
+    padding: 0.75rem;
+    font-size: 15px;
+    height: 52px;
+  }
+`;
+
+// 添加最大值按钮样式
+const MaxButton = styled.button`
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: ${({ theme }) => theme.accent1}30;
+  color: ${({ theme }) => theme.accent1};
+  border: none;
+  border-radius: 12px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: ${({ theme }) => theme.accent1}50;
+  }
+  
+  &:active {
+    transform: translateY(-50%) scale(0.97);
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 `;
 
 const ErrorText = styled.div`
   color: ${({ theme }) => theme.critical};
-  padding: 0.75rem;
+  padding: 1rem 1.25rem;
   background-color: rgba(240, 50, 50, 0.1);
-  border-radius: 12px;
+  border-radius: 16px;
   margin: 1rem 0;
-  font-size: 14px;
-  max-width: 100%;
-  overflow: hidden;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
+  font-size: 15px;
+  border: 1px solid rgba(240, 50, 50, 0.2);
+
+  @media (max-width: 480px) {
+    padding: 0.875rem 1rem;
+    font-size: 14px;
+    margin: 0.75rem 0;
+  }
 `;
 
 const TransactionPreview = styled.div`
@@ -237,10 +351,37 @@ const TransactionData = styled.pre`
 `;
 
 const ActionButton = styled(ButtonPrimary)`
-  padding: 0.75rem;
-  border-radius: 12px;
+  padding: 0;
+  border-radius: 16px;
   font-size: 16px;
-  font-weight: 500;
+  font-weight: 600;
+  width: 100%;
+  height: 56px;
+  background: linear-gradient(90deg, ${({ theme }) => theme.accent1} 0%, ${({ theme }) => `${theme.accent1}dd`} 100%);
+  transition: all 0.2s ease;
+  text-transform: none;
+  letter-spacing: 0;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0px 4px 12px ${({ theme }) => `${theme.accent1}40`};
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  @media (max-width: 480px) {
+    height: 52px;
+    font-size: 15px;
+  }
 `;
 
 // 添加自动切换控制的样式组件
@@ -296,6 +437,19 @@ const SwitchSlider = styled.span`
   }
 `;
 
+const FormTitle = styled.h2`
+  font-size: 24px;
+  font-weight: 600;
+  color: ${({ theme }) => theme.neutral1};
+  text-align: center;
+  margin-bottom: 24px; // Adjust as needed within FormWrapper's padding
+
+  @media screen and (max-width: 768px) {
+    font-size: 20px;
+    margin-bottom: 20px;
+  }
+`;
+
 const NetworkMismatchWarning = styled.div`
   color: ${({ theme }) => theme.deprecated_accentWarning};
   background-color: ${({ theme }) => theme.deprecated_accentWarningSoft || '#fff8e2'};
@@ -313,28 +467,50 @@ const TransactionLink = styled.a`
   color: ${({ theme }) => theme.accent1};
   text-decoration: none;
   font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   
   &:hover {
     text-decoration: underline;
   }
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 14px;
+  }
 `;
 
 const TransactionStatus = styled.div<{ status: 'success' | 'pending' | 'error' }>`
-  padding: 12px;
-  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  border-radius: 16px;
   background-color: ${({ status, theme }) => 
     status === 'success' ? 'rgba(0, 168, 107, 0.1)' :
     status === 'error' ? 'rgba(240, 50, 50, 0.1)' :
-    'rgba(255, 171, 0, 0.06)'};
+    'rgba(255, 171, 0, 0.08)'};
   color: ${({ status, theme }) => 
     status === 'success' ? '#00a86b' :
     status === 'error' ? '#e53935' :
     '#ff9800'};
-  margin-bottom: 12px;
-  font-size: 14px;
+  margin-bottom: 1rem;
+  font-size: 15px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0.75rem;
+  border: 1px solid ${({ status, theme }) => 
+    status === 'success' ? 'rgba(0, 168, 107, 0.2)' :
+    status === 'error' ? 'rgba(240, 50, 50, 0.2)' :
+    'rgba(255, 171, 0, 0.2)'};
+
+  @media (max-width: 480px) {
+    padding: 0.875rem 1rem;
+    font-size: 14px;
+    gap: 0.5rem;
+  }
 `;
 
 // Add new styled components
@@ -346,20 +522,93 @@ const InputGroup = styled.div`
 `;
 
 const RecipientInfo = styled.div`
-  padding: 12px;
+  padding: 0.875rem 1rem;
   background: ${({ theme }) => theme.surface2};
-  border-radius: 12px;
-  font-size: 14px;
+  border-radius: 16px;
+  font-size: 15px;
   color: ${({ theme }) => theme.neutral2};
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 0.75rem;
+  border: 1px solid ${({ theme }) => theme.surface3};
+  height: 56px;
+
+  @media (max-width: 480px) {
+    padding: 0.75rem;
+    font-size: 14px;
+    margin-bottom: 1rem;
+    height: auto;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
 `;
 
 const AddressText = styled.span`
   color: ${({ theme }) => theme.neutral1};
-  font-family: monospace;
+  font-family: 'SF Mono', SFMono-Regular, ui-monospace, monospace;
+  font-size: 14px;
+  background: ${({ theme }) => theme.surface3}40;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+
+  @media (max-width: 480px) {
+    font-size: 13px;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+`;
+
+// 添加余额显示组件样式
+const BalanceText = styled.div`
+  color: ${({ theme }) => theme.neutral2};
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: 8px;
+  gap: 4px;
+`;
+
+const BalanceAmount = styled.span`
+  color: ${({ theme }) => theme.neutral1};
+  font-weight: 500;
+  margin-left: 4px;
+`;
+
+const ContractLink = styled.div`
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  margin-top: 8px;
+  color: ${({ theme }) => theme.neutral2};
+  
+  a {
+    display: flex;
+    align-items: center;
+    color: ${({ theme }) => theme.accent1};
+    text-decoration: none;
+    margin-left: 4px;
+    gap: 4px;
+    
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+`;
+
+const ContractAddress = styled.span`
+  font-family: 'SF Mono', SFMono-Regular, ui-monospace, monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+
+  @media (min-width: 768px) {
+    max-width: 200px;
+  }
 `;
 
 // 处理交易对象显示的函数
@@ -419,37 +668,47 @@ const formatTransactionData = (tx: any) => {
   }
 };
 
-// Add validation function
-const validateAmount = (value: string): string => {
-  // 直接允许数字和一个小数点
+// 添加验证函数
+const validateAmount = (value: string, maxAmount?: string): string => {
+  // Allow numbers and a single decimal point directly
   if (value === '.') return '0.';
   
-  // 如果为空，返回空字符串
+  // If empty, return an empty string
   if (!value) return '';
   
-  // 处理输入的数字和小数点
+  // Process input numbers and decimal points
   let result = '';
   let hasDecimal = false;
   
   for (let i = 0; i < value.length; i++) {
     const char = value[i];
     
-    // 允许数字
+    // Allow numbers
     if (char >= '0' && char <= '9') {
       result += char;
     }
-    // 只允许一个小数点
+    // Allow only one decimal point
     else if (char === '.' && !hasDecimal) {
       result += char;
       hasDecimal = true;
     }
   }
   
-  // 确保小数位不超过18位
+  // Ensure decimal places do not exceed 18
   if (hasDecimal) {
     const parts = result.split('.');
     if (parts.length === 2 && parts[1].length > 18) {
       result = parts[0] + '.' + parts[1].slice(0, 18);
+    }
+  }
+  
+  // Check max value limit
+  if (maxAmount && result) {
+    const inputValue = parseFloat(result);
+    const maxValue = parseFloat(maxAmount);
+    
+    if (!isNaN(inputValue) && !isNaN(maxValue) && inputValue > maxValue) {
+      result = maxAmount;
     }
   }
   
@@ -473,32 +732,119 @@ function useDebounce<T>(value: T, delay: number): T {
   return debouncedValue;
 }
 
-export function TransferTokenForm() {
+export function TransferTokenForm({ title }: { title?: string }) {
+  const [searchParams] = useSearchParams();
+  const initialUrlSourceChain = searchParams.get('chain');
+
   const [txs, setTxs] = useState<any>(null);
   const [error, setError] = useState<string>('');
   const [amount, setAmount] = useState<string>('');
-  const [sourceChain, setSourceChain] = useState<'deepbrainchain' | 'bsc'>('deepbrainchain');
-  const [destinationChain, setDestinationChain] = useState<'deepbrainchain' | 'bsc'>('bsc');
+  const [sourceChain, setSourceChain] = useState<'deepbrainchain' | 'bsc'>(() => {
+    const chainFromUrl = searchParams.get('chain');
+    if (chainFromUrl === 'bnb' || chainFromUrl === 'bsc') {
+      return 'bsc';
+    }
+    return 'deepbrainchain';
+  });
+  const [destinationChain, setDestinationChain] = useState<'deepbrainchain' | 'bsc'>(() => {
+    const initialSource = (searchParams.get('chain') === 'bnb' || searchParams.get('chain') === 'bsc') ? 'bsc' : 'deepbrainchain';
+    return initialSource === 'deepbrainchain' ? 'bsc' : 'deepbrainchain';
+  });
   const [txStatus, setTxStatus] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [lastTxHash, setLastTxHash] = useState<string>('');
   const [lastTxChain, setLastTxChain] = useState<'deepbrainchain' | 'bsc'>('deepbrainchain');
+  // Add USDT balance state
+  const [usdtBalance, setUsdtBalance] = useState<string>('0');
+  const [isLoadingBalance, setIsLoadingBalance] = useState<boolean>(false);
   
-  const { provider, account, chainId } = useWeb3React();
+  const { provider, account, chainId } = useWeb3React<Web3Provider>();
   const selectChain = useSelectChain();
 
-  // 将链名称映射到ChainId枚举 - 简单化映射
+  // Map chain names to ChainId enum - simplified mapping
   const getChainId = useCallback((chainName: 'deepbrainchain' | 'bsc'): ChainId => {
     return chainName === 'deepbrainchain' ? ChainId.DBC : ChainId.BNB;
   }, []);
 
-  // 当前连接的链 - 极简实现
+  // Current connected chain - minimal implementation
   const currentChain = useCallback((): 'deepbrainchain' | 'bsc' | undefined => {
     return chainId === ChainId.DBC ? 'deepbrainchain' : 
            chainId === ChainId.BNB ? 'bsc' : undefined;
   }, [chainId]);
 
-  // 极简化网络切换函数
+  // Function to check USDT balance
+  const checkTokenBalance = useCallback(async (tokenAddress: string): Promise<string> => {
+    if (!provider || !account) {
+      throw new Error('Please connect your wallet first');
+    }
+    
+    try {
+      const signer = provider.getSigner();
+      
+      // Use a more complete ERC20 ABI for compatibility
+      const erc20Abi = [
+        'function balanceOf(address owner) view returns (uint256)',
+        'function decimals() view returns (uint8)',
+        'function symbol() view returns (string)',
+        'function name() view returns (string)'
+      ];
+      
+      const tokenContract = new ethers.Contract(
+        tokenAddress,
+        erc20Abi,
+        signer
+      );
+
+      // Call separately for better error handling
+      let decimals = 18; // Default to 18 decimals
+      try {
+        decimals = await tokenContract.decimals();
+        console.log(`Token ${tokenAddress} decimals: ${decimals}`);
+      } catch (e) {
+        console.warn(`Could not get token decimals, using default 18:`, e);
+      }
+
+      const balance = await tokenContract.balanceOf(account);
+      console.log(`Token ${tokenAddress} raw balance: ${balance.toString()}`);
+      
+      return ethers.utils.formatUnits(balance, decimals);
+    } catch (e) {
+      console.error('Failed to fetch token balance:', e);
+      throw new Error('Failed to fetch token balance');
+    }
+  }, [provider, account]);
+
+  // Get USDT balance of the current chain
+  const fetchUsdtBalance = useCallback(async () => {
+    if (!provider || !account) return;
+    
+    const currentChainName = currentChain();
+    if (!currentChainName) return;
+    
+    setIsLoadingBalance(true);
+    try {
+      const tokenAddress = USDT_CONTRACT_ADDRESSES[currentChainName];
+      console.log(`Fetching USDT balance on ${currentChainName}, contract: ${tokenAddress}`);
+      
+      const balance = await checkTokenBalance(tokenAddress);
+      console.log(`Fetched raw balance: ${balance}`);
+      
+      // Ensure balance is a valid number
+      if (balance && !isNaN(Number(balance))) {
+        setUsdtBalance(balance);
+      } else {
+        console.error('Invalid balance format fetched:', balance);
+        setUsdtBalance('0');
+      }
+    } catch (e) {
+      console.error(`Failed to fetch ${currentChainName} USDT balance:`, e);
+      setUsdtBalance('0');
+    } finally {
+      setIsLoadingBalance(false);
+    }
+  }, [provider, account, currentChain, checkTokenBalance]);
+
+  // Minimal network switch function
   const switchNetwork = useCallback(async (targetChain: 'deepbrainchain' | 'bsc'): Promise<boolean> => {
     try {
       if (currentChain() === targetChain) return true;
@@ -506,7 +852,7 @@ export function TransferTokenForm() {
       const targetChainId = getChainId(targetChain);
       if (!selectChain) throw new Error('Network switching not available');
       
-      // 确保返回值为 boolean
+      // Ensure return value is boolean
       const success = await selectChain(targetChainId);
       return !!success;
     } catch (error) {
@@ -516,18 +862,36 @@ export function TransferTokenForm() {
     }
   }, [currentChain, getChainId, selectChain]);
 
-  // 自动切换到源链
+  // Auto-switch to source chain
   useEffect(() => {
-    // 当链ID变化或源链变化时，检查是否需要切换
     const current = currentChain();
-    if (provider && current !== sourceChain) {
-      switchNetwork(sourceChain).catch(console.error);
-    }
-  }, [chainId, sourceChain, provider, currentChain, switchNetwork]);
+    console.log('[WarpFormEffect] Initial URL chain:', initialUrlSourceChain);
+    console.log('[WarpFormEffect] Source Chain State:', sourceChain);
+    console.log('[WarpFormEffect] Current Wallet Chain:', current);
+    console.log('[WarpFormEffect] Provider available:', !!provider);
 
-  // 处理链切换按钮点击 - 交换源链和目标链
+    if (provider && current !== sourceChain) {
+      console.log(`[WarpFormEffect] Attempting to switch from ${current} to ${sourceChain}`);
+      switchNetwork(sourceChain)
+        .then(success => console.log(`[WarpFormEffect] Switch to ${sourceChain} success: ${success}`))
+        .catch(err => console.error(`[WarpFormEffect] Switch to ${sourceChain} failed:`, err));
+    } else {
+      console.log('[WarpFormEffect] No switch needed or provider not ready.');
+      if (provider && current === sourceChain) console.log('[WarpFormEffect] Reason: Current wallet chain matches source chain.');
+      if (!provider) console.log('[WarpFormEffect] Reason: Provider not available.');
+    }
+  }, [chainId, sourceChain, provider, currentChain, switchNetwork, initialUrlSourceChain]);
+
+  // When account or chain changes, update USDT balance
+  useEffect(() => {
+    if (account && provider) {
+      fetchUsdtBalance();
+    }
+  }, [account, chainId, provider, fetchUsdtBalance]);
+
+  // Handle chain switch button click - swap source chain and target chain
   const handleSwapChains = useCallback(() => {
-    // 直接交换源链和目标链
+    // Directly swap source chain and target chain
     const newSourceChain = destinationChain;
     const newDestinationChain = sourceChain;
     setSourceChain(newSourceChain);
@@ -553,7 +917,7 @@ export function TransferTokenForm() {
       const allowance = await tokenContract.allowance(account, spenderAddress);
       console.log(`Current allowance: ${ethers.utils.formatUnits(allowance, 18)}`);
       
-      // 获取代币符号以增强用户体验
+      // Get token symbol for better UX
       let tokenSymbol = '';
       try {
         tokenSymbol = await tokenContract.symbol();
@@ -567,12 +931,13 @@ export function TransferTokenForm() {
         setTxStatus(`Approving ${tokenSymbol}...`);
         setError('Insufficient allowance, initiating approval transaction...');
         
-        // 使用最大值进行授权，避免将来需要重复授权
+        // Use max uint256 for approval to avoid future re-approvals
         const maxUint256 = ethers.constants.MaxUint256;
         const approveTx = await tokenContract.approve(spenderAddress, maxUint256);
         
         console.log('Approval transaction sent:', approveTx.hash);
-        setError(`Approval transaction sent, waiting for confirmation...\nTransaction hash: ${approveTx.hash}`);
+        setError(`Approval transaction sent, waiting for confirmation...
+Transaction hash: ${approveTx.hash}`);
         setTxStatus(`${tokenSymbol} approval in progress...`);
         
         const receipt = await approveTx.wait();
@@ -595,7 +960,7 @@ export function TransferTokenForm() {
     }
   };
 
-  // 执行单个交易
+  // Execute a single transaction
   const executeTx = async (tx: any) => {
     if (!provider || !account) {
       setError('Please enter transfer amount and recipient address');
@@ -603,7 +968,7 @@ export function TransferTokenForm() {
     }
     
     try {
-      // 打印交易详情用于调试
+      // Print transaction details for debugging
       console.log("Transaction details:", {
         to: tx.transaction.to,
         data: tx.transaction.data,
@@ -614,35 +979,35 @@ export function TransferTokenForm() {
 
       const signer = provider.getSigner(account);
       
-      // 构建交易请求
+      // Build transaction request
       const txRequest: any = {
         to: tx.transaction.to,
         data: tx.transaction.data,
       };
 
-      // 处理 value 字段
+      // Handle value field
       if (tx.transaction.value) {
-        // 确保 value 是有效的十六进制字符串
+        // Ensure value is a valid hexadecimal string
         if (typeof tx.transaction.value === 'string' && tx.transaction.value.startsWith('0x')) {
           txRequest.value = tx.transaction.value;
         } else if (tx.transaction.value._hex) {
           txRequest.value = tx.transaction.value._hex;
         } else {
-          // 如果都不是，尝试转换为BigNumber
+          // If neither, try to convert to BigNumber
           try {
             const valueAsBN = ethers.BigNumber.from(tx.transaction.value);
             txRequest.value = valueAsBN.toHexString();
           } catch (error) {
-            console.error('无效的交易金额:', error);
-            setError('无效的交易金额');
+            console.error('Invalid transaction amount:', error);
+            setError('Invalid transaction amount');
             return false;
           }
         }
       } else {
-        txRequest.value = '0x0'; // 如果没有 value，设置为 0
+        txRequest.value = '0x0'; // If no value, set to 0
       }
 
-      // 检查余额
+      // Check balance
       const balance = await provider.getBalance(account);
       const valueInWei = txRequest.value ? ethers.BigNumber.from(txRequest.value) : ethers.BigNumber.from(0);
       
@@ -653,18 +1018,18 @@ export function TransferTokenForm() {
       });
 
       if (balance.lt(valueInWei)) {
-        const errorMsg = `余额不足，需要 ${ethers.utils.formatEther(valueInWei)} 代币`;
+        const errorMsg = `Insufficient balance. Required: ${ethers.utils.formatEther(valueInWei)} tokens`;
         setError(errorMsg);
         return false;
       }
 
-      // 自动处理代币授权
-      // 检查是否需要代币授权
+      // Auto-handle token approval
+      // Check if token approval is needed
       if (tx.token?.addressOrDenom) {
         console.log('Detected token transaction, preparing to check approval');
         setTxStatus('Checking token approval...');
         
-        // 对于所有涉及代币的交易，确保授权充足
+        // For all token-related transactions, ensure sufficient approval
         const approved = await checkAndApproveToken(
           tx.token.addressOrDenom,
           tx.transaction.to,
@@ -674,14 +1039,14 @@ export function TransferTokenForm() {
         );
         
         if (!approved) {
-          // 授权失败信息已在checkAndApproveToken中设置
+          // Authorization failure information already set in checkAndApproveToken
           return false;
         }
       }
 
       console.log('Sending transaction:', txRequest);
-      setTxStatus('Transaction sent, waiting for confirmation...');
-      setError('Transaction in progress, please wait for confirmation...');
+      setTxStatus('Please check your wallet to confirm transaction...');
+      setError('Please check your wallet app and confirm the transaction request. Wait for the transaction to complete...');
       
       const txResponse = await signer.sendTransaction(txRequest);
       console.log('Transaction sent:', txResponse.hash);
@@ -700,7 +1065,7 @@ export function TransferTokenForm() {
     }
   };
 
-  // 执行所有交易
+  // Execute all transactions
   const executeAllTransactions = async (transactions: any[]) => {
     if (!transactions || transactions.length === 0) {
       setError('No executable transactions');
@@ -710,29 +1075,29 @@ export function TransferTokenForm() {
 
     setIsProcessing(true);
     setTxStatus('Starting cross-chain transaction...');
-    setError(''); // 清除之前的错误信息
+    setError(''); // Clear previous error messages
 
-    // 按顺序执行所有交易
+    // Execute all transactions in order
     try {
       for (let i = 0; i < transactions.length; i++) {
         setTxStatus(`Processing step ${i+1}/${transactions.length}...`);
         const success = await executeTx(transactions[i]);
         if (!success) {
-          // 错误信息已经在executeTx中设置
+          // Error message already set in executeTx
           setIsProcessing(false);
           return;
         }
       }
       
-      // 所有交易都成功
+      // All transactions successful
       setTxStatus('All transactions completed! Cross-chain transfer successful');
       setError('');
       
-      // 交易成功后延迟重置表单状态
+      // Reset form state after a delay on successful transaction
       setTimeout(() => {
-        resetForm(true); // 重置表单但保留成功消息
+        resetForm(true); // Reset form but keep success message
         
-        // 5秒后清除成功状态消息
+        // Clear success status message after 5 seconds
         setTimeout(() => {
           setTxStatus('');
         }, 5000);
@@ -745,53 +1110,53 @@ export function TransferTokenForm() {
     }
   };
 
-  // 统一处理交易错误
+  // Unified transaction error handler
   const handleTransactionError = (e: any) => {
     console.log('Transaction failed:', e);
     
     let errorMessage = '';
     
-    // 根据错误类型设置不同的错误信息
+    // Set different error messages based on error type
     if (e?.code === 'ACTION_REJECTED') {
       errorMessage = 'User canceled the transaction';
     } else if (e?.data?.message?.includes('insufficient value')) {
-      errorMessage = 'Cross-chain transaction fee insufficient, please ensure sufficient tokens for transaction fees';
+      errorMessage = 'Cross-chain transaction fee insufficient. Please ensure you have enough tokens for transaction fees.';
     } else if (e?.message?.includes('transaction failed')) {
-      errorMessage = 'Transaction execution failed, please check your balance';
+      errorMessage = 'Transaction execution failed. Please check your balance.';
     } else if (e?.message?.includes('gas required exceeds allowance')) {
-      errorMessage = 'Gas fee insufficient, please ensure sufficient tokens for mining fees';
+      errorMessage = 'Gas fee insufficient. Please ensure you have enough tokens for gas fees.';
     } else if (e?.message?.includes('nonce too low')) {
-      errorMessage = 'Transaction Nonce value too low, please refresh page and try again';
+      errorMessage = 'Transaction Nonce too low. Please refresh the page and try again.';
     } else if (e?.message?.includes('replacement fee too low')) {
-      errorMessage = 'Replacement transaction fee too low, please wait for current transaction to complete';
+      errorMessage = 'Replacement transaction fee too low. Please wait for the current transaction to complete.';
     } else {
       errorMessage = `Transaction failed: ${e?.message || 'Unknown error'}`;
     }
     
-    // 设置错误信息
+    // Set error message
     setError(errorMessage);
-    // 清除之前的交易状态
+    // Clear previous transaction status
     setTxStatus('Transaction failed');
   };
 
-  // 重置表单状态的函数
+  // Function to reset form state
   const resetForm = (keepSuccessMessage = false) => {
-    // 重置输入字段
+    // Reset input fields
     setAmount('');
     
-    // 重置交易相关状态
+    // Reset transaction-related states
     setTxs(null);
     setIsProcessing(false);
     
-    // 不再清除交易状态和哈希
+    // Do not clear transaction status and hash
     if (!keepSuccessMessage) {
       setError('');
       setTxStatus('');
-      setLastTxHash('');  // 清除上一次的交易哈希
+      setLastTxHash('');  // Clear previous transaction hash
     }
   };
 
-  // 获取链的浏览器URL
+  // Get chain explorer URL
   const getExplorerUrl = (chain: 'deepbrainchain' | 'bsc', hash: string) => {
     if (chain === 'deepbrainchain') {
       return `https://www.dbcscan.io/tx/${hash}`;
@@ -799,6 +1164,22 @@ export function TransferTokenForm() {
       return `https://bscscan.com/tx/${hash}`;
     }
   };
+
+  // Get contract address explorer URL
+  const getContractExplorerUrl = (chain: 'deepbrainchain' | 'bsc', address: string) => {
+    if (chain === 'deepbrainchain') {
+      return `https://www.dbcscan.io/address/${address}`;
+    } else {
+      return `https://bscscan.com/address/${address}`;
+    }
+  };
+
+  // Handle max amount button click
+  const handleMaxAmount = useCallback(() => {
+    if (usdtBalance && !isNaN(parseFloat(usdtBalance)) && parseFloat(usdtBalance) > 0) {
+      setAmount(usdtBalance);
+    }
+  }, [usdtBalance]);
 
   const handleClick = async () => {
     if (isProcessing) return;
@@ -808,16 +1189,16 @@ export function TransferTokenForm() {
       return;
     }
 
-    if (!account) {
+    if (!account || !provider) {
       setError('Please connect your wallet');
       return;
     }
 
     const recipient = account;
     
-    // 确保当前在正确的网络上
+    // Ensure currently on the correct network
     if (currentChain() !== sourceChain) {
-      setError('Switching to correct network...');
+      setError('Switching to the correct network...');
       const success = await switchNetwork(sourceChain);
       if (!success) {
         setError(`Unable to switch to ${sourceChain}. Please switch manually.`);
@@ -826,13 +1207,34 @@ export function TransferTokenForm() {
       await new Promise(resolve => setTimeout(resolve, 1000));
     }
 
-    // 重置所有交易相关的状态
+    // Check USDT balance
+    try {
+      setTxStatus('Checking balance...');
+      const tokenAddress = sourceChain === 'deepbrainchain' 
+        ? USDT_CONTRACT_ADDRESSES.deepbrainchain // USDT address on DBC chain
+        : USDT_CONTRACT_ADDRESSES.bsc; // USDT address on BSC chain
+      
+      const balance = await checkTokenBalance(tokenAddress);
+      const amountToTransfer = parseFloat(amount);
+      
+      if (parseFloat(balance) < amountToTransfer) {
+        setError(`Insufficient balance. Current USDT balance: ${parseFloat(balance).toFixed(2)}`);
+        setTxStatus('');
+        return;
+      }
+    } catch (e: any) {
+      setError(`Failed to check balance: ${e.message}`);
+      setTxStatus('');
+      return;
+    }
+
+    // Reset all transaction-related states
     setError('');
     setTxs(null);
     setIsProcessing(true);
     setTxStatus('Preparing...');
-    setLastTxHash('');  // 清除上一次的交易哈希
-    setLastTxChain(sourceChain);  // 重置为当前源链
+    setLastTxHash('');
+    setLastTxChain(sourceChain);
     
     try {
       const chainMetadata: any = {
@@ -922,7 +1324,7 @@ export function TransferTokenForm() {
           symbol: 'USDT',
           name: 'Tether USD',
           addressOrDenom: '0xF528Aa0c86cBBbBb4288ecb8133D317DD528FD88',
-          collateralAddressOrDenom: '0x55d398326f99059fF775485246999027B3197955',
+          collateralAddressOrDenom: USDT_CONTRACT_ADDRESSES.bsc,
           connections: [
             { token: 'ethereum|deepbrainchain|0x5155101187F8Faa1aD8AfeC7820c801870F81D52' },
           ],
@@ -933,7 +1335,7 @@ export function TransferTokenForm() {
           decimals: 18,
           symbol: 'USDT',
           name: 'Tether USD',
-          addressOrDenom: '0x5155101187F8Faa1aD8AfeC7820c801870F81D52',
+          addressOrDenom: USDT_CONTRACT_ADDRESSES.deepbrainchain,
           connections: [
             { token: 'ethereum|bsc|0xF528Aa0c86cBBbBb4288ecb8133D317DD528FD88' },
           ],
@@ -974,7 +1376,7 @@ export function TransferTokenForm() {
 
       setTxs(transactions);
       
-      // 自动执行所有交易
+      // Auto-execute all transactions
       await executeAllTransactions(transactions);
       
     } catch (e: any) {
@@ -987,11 +1389,11 @@ export function TransferTokenForm() {
 
   return (
     <FormWrapper>
+      {title && <FormTitle>{title}</FormTitle>}
       <AutoColumn gap="16px">
         <ChainSelectorContainer>
-          <div className='flex flex-col'>
-          <ChainLabel>From:</ChainLabel>
           <ChainSelector>
+            <ChainLabel>From:</ChainLabel>
             <ChainSelect as="div">
               <ChainIcon>
                 <ChainLogo chainId={chainConfigs[sourceChain].chainId} size={24} />
@@ -999,8 +1401,6 @@ export function TransferTokenForm() {
               <ChainName>{chainConfigs[sourceChain].name}</ChainName>
             </ChainSelect>
           </ChainSelector>
-          </div>
-       
           
           <SwitchButton onClick={handleSwapChains} type="button">
             <svg viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg" width="20" height="20">
@@ -1008,9 +1408,8 @@ export function TransferTokenForm() {
             </svg>
           </SwitchButton>
           
-          <div className='flex flex-col'>
+          <ChainSelector>
             <ChainLabel>To:</ChainLabel>
-            <ChainSelector>
             <ChainSelect as="div">
               <ChainIcon>
                 <ChainLogo chainId={chainConfigs[destinationChain].chainId} size={24} />
@@ -1018,23 +1417,55 @@ export function TransferTokenForm() {
               <ChainName>{chainConfigs[destinationChain].name}</ChainName>
             </ChainSelect>
           </ChainSelector>
-          </div>
-        
         </ChainSelectorContainer>
         
         <InputContainer>
           <InputLabel>Amount</InputLabel>
-          <InputField
-            type="text"
-            inputMode="decimal"
-            placeholder={`Enter USDT amount for cross-chain transfer`}
-            value={amount}
-            onChange={(e) => {
-              // 直接设置输入值，然后通过验证函数清理
-              const validatedValue = validateAmount(e.target.value);
-              setAmount(validatedValue);
-            }}
-          />
+          <div style={{ position: 'relative' }}>
+            <InputField
+              type="text"
+              inputMode="decimal"
+              placeholder={`Enter USDT amount for cross-chain transfer`}
+              value={amount}
+              onChange={(e) => {
+                // Use modified validation function, add max value limit
+                const validatedValue = validateAmount(e.target.value, usdtBalance);
+                setAmount(validatedValue);
+              }}
+            />
+            <MaxButton 
+              onClick={handleMaxAmount} 
+              disabled={isLoadingBalance || !usdtBalance || parseFloat(usdtBalance) <= 0}
+            >
+              MAX
+            </MaxButton>
+          </div>
+          <BalanceText>
+            Balance: 
+            <BalanceAmount>
+              {isLoadingBalance ? 'Loading...' : 
+                !usdtBalance || isNaN(parseFloat(usdtBalance)) 
+                  ? '0.00 USDT' 
+                  : `${parseFloat(usdtBalance).toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 6
+                    })} USDT`
+              }
+            </BalanceAmount>
+          </BalanceText>
+          <ContractLink>
+            Contract:
+            <a 
+              href={getContractExplorerUrl(sourceChain, USDT_CONTRACT_ADDRESSES[sourceChain])} 
+              target="_blank" 
+              rel="noopener noreferrer"
+            >
+              <ContractAddress>
+                {USDT_CONTRACT_ADDRESSES[sourceChain]}
+              </ContractAddress>
+              <ExternalLink size={14} />
+            </a>
+          </ContractLink>
         </InputContainer>
         
         <RecipientInfo>
@@ -1044,12 +1475,12 @@ export function TransferTokenForm() {
           </AddressText>
         </RecipientInfo>
         
-        {/* 交易状态显示 */}
+        {/* Transaction status display */}
         {txStatus && (
           <TransactionStatus 
             status={
-              txStatus.includes('failed') ? 'error' :
-              txStatus.includes('success') ? 'success' : 
+              txStatus.includes('failed') || txStatus.includes('Failed') ? 'error' :
+              txStatus.includes('success') || txStatus.includes('completed') ? 'success' : 
               'pending'
             }
           >
@@ -1068,7 +1499,7 @@ export function TransferTokenForm() {
           </TransactionStatus>
         )}
         
-        {/* 错误信息显示 */}
+        {/* Error message display */}
         {error && !error.includes('Transaction Hash') && <ErrorText>{error}</ErrorText>}
         
         <ActionButton onClick={handleClick} disabled={isProcessing}>

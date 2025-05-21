@@ -165,6 +165,19 @@ export const PageTabs = () => {
     navigate(`${path}?chain=dbc`)
   }, [currentChainId, selectChain, navigate])
 
+  const navigateWithBNB = useCallback(async (path: string) => {
+    // 尝试切换到 BNB 链 (ChainId 56)
+    if (currentChainId !== 56) { // 56 is BNB Chain ID
+      try {
+        await selectChain(56); // 切换到 BNB
+      } catch (error) {
+        console.error('Failed to switch to BNB chain:', error);
+      }
+    }
+    // 使用 React Router 导航
+    navigate(`${path}?chain=bnb`); // 导航时指定 chain=bnb
+  }, [currentChainId, selectChain, navigate]);
+
   return (
     <>
       <MenuItem 
@@ -195,7 +208,7 @@ export const PageTabs = () => {
         isActive={pathname.startsWith('/warp')}
         onClick={(e) => {
           e.preventDefault()
-          navigateWithDBC('/warp')
+          navigateWithBNB('/warp')
         }}
       >
         <Trans>Warp</Trans>
