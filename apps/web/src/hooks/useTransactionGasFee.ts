@@ -50,7 +50,7 @@ type TransactionEip1559FeeParams = {
   maxFeePerGas: string
   maxPriorityFeePerGas: string
   gasLimit: string
-  type: 2
+  type: 0
 }
 
 export interface GasFeeResult {
@@ -88,7 +88,7 @@ export function useTransactionGasFee(
             maxPriorityFeePerGas: data.maxPriorityFeePerGas[speed],
             maxFeePerGas: data.maxFeePerGas[speed],
             gasLimit: data.gasLimit,
-            type: 2 as const,
+            type: 0 as const,
             gasPrice: undefined
           }
         : {
