@@ -118,7 +118,9 @@
     "utilities": "yarn workspace utilities",
     "deploy": "git checkout deploy-v3 && git pull && yarn install && yarn build:production && pm2 restart ecosystem.config.js --only dbc-swap",
     "start": "pm2 start ecosystem.config.js --only dbc-swap",
-    "restart": "pm2 restart ecosystem.config.js --only dbc-swap"
+    "restart": "pm2 restart ecosystem.config.js --only dbc-swap",
+    "deploy:test": "yarn build:production && rsync -avz --delete --force --progress apps/web/build/ ubuntu@54.179.233.88:/home/ubuntu/projects-for-test/DBCSwap-Interface-test/apps/web/build/ && yarn pm2:test",
+    "pm2:test": "ssh ubuntu@54.179.233.88 'source ~/.bashrc && cd /home/ubuntu/projects-for-test/DBCSwap-Interface-test && pm2 restart ecosystem.config.js --only dbc-swap'"
   },
   "workspaces": [
     "apps/*",
@@ -126,6 +128,7 @@
     "config/*"
   ],
   "devDependencies": {
+    "@types/node": "22.15.21",
     "assert": "2.1.0",
     "browserify-zlib": "0.2.0",
     "crypto-browserify": "3.12.1",

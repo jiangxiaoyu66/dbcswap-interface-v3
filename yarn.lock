@@ -17627,6 +17627,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/node@npm:22.15.21":
+  version: 22.15.21
+  resolution: "@types/node@npm:22.15.21"
+  dependencies:
+    undici-types: ~6.21.0
+  checksum: 989f1ce3a99916a7298ae885210385fbcb339b07f8ef420b015d69dd68863aca68aeae07833736b300720d9394b8e1875600ce74166c24957d9907d29de0b788
+  languageName: node
+  linkType: hard
+
 "@types/node@npm:>=13.7.0":
   version: 22.15.17
   resolution: "@types/node@npm:22.15.17"
@@ -50695,6 +50704,7 @@ __metadata:
     "@hyperlane-xyz/utils": 9.2.1
     "@hyperlane-xyz/widgets": 9.2.1
     "@manypkg/cli": ^0.19.2
+    "@types/node": 22.15.21
     assert: 2.1.0
     browserify-zlib: 0.2.0
     crypto-browserify: 3.12.1
