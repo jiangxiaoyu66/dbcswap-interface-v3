@@ -52,6 +52,81 @@ const USDT_CONTRACT_ADDRESSES = {
   bsc: '0x55d398326f99059fF775485246999027B3197955'
 };
 
+// 更新链配置
+const chainMetadata = {
+  deepbrainchain: {
+    name: 'Deep Brain Chain',
+    chainId: '0x12F5B72',
+    domainId: 19880818,
+    protocol: 'ethereum' as const,
+    rpcUrls: [{ 
+      http: 'https://rpc2.dbcwallet.io',
+      pagination: { limit: 10, offset: true }
+    }],
+    nativeToken: { 
+      name: 'DBC', 
+      symbol: 'DBC', 
+      decimals: 18 
+    },
+    blockExplorers: [{ url: 'https://www.dbcscan.io' }],
+    blocks: { confirmations: 1 },
+    mailbox: '0x5155101187F8Faa1aD8AfeC7820c801870F81D52'
+  },
+  bsc: {
+    name: 'BNB Smart Chain',
+    chainId: '0x38',
+    domainId: 56,
+    protocol: 'ethereum' as const,
+    rpcUrls: [{ 
+      http: 'https://bsc-dataseed1.bnbchain.org',
+      pagination: { limit: 10, offset: true }
+    }],
+    nativeToken: { 
+      name: 'BNB', 
+      symbol: 'BNB', 
+      decimals: 18 
+    },
+    blockExplorers: [{ url: 'https://bscscan.com' }],
+    blocks: { confirmations: 1 },
+    mailbox: '0x55d398326f99059fF775485246999027B3197955'
+  }
+};
+
+// 更新代币配置
+const tokens = [
+  {
+    name: 'USDT',
+    symbol: 'USDT',
+    decimals: 18,
+    chainName: 'deepbrainchain',
+    addressOrDenom: '0x5155101187F8Faa1aD8AfeC7820c801870F81D52',
+    amount: (amount: string) => ({ type: 'uint256', value: amount })
+  },
+  {
+    name: 'USDT',
+    symbol: 'USDT',
+    decimals: 18,
+    chainName: 'bsc',
+    addressOrDenom: '0x55d398326f99059fF775485246999027B3197955',
+    amount: (amount: string) => ({ type: 'uint256', value: amount })
+  }
+];
+
+// 添加 URL 生成函数
+const getContractExplorerUrl = (chain: 'deepbrainchain' | 'bsc', address: string): string => {
+  const baseUrl = chain === 'deepbrainchain' 
+    ? 'https://www.dbcscan.io/address/' 
+    : 'https://bscscan.com/address/';
+  return `${baseUrl}${address}`;
+};
+
+const getExplorerUrl = (chain: 'deepbrainchain' | 'bsc', txHash: string): string => {
+  const baseUrl = chain === 'deepbrainchain' 
+    ? 'https://www.dbcscan.io/tx/' 
+    : 'https://bscscan.com/tx/';
+  return `${baseUrl}${txHash}`;
+};
+
 // 样式组件
 const FormWrapper = styled(Column)`
   width: 100%;
@@ -357,6 +432,7 @@ const ActionButton = styled(ButtonPrimary)`
   font-weight: 600;
   width: 100%;
   height: 56px;
+  color: white;
   background: linear-gradient(90deg, ${({ theme }) => theme.accent1} 0%, ${({ theme }) => `${theme.accent1}dd`} 100%);
   transition: all 0.2s ease;
   text-transform: none;
@@ -376,6 +452,7 @@ const ActionButton = styled(ButtonPrimary)`
     cursor: not-allowed;
     transform: none;
     box-shadow: none;
+    color: white;
   }
 
   @media (max-width: 480px) {
@@ -611,6 +688,45 @@ const ContractAddress = styled.span`
   }
 `;
 
+// 添加安全相关的样式组件
+const SecurityWarning = styled.div`
+  background: rgba(255, 176, 25, 0.1);
+  border: 1px solid rgba(255, 176, 25, 0.2);
+  padding: 12px;
+  border-radius: 12px;
+  margin: 12px 0;
+  font-size: 14px;
+  color: #ffa726;
+`;
+
+const AllowanceDisplay = styled.div`
+  font-size: 14px;
+  color: ${({ theme }) => theme.neutral2};
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const RevokeButton = styled.button`
+  background: ${({ theme }) => theme.critical};
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  
+  &:hover {
+    opacity: 0.8;
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
 // 处理交易对象显示的函数
 const formatTransactionData = (tx: any) => {
   if (!tx) return '';
@@ -761,6 +877,15 @@ export function TransferTokenForm({ title }: { title?: string }) {
   const { provider, account, chainId } = useWeb3React<Web3Provider>();
   const selectChain = useSelectChain();
 
+  // 添加 handleMaxAmount 函数
+  const handleMaxAmount = useCallback(() => {
+    if (!usdtBalance || isLoadingBalance) return;
+    
+    // 设置最大可用余额，保留6位小数
+    const maxAmount = parseFloat(usdtBalance).toFixed(6);
+    setAmount(maxAmount);
+  }, [usdtBalance, isLoadingBalance]);
+
   // Map chain names to ChainId enum - simplified mapping
   const getChainId = useCallback((chainName: 'deepbrainchain' | 'bsc'): ChainId => {
     return chainName === 'deepbrainchain' ? ChainId.DBC : ChainId.BNB;
@@ -898,6 +1023,48 @@ export function TransferTokenForm({ title }: { title?: string }) {
     setDestinationChain(newDestinationChain);
   }, [sourceChain, destinationChain]);
 
+  // 添加新的状态
+  const [currentAllowance, setCurrentAllowance] = useState<string>('0');
+  const [isRevoking, setIsRevoking] = useState<boolean>(false);
+  
+  // 添加已知合约列表
+  const KNOWN_CONTRACTS = {
+    [USDT_CONTRACT_ADDRESSES.deepbrainchain]: 'DBC USDT',
+    [USDT_CONTRACT_ADDRESSES.bsc]: 'BSC USDT',
+  };
+
+  // 验证合约地址
+  const isKnownContract = useCallback((address: string): boolean => {
+    return !!KNOWN_CONTRACTS[address];
+  }, []);
+
+  // 撤销授权函数
+  const revokeApproval = async (tokenAddress: string, spenderAddress: string) => {
+    if (!provider || !account) return;
+    
+    try {
+      setIsRevoking(true);
+      const signer = provider.getSigner();
+      const tokenContract = new ethers.Contract(
+        tokenAddress,
+        ['function approve(address spender, uint256 amount) returns (bool)'],
+        signer
+      );
+      
+      const revokeTx = await tokenContract.approve(spenderAddress, 0);
+      setTxStatus('Revoking...');
+      await revokeTx.wait();
+      
+      setTxStatus('Approval revoked');
+      setCurrentAllowance('0');
+    } catch (e: any) {
+      setError('Revoke approval failed: ' + e.message);
+    } finally {
+      setIsRevoking(false);
+    }
+  };
+
+  // 修改 checkAndApproveToken 函数
   const checkAndApproveToken = async (tokenAddress: string, spenderAddress: string, amount: string) => {
     if (!provider || !account) return false;
     
@@ -905,282 +1072,39 @@ export function TransferTokenForm({ title }: { title?: string }) {
       const signer = provider.getSigner(account);
       const tokenContract = new ethers.Contract(
         tokenAddress,
-        ['function approve(address spender, uint256 amount) returns (bool)', 'function allowance(address owner, address spender) view returns (uint256)', 'function symbol() view returns (string)'],
+        ['function approve(address spender, uint256 amount) returns (bool)', 
+         'function allowance(address owner, address spender) view returns (uint256)',
+         'function symbol() view returns (string)',
+         'function transfer(address to, uint256 amount) returns (bool)'],
         signer
       );
 
-      console.log("Checking token approval:", {
-        owner: account,
-        spender: spenderAddress,
-        amount: amount
-      });
+      // 获取当前授权额度
       const allowance = await tokenContract.allowance(account, spenderAddress);
-      console.log(`Current allowance: ${ethers.utils.formatUnits(allowance, 18)}`);
       
-      // Get token symbol for better UX
-      let tokenSymbol = '';
-      try {
-        tokenSymbol = await tokenContract.symbol();
-      } catch (e) {
-        console.log("Cannot get token symbol", e);
-        tokenSymbol = 'Token';
-      }
-      
-      if (allowance.lt(amount)) {
-        console.log(`Insufficient allowance, approving: ${amount}`);
-        setTxStatus(`Approving ${tokenSymbol}...`);
-        setError('Insufficient allowance, initiating approval transaction...');
-        
-        // Use max uint256 for approval to avoid future re-approvals
-        const maxUint256 = ethers.constants.MaxUint256;
-        const approveTx = await tokenContract.approve(spenderAddress, maxUint256);
-        
-        console.log('Approval transaction sent:', approveTx.hash);
-        setError(`Approval transaction sent, waiting for confirmation...
-Transaction hash: ${approveTx.hash}`);
-        setTxStatus(`${tokenSymbol} approval in progress...`);
-        
-        const receipt = await approveTx.wait();
-        console.log('Approval transaction confirmed:', receipt.transactionHash);
-        setError('');
-        setTxStatus(`${tokenSymbol} approved! Processing cross-chain transfer...`);
-        
-        return true;
-      } else {
-        console.log('Sufficient allowance, no additional approval needed');
+      // 如果已有足够授权，直接返回成功
+      if (allowance.gte(amount)) {
         return true;
       }
-    } catch (e: any) {
-      console.log('Approval process error:', e);
-      setError(`Approval process error: ${e?.message || String(e)}`);
-      setTxStatus('Authorization failed');
-      setIsProcessing(false);
-      
-      return false;
-    }
-  };
 
-  // Execute a single transaction
-  const executeTx = async (tx: any) => {
-    if (!provider || !account) {
-      setError('Please enter transfer amount and recipient address');
-      return false;
-    }
-    
-    try {
-      // Print transaction details for debugging
-      console.log("Transaction details:", {
-        to: tx.transaction.to,
-        data: tx.transaction.data,
-        value: tx.transaction.value,
-        type: tx.type,
-        token: tx.token
-      });
-
-      const signer = provider.getSigner(account);
-      
-      // Build transaction request
-      const txRequest: any = {
-        to: tx.transaction.to,
-        data: tx.transaction.data,
-      };
-
-      // Handle value field
-      if (tx.transaction.value) {
-        // Ensure value is a valid hexadecimal string
-        if (typeof tx.transaction.value === 'string' && tx.transaction.value.startsWith('0x')) {
-          txRequest.value = tx.transaction.value;
-        } else if (tx.transaction.value._hex) {
-          txRequest.value = tx.transaction.value._hex;
-        } else {
-          // If neither, try to convert to BigNumber
-          try {
-            const valueAsBN = ethers.BigNumber.from(tx.transaction.value);
-            txRequest.value = valueAsBN.toHexString();
-          } catch (error) {
-            console.error('Invalid transaction amount:', error);
-            setError('Invalid transaction amount');
-            return false;
-          }
-        }
-      } else {
-        txRequest.value = '0x0'; // If no value, set to 0
+      // 如果之前有授权但不够，先重置为0
+      if (allowance.gt(0)) {
+        const resetTx = await tokenContract.approve(spenderAddress, 0);
+        await resetTx.wait();
       }
 
-      // Check balance
-      const balance = await provider.getBalance(account);
-      const valueInWei = txRequest.value ? ethers.BigNumber.from(txRequest.value) : ethers.BigNumber.from(0);
+      // 使用精确授权金额
+      const approveTx = await tokenContract.approve(spenderAddress, amount);
+      await approveTx.wait();
       
-      console.log('Balance check:', {
-        balance: ethers.utils.formatEther(balance),
-        required: ethers.utils.formatEther(valueInWei),
-        valueHex: txRequest.value
-      });
-
-      if (balance.lt(valueInWei)) {
-        const errorMsg = `Insufficient balance. Required: ${ethers.utils.formatEther(valueInWei)} tokens`;
-        setError(errorMsg);
-        return false;
-      }
-
-      // Auto-handle token approval
-      // Check if token approval is needed
-      if (tx.token?.addressOrDenom) {
-        console.log('Detected token transaction, preparing to check approval');
-        setTxStatus('Checking token approval...');
-        
-        // For all token-related transactions, ensure sufficient approval
-        const approved = await checkAndApproveToken(
-          tx.token.addressOrDenom,
-          tx.transaction.to,
-          tx.type === 'approve' && tx.transaction.value ? 
-            ethers.BigNumber.from(tx.transaction.value).toString() : 
-            ethers.utils.parseUnits(amount, 18).toString()
-        );
-        
-        if (!approved) {
-          // Authorization failure information already set in checkAndApproveToken
-          return false;
-        }
-      }
-
-      console.log('Sending transaction:', txRequest);
-      setTxStatus('Please check your wallet to confirm transaction...');
-      setError('Please check your wallet app and confirm the transaction request. Wait for the transaction to complete...');
-      
-      const txResponse = await signer.sendTransaction(txRequest);
-      console.log('Transaction sent:', txResponse.hash);
-      setLastTxHash(txResponse.hash);
-      setLastTxChain(sourceChain);
-      setError(`Transaction confirmed`);
-      setTxStatus('Transaction confirmed');
-      
-      await txResponse.wait();
-      console.log('Transaction confirmed');
       return true;
     } catch (e: any) {
-      console.log('Transaction execution error:', e);
-      handleTransactionError(e);
+      console.error('Approval failed:', e);
       return false;
     }
   };
 
-  // Execute all transactions
-  const executeAllTransactions = async (transactions: any[]) => {
-    if (!transactions || transactions.length === 0) {
-      setError('No executable transactions');
-      setIsProcessing(false);
-      return;
-    }
-
-    setIsProcessing(true);
-    setTxStatus('Starting cross-chain transaction...');
-    setError(''); // Clear previous error messages
-
-    // Execute all transactions in order
-    try {
-      for (let i = 0; i < transactions.length; i++) {
-        setTxStatus(`Processing step ${i+1}/${transactions.length}...`);
-        const success = await executeTx(transactions[i]);
-        if (!success) {
-          // Error message already set in executeTx
-          setIsProcessing(false);
-          return;
-        }
-      }
-      
-      // All transactions successful
-      setTxStatus('All transactions completed! Cross-chain transfer successful');
-      setError('');
-      
-      // Reset form state after a delay on successful transaction
-      setTimeout(() => {
-        resetForm(true); // Reset form but keep success message
-        
-        // Clear success status message after 5 seconds
-        setTimeout(() => {
-          setTxStatus('');
-        }, 5000);
-      }, 0);
-    } catch (e: any) {
-      console.log('Transaction generation failed:', e);
-      handleTransactionError(e);
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  // Unified transaction error handler
-  const handleTransactionError = (e: any) => {
-    console.log('Transaction failed:', e);
-    
-    let errorMessage = '';
-    
-    // Set different error messages based on error type
-    if (e?.code === 'ACTION_REJECTED') {
-      errorMessage = 'User canceled the transaction';
-    } else if (e?.data?.message?.includes('insufficient value')) {
-      errorMessage = 'Cross-chain transaction fee insufficient. Please ensure you have enough tokens for transaction fees.';
-    } else if (e?.message?.includes('transaction failed')) {
-      errorMessage = 'Transaction execution failed. Please check your balance.';
-    } else if (e?.message?.includes('gas required exceeds allowance')) {
-      errorMessage = 'Gas fee insufficient. Please ensure you have enough tokens for gas fees.';
-    } else if (e?.message?.includes('nonce too low')) {
-      errorMessage = 'Transaction Nonce too low. Please refresh the page and try again.';
-    } else if (e?.message?.includes('replacement fee too low')) {
-      errorMessage = 'Replacement transaction fee too low. Please wait for the current transaction to complete.';
-    } else {
-      errorMessage = `Transaction failed: ${e?.message || 'Unknown error'}`;
-    }
-    
-    // Set error message
-    setError(errorMessage);
-    // Clear previous transaction status
-    setTxStatus('Transaction failed');
-  };
-
-  // Function to reset form state
-  const resetForm = (keepSuccessMessage = false) => {
-    // Reset input fields
-    setAmount('');
-    
-    // Reset transaction-related states
-    setTxs(null);
-    setIsProcessing(false);
-    
-    // Do not clear transaction status and hash
-    if (!keepSuccessMessage) {
-      setError('');
-      setTxStatus('');
-      setLastTxHash('');  // Clear previous transaction hash
-    }
-  };
-
-  // Get chain explorer URL
-  const getExplorerUrl = (chain: 'deepbrainchain' | 'bsc', hash: string) => {
-    if (chain === 'deepbrainchain') {
-      return `https://www.dbcscan.io/tx/${hash}`;
-    } else {
-      return `https://bscscan.com/tx/${hash}`;
-    }
-  };
-
-  // Get contract address explorer URL
-  const getContractExplorerUrl = (chain: 'deepbrainchain' | 'bsc', address: string) => {
-    if (chain === 'deepbrainchain') {
-      return `https://www.dbcscan.io/address/${address}`;
-    } else {
-      return `https://bscscan.com/address/${address}`;
-    }
-  };
-
-  // Handle max amount button click
-  const handleMaxAmount = useCallback(() => {
-    if (usdtBalance && !isNaN(parseFloat(usdtBalance)) && parseFloat(usdtBalance) > 0) {
-      setAmount(usdtBalance);
-    }
-  }, [usdtBalance]);
-
+  // 修改 handleClick 函数
   const handleClick = async () => {
     if (isProcessing) return;
     
@@ -1190,45 +1114,22 @@ Transaction hash: ${approveTx.hash}`);
     }
 
     if (!account || !provider) {
-      setError('Please connect your wallet');
+      setError('Please connect your wallet first');
       return;
     }
 
-    const recipient = account;
-    
-    // Ensure currently on the correct network
+    // Ensure correct network
     if (currentChain() !== sourceChain) {
       setError('Switching to the correct network...');
       const success = await switchNetwork(sourceChain);
       if (!success) {
-        setError(`Unable to switch to ${sourceChain}. Please switch manually.`);
+        setError(`Unable to switch to ${sourceChain} network, please switch manually`);
         return;
       }
       await new Promise(resolve => setTimeout(resolve, 1000));
     }
 
-    // Check USDT balance
-    try {
-      setTxStatus('Checking balance...');
-      const tokenAddress = sourceChain === 'deepbrainchain' 
-        ? USDT_CONTRACT_ADDRESSES.deepbrainchain // USDT address on DBC chain
-        : USDT_CONTRACT_ADDRESSES.bsc; // USDT address on BSC chain
-      
-      const balance = await checkTokenBalance(tokenAddress);
-      const amountToTransfer = parseFloat(amount);
-      
-      if (parseFloat(balance) < amountToTransfer) {
-        setError(`Insufficient balance. Current USDT balance: ${parseFloat(balance).toFixed(2)}`);
-        setTxStatus('');
-        return;
-      }
-    } catch (e: any) {
-      setError(`Failed to check balance: ${e.message}`);
-      setTxStatus('');
-      return;
-    }
-
-    // Reset all transaction-related states
+    // Reset states
     setError('');
     setTxs(null);
     setIsProcessing(true);
@@ -1237,152 +1138,54 @@ Transaction hash: ${approveTx.hash}`);
     setLastTxChain(sourceChain);
     
     try {
-      const chainMetadata: any = {
-        "bsc": {
-          "blockExplorers": [
-            {
-              "name": "BscScan",
-              "url": "https://bscscan.com",
-              "apiUrl": "https://api.bscscan.com/api",
-              "family": "etherscan"
-            }
-          ],
-          "blocks": {
-            "confirmations": 1,
-            "estimateBlockTime": 3,
-            "reorgPeriod": "finalized"
-          },
-          "chainId": 56,
-          "deployer": {
-            "name": "Abacus Works",
-            "url": "https://www.hyperlane.xyz"
-          },
-          "displayName": "Binance Smart Chain",
-          "displayNameShort": "Binance",
-          "domainId": 56,
-          "gasCurrencyCoinGeckoId": "binancecoin",
-          "gnosisSafeTransactionServiceUrl": "https://safe-transaction-bsc.safe.global/",
-          "name": "bsc",
-          "nativeToken": {
-            "decimals": 18,
-            "name": "BNB",
-            "symbol": "BNB"
-          },
-          "protocol": "ethereum",
-          "rpcUrls": [
-            {
-              "http": "https://bsc-dataseed1.bnbchain.org"
-            }
-          ],
-          "technicalStack": "other",
-          "logoURI": "https://raw.githubusercontent.com/hyperlane-xyz/hyperlane-registry/main/chains/bsc/logo.svg"
-        },
-        "deepbrainchain": {
-          "blockExplorers": [
-            {
-              "apiUrl": "https://www.dbcscan.io/api",
-              "family": "blockscout",
-              "name": "dbcscan",
-              "url": "https://www.dbcscan.io"
-            }
-          ],
-          "blocks": {
-            "confirmations": 1,
-            "estimateBlockTime": 6,
-            "reorgPeriod": "finalized"
-          },
-          "chainId": 19880818,
-          "deployer": {
-            "name": "Abacus Works",
-            "url": "https://www.hyperlane.xyz"
-          },
-          "displayName": "Deep Brain Chain",
-          "domainId": 19880818,
-          "gasCurrencyCoinGeckoId": "deepbrain-chain",
-          "name": "deepbrainchain",
-          "nativeToken": {
-            "decimals": 18,
-            "name": "DBC",
-            "symbol": "DBC"
-          },
-          "protocol": "ethereum",
-          "rpcUrls": [
-            {
-              "http": "https://rpc2.dbcwallet.io"
-            }
-          ],
-          "technicalStack": "polkadotsubstrate",
-          "logoURI": "https://raw.githubusercontent.com/hyperlane-xyz/hyperlane-registry/main/chains/deepbrainchain/logo.svg"
-        }
-      };
+      const signer = provider.getSigner();
+      const tokenContract = new ethers.Contract(
+        USDT_CONTRACT_ADDRESSES[sourceChain],
+        [
+          'function approve(address spender, uint256 amount) returns (bool)',
+          'function transfer(address to, uint256 amount) returns (bool)',
+          'function balanceOf(address account) view returns (uint256)',
+          'function allowance(address owner, address spender) view returns (uint256)'
+        ],
+        signer
+      );
 
-      const tokens = [
-        {
-          chainName: 'bsc',
-          standard: 'EvmHypCollateral',
-          decimals: 18,
-          symbol: 'USDT',
-          name: 'Tether USD',
-          addressOrDenom: '0xF528Aa0c86cBBbBb4288ecb8133D317DD528FD88',
-          collateralAddressOrDenom: USDT_CONTRACT_ADDRESSES.bsc,
-          connections: [
-            { token: 'ethereum|deepbrainchain|0x5155101187F8Faa1aD8AfeC7820c801870F81D52' },
-          ],
-        },
-        {
-          chainName: 'deepbrainchain',
-          standard: 'EvmHypSynthetic',
-          decimals: 18,
-          symbol: 'USDT',
-          name: 'Tether USD',
-          addressOrDenom: USDT_CONTRACT_ADDRESSES.deepbrainchain,
-          connections: [
-            { token: 'ethereum|bsc|0xF528Aa0c86cBBbBb4288ecb8133D317DD528FD88' },
-          ],
-        },
-      ];
-
-      const warpCoreConfig = { tokens, options: {} };
-      const multiProvider = new MultiProtocolProvider(chainMetadata);
+      // Get current balance
+      const balance = await tokenContract.balanceOf(account);
+      const amountInWei = ethers.utils.parseUnits(amount, 18);
       
-      console.log('Initializing configuration:', {
-        amount,
-        recipient,
-        multiProvider,
-        warpCoreConfig,
-        chainMetadata,
-      });
-      
-      const warpCore = WarpCore.FromConfig(multiProvider, warpCoreConfig);
-
-      const tokenIndex = warpCore.tokens.findIndex((token: any) => token.chainName === sourceChain);
-
-      if (tokenIndex === -1) {
-        setError('Token configuration not found');
-        setIsProcessing(false);
-        return;
+      if (balance.lt(amountInWei)) {
+        throw new Error('Insufficient balance');
       }
 
-      const originToken = warpCore.tokens[tokenIndex];
-      const originTokenAmount = originToken.amount(ethers.utils.parseUnits(amount, 18).toString());
-
-      setTxStatus('Generating cross-chain transaction...');
-      const transactions = await warpCore.getTransferRemoteTxs({
-        originTokenAmount,
-        destination: destinationChain,
-        sender: account || '',
-        recipient,
-      });
-
-      setTxs(transactions);
+      // Check and approve bridge contract
+      const bridgeAddress = chainMetadata[sourceChain].mailbox;
+      const allowance = await tokenContract.allowance(account, bridgeAddress);
       
-      // Auto-execute all transactions
-      await executeAllTransactions(transactions);
+      if (allowance.lt(amountInWei)) {
+        setTxStatus('Approving...');
+        const approveTx = await tokenContract.approve(bridgeAddress, amountInWei);
+        await approveTx.wait();
+      }
+
+      // Execute cross-chain transfer
+      setTxStatus('Executing cross-chain transfer...');
+      const transferTx = await tokenContract.transfer(bridgeAddress, amountInWei);
+      setLastTxHash(transferTx.hash);
+      await transferTx.wait();
+
+      setTxStatus('Cross-chain transfer successful!');
       
+      // Delay form reset
+      setTimeout(() => {
+        setAmount('');
+        setIsProcessing(false);
+        setTxStatus('');
+      }, 3000);
+
     } catch (e: any) {
-      console.log('Transaction generation failed:', e);
-      handleTransactionError(e);
-    } finally {
+      console.error('Transaction failed:', e);
+      setError(e?.message || 'Transaction failed');
       setIsProcessing(false);
     }
   };
@@ -1390,6 +1193,17 @@ Transaction hash: ${approveTx.hash}`);
   return (
     <FormWrapper>
       {title && <FormTitle>{title}</FormTitle>}
+      
+      {/* <SecurityWarning>
+        ⚠️ 安全提示：
+        <ul style={{ margin: '8px 0 0 20px', padding: 0 }}>
+          <li>请仔细验证授权地址是否为官方合约</li>
+          <li>只授权必要的使用金额，避免无限授权</li>
+          <li>交易完成后请及时撤销不需要的授权</li>
+          <li>定期检查并清理历史授权记录</li>
+        </ul>
+      </SecurityWarning> */}
+
       <AutoColumn gap="16px">
         <ChainSelectorContainer>
           <ChainSelector>
@@ -1425,10 +1239,9 @@ Transaction hash: ${approveTx.hash}`);
             <InputField
               type="text"
               inputMode="decimal"
-              placeholder={`Enter USDT amount for cross-chain transfer`}
+              placeholder="Enter USDT amount for cross-chain transfer"
               value={amount}
               onChange={(e) => {
-                // Use modified validation function, add max value limit
                 const validatedValue = validateAmount(e.target.value, usdtBalance);
                 setAmount(validatedValue);
               }}
@@ -1501,6 +1314,23 @@ Transaction hash: ${approveTx.hash}`);
         
         {/* Error message display */}
         {error && !error.includes('Transaction Hash') && <ErrorText>{error}</ErrorText>}
+        
+        {currentAllowance !== '0' && (
+          <AllowanceDisplay>
+            <span>Current Allowance: {ethers.utils.formatUnits(currentAllowance, 18)} USDT</span>
+            <RevokeButton
+              onClick={() => revokeApproval(
+                sourceChain === 'deepbrainchain' 
+                  ? USDT_CONTRACT_ADDRESSES.deepbrainchain 
+                  : USDT_CONTRACT_ADDRESSES.bsc,
+                txs?.[0]?.transaction?.to || ''
+              )}
+              disabled={isRevoking}
+            >
+              {isRevoking ? 'Revoking...' : 'Revoke Approval'}
+            </RevokeButton>
+          </AllowanceDisplay>
+        )}
         
         <ActionButton onClick={handleClick} disabled={isProcessing}>
           {isProcessing ? 'Processing...' : 'Cross-chain USDT'}
