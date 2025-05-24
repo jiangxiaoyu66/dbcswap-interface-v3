@@ -392,6 +392,14 @@ const ErrorText = styled.div`
   margin: 1rem 0;
   font-size: 15px;
   border: 1px solid rgba(240, 50, 50, 0.2);
+  width: 100%;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  box-sizing: border-box;
 
   @media (max-width: 480px) {
     padding: 0.875rem 1rem;
@@ -729,6 +737,17 @@ const RevokeButton = styled.button`
     cursor: not-allowed;
   }
 `;
+
+// 添加类型定义
+interface WarpTransaction {
+  type: string;
+  transaction: {
+    to: string;
+    data: string;
+    value?: string;
+    gasLimit?: string;
+  };
+}
 
 // 处理交易对象显示的函数
 const formatTransactionData = (tx: any) => {
@@ -1111,76 +1130,104 @@ export function TransferTokenForm({ title }: { title?: string }) {
   // 修改 handleClick 函数
   const handleClick = async () => {
     if (isProcessing) return;
-
-    if (!amount) {
-      setError('Please enter transfer amount');
+    
+    if (!amount || !account || !provider) {
+      setError('Please connect wallet and enter amount');
       return;
-    }
-
-    if (!account || !provider) {
-      setError('Please connect your wallet first');
-      return;
-    }
-
-    // Ensure correct network
-    if (currentChain() !== sourceChain) {
-      setError('Switching to the correct network...');
-      const success = await switchNetwork(sourceChain);
-      if (!success) {
-        setError(`Unable to switch to ${sourceChain} network, please switch manually`);
-        return;
-      }
-      await new Promise(resolve => setTimeout(resolve, 1000));
     }
 
     // Reset states
     setError('');
     setTxs(null);
     setIsProcessing(true);
-    setTxStatus('Preparing...');
-    setLastTxHash('');
-    setLastTxChain(sourceChain);
-
+    setTxStatus('Preparing transaction...');
+    
     try {
+      const chainMetadata: any = {
+        "bsc": {
+          "blockExplorers": [{
+            "name": "BscScan",
+            "url": "https://bscscan.com",
+            "apiUrl": "https://api.bscscan.com/api",
+            "family": "etherscan"
+          }],
+          "blocks": {"confirmations": 1},
+          "chainId": 56,
+          "domainId": 56,
+          "name": "bsc",
+          "protocol": "ethereum",
+          "rpcUrls": [{"http": "https://bsc-dataseed1.bnbchain.org"}]
+        },
+        "deepbrainchain": {
+          "blockExplorers": [{
+            "name": "dbcscan",
+            "url": "https://www.dbcscan.io",
+            "apiUrl": "https://www.dbcscan.io/api",
+            "family": "blockscout"
+          }],
+          "blocks": {"confirmations": 1},
+          "chainId": 19880818,
+          "domainId": 19880818,
+          "name": "deepbrainchain",
+          "protocol": "ethereum",
+          "rpcUrls": [{"http": "https://rpc2.dbcwallet.io"}]
+        }
+      };
+
+      const tokens = [
+        {
+          chainName: 'bsc',
+          standard: 'EvmHypCollateral',
+          decimals: 18,
+          symbol: 'USDT',
+          name: 'Tether USD',
+          addressOrDenom: '0xF528Aa0c86cBBbBb4288ecb8133D317DD528FD88',
+          collateralAddressOrDenom: USDT_CONTRACT_ADDRESSES.bsc,
+          connections: [
+            { token: 'ethereum|deepbrainchain|0x5155101187F8Faa1aD8AfeC7820c801870F81D52' },
+          ],
+        },
+        {
+          chainName: 'deepbrainchain',
+          standard: 'EvmHypSynthetic',
+          decimals: 18,
+          symbol: 'USDT',
+          name: 'Tether USD',
+          addressOrDenom: USDT_CONTRACT_ADDRESSES.deepbrainchain,
+          connections: [
+            { token: 'ethereum|bsc|0xF528Aa0c86cBBbBb4288ecb8133D317DD528FD88' },
+          ],
+        },
+      ];
+
+      const multiProvider = new MultiProtocolProvider(chainMetadata);
+      const warpCore = WarpCore.FromConfig(multiProvider, { tokens, options: {} });
+
+      // Find token config
+      const originToken = warpCore.tokens.find((token: any) => token.chainName === sourceChain);
+      if (!originToken) throw new Error('Token not found');
+
+      // Get cross-chain transactions
+      const transactions = await warpCore.getTransferRemoteTxs({
+        originTokenAmount: originToken.amount(ethers.utils.parseUnits(amount, 18).toString()),
+        destination: destinationChain,
+        sender: account,
+        recipient: account,
+      }) as WarpTransaction[];
+
+      setTxs(transactions);
+      
+      // Execute transactions
       const signer = provider.getSigner();
-      const tokenContract = new ethers.Contract(
-        USDT_CONTRACT_ADDRESSES[sourceChain],
-        [
-          'function approve(address spender, uint256 amount) returns (bool)',
-          'function transfer(address to, uint256 amount) returns (bool)',
-          'function balanceOf(address account) view returns (uint256)',
-          'function allowance(address owner, address spender) view returns (uint256)'
-        ],
-        signer
-      );
-
-      // Get current balance
-      const balance = await tokenContract.balanceOf(account);
-      const amountInWei = ethers.utils.parseUnits(amount, 18);
-
-      if (balance.lt(amountInWei)) {
-        throw new Error('Insufficient balance');
+      for (const tx of transactions) {
+        setTxStatus('Executing transaction...');
+        const result = await signer.sendTransaction(tx.transaction);
+        setLastTxChain(currentChain() || 'deepbrainchain');
+        setLastTxHash(result.hash);
+        await result.wait();
       }
 
-      // Check and approve bridge contract
-      const bridgeAddress = chainMetadata[sourceChain].mailbox;
-      const allowance = await tokenContract.allowance(account, bridgeAddress);
-
-      if (allowance.lt(amountInWei)) {
-        setTxStatus('Approving...');
-        const approveTx = await tokenContract.approve(bridgeAddress, amountInWei);
-        await approveTx.wait();
-      }
-
-      // Execute cross-chain transfer
-      setTxStatus('Executing cross-chain transfer...');
-      const transferTx = await tokenContract.transfer(bridgeAddress, amountInWei);
-      setLastTxHash(transferTx.hash);
-      await transferTx.wait();
-
-      setTxStatus('Cross-chain transfer successful!');
-
-      // Delay form reset
+      setTxStatus('Transfer completed!');
       setTimeout(() => {
         setAmount('');
         setIsProcessing(false);
@@ -1312,11 +1359,12 @@ export function TransferTokenForm({ title }: { title?: string }) {
             {lastTxHash && (
               <div>
                 Transaction Hash: <TransactionLink
-                  href={getExplorerUrl(lastTxChain, lastTxHash)}
+                  href={getExplorerUrl(currentChain() || 'deepbrainchain', lastTxHash)}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
                   {lastTxHash.slice(0, 6)}...{lastTxHash.slice(-4)}
+                  <ExternalLink size={12} style={{ marginLeft: '4px' }} />
                 </TransactionLink>
               </div>
             )}
