@@ -12,6 +12,9 @@ import useSelectChain from 'hooks/useSelectChain';
 import { ChainId } from '@ubeswap/sdk-core';
 import { ChainLogo } from 'components/Logo/ChainLogo';
 import { useSearchParams } from 'react-router-dom';
+import { useAccountDrawer } from 'components/AccountDrawer/MiniPortfolio/hooks'
+import { sendAnalyticsEvent } from 'analytics'
+import { InterfaceEventName, InterfaceElementName } from '@ubeswap/analytics-events'
 
 // Update debug messages
 const NETWORK_SWITCH_DEBUG = true;
@@ -59,14 +62,14 @@ const chainMetadata = {
     chainId: '0x12F5B72',
     domainId: 19880818,
     protocol: 'ethereum' as const,
-    rpcUrls: [{ 
+    rpcUrls: [{
       http: 'https://rpc2.dbcwallet.io',
       pagination: { limit: 10, offset: true }
     }],
-    nativeToken: { 
-      name: 'DBC', 
-      symbol: 'DBC', 
-      decimals: 18 
+    nativeToken: {
+      name: 'DBC',
+      symbol: 'DBC',
+      decimals: 18
     },
     blockExplorers: [{ url: 'https://www.dbcscan.io' }],
     blocks: { confirmations: 1 },
@@ -77,14 +80,14 @@ const chainMetadata = {
     chainId: '0x38',
     domainId: 56,
     protocol: 'ethereum' as const,
-    rpcUrls: [{ 
+    rpcUrls: [{
       http: 'https://bsc-dataseed1.bnbchain.org',
       pagination: { limit: 10, offset: true }
     }],
-    nativeToken: { 
-      name: 'BNB', 
-      symbol: 'BNB', 
-      decimals: 18 
+    nativeToken: {
+      name: 'BNB',
+      symbol: 'BNB',
+      decimals: 18
     },
     blockExplorers: [{ url: 'https://bscscan.com' }],
     blocks: { confirmations: 1 },
@@ -114,15 +117,15 @@ const tokens = [
 
 // 添加 URL 生成函数
 const getContractExplorerUrl = (chain: 'deepbrainchain' | 'bsc', address: string): string => {
-  const baseUrl = chain === 'deepbrainchain' 
-    ? 'https://www.dbcscan.io/address/' 
+  const baseUrl = chain === 'deepbrainchain'
+    ? 'https://www.dbcscan.io/address/'
     : 'https://bscscan.com/address/';
   return `${baseUrl}${address}`;
 };
 
 const getExplorerUrl = (chain: 'deepbrainchain' | 'bsc', txHash: string): string => {
-  const baseUrl = chain === 'deepbrainchain' 
-    ? 'https://www.dbcscan.io/tx/' 
+  const baseUrl = chain === 'deepbrainchain'
+    ? 'https://www.dbcscan.io/tx/'
     : 'https://bscscan.com/tx/';
   return `${baseUrl}${txHash}`;
 };
@@ -565,23 +568,23 @@ const TransactionLink = styled.a`
 const TransactionStatus = styled.div<{ status: 'success' | 'pending' | 'error' }>`
   padding: 1rem 1.25rem;
   border-radius: 16px;
-  background-color: ${({ status, theme }) => 
+  background-color: ${({ status, theme }) =>
     status === 'success' ? 'rgba(0, 168, 107, 0.1)' :
-    status === 'error' ? 'rgba(240, 50, 50, 0.1)' :
-    'rgba(255, 171, 0, 0.08)'};
-  color: ${({ status, theme }) => 
+      status === 'error' ? 'rgba(240, 50, 50, 0.1)' :
+        'rgba(255, 171, 0, 0.08)'};
+  color: ${({ status, theme }) =>
     status === 'success' ? '#00a86b' :
-    status === 'error' ? '#e53935' :
-    '#ff9800'};
+      status === 'error' ? '#e53935' :
+        '#ff9800'};
   margin-bottom: 1rem;
   font-size: 15px;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  border: 1px solid ${({ status, theme }) => 
+  border: 1px solid ${({ status, theme }) =>
     status === 'success' ? 'rgba(0, 168, 107, 0.2)' :
-    status === 'error' ? 'rgba(240, 50, 50, 0.2)' :
-    'rgba(255, 171, 0, 0.2)'};
+      status === 'error' ? 'rgba(240, 50, 50, 0.2)' :
+        'rgba(255, 171, 0, 0.2)'};
 
   @media (max-width: 480px) {
     padding: 0.875rem 1rem;
@@ -730,7 +733,7 @@ const RevokeButton = styled.button`
 // 处理交易对象显示的函数
 const formatTransactionData = (tx: any) => {
   if (!tx) return '';
-  
+
   // 长字符串格式化（添加实际换行，不仅是软换行）
   const formatLongString = (str: string) => {
     if (!str || typeof str !== 'string' || str.length < 40) return str;
@@ -744,7 +747,7 @@ const formatTransactionData = (tx: any) => {
     }
     return formatted;
   };
-  
+
   // 格式化值（如ETH值）
   const formatValue = (value: any) => {
     if (!value) return '0';
@@ -761,16 +764,16 @@ const formatTransactionData = (tx: any) => {
     }
     return String(value);
   };
-  
+
   // 提取关键信息，转为简化文本
   try {
     const txType = tx.type || 'unknown';
     const txTo = tx.transaction?.to || 'N/A';
     const txValue = formatValue(tx.transaction?.value);
-    
-    const tokenInfo = tx.token ? 
+
+    const tokenInfo = tx.token ?
       `Token: ${tx.token.symbol} (${tx.token.chainName})` : '';
-    
+
     // 构造格式化文本
     return `Type: ${txType}\nSent to:\n${formatLongString(txTo)}\n\nAmount: ${txValue}\n${tokenInfo}`;
   } catch (e) {
@@ -788,17 +791,17 @@ const formatTransactionData = (tx: any) => {
 const validateAmount = (value: string, maxAmount?: string): string => {
   // Allow numbers and a single decimal point directly
   if (value === '.') return '0.';
-  
+
   // If empty, return an empty string
   if (!value) return '';
-  
+
   // Process input numbers and decimal points
   let result = '';
   let hasDecimal = false;
-  
+
   for (let i = 0; i < value.length; i++) {
     const char = value[i];
-    
+
     // Allow numbers
     if (char >= '0' && char <= '9') {
       result += char;
@@ -809,7 +812,7 @@ const validateAmount = (value: string, maxAmount?: string): string => {
       hasDecimal = true;
     }
   }
-  
+
   // Ensure decimal places do not exceed 18
   if (hasDecimal) {
     const parts = result.split('.');
@@ -817,17 +820,17 @@ const validateAmount = (value: string, maxAmount?: string): string => {
       result = parts[0] + '.' + parts[1].slice(0, 18);
     }
   }
-  
+
   // Check max value limit
   if (maxAmount && result) {
     const inputValue = parseFloat(result);
     const maxValue = parseFloat(maxAmount);
-    
+
     if (!isNaN(inputValue) && !isNaN(maxValue) && inputValue > maxValue) {
       result = maxAmount;
     }
   }
-  
+
   return result;
 };
 
@@ -873,14 +876,15 @@ export function TransferTokenForm({ title }: { title?: string }) {
   // Add USDT balance state
   const [usdtBalance, setUsdtBalance] = useState<string>('0');
   const [isLoadingBalance, setIsLoadingBalance] = useState<boolean>(false);
-  
+
   const { provider, account, chainId } = useWeb3React<Web3Provider>();
   const selectChain = useSelectChain();
+  const [, toggleAccountDrawer] = useAccountDrawer()
 
   // 添加 handleMaxAmount 函数
   const handleMaxAmount = useCallback(() => {
     if (!usdtBalance || isLoadingBalance) return;
-    
+
     // 设置最大可用余额，保留6位小数
     const maxAmount = parseFloat(usdtBalance).toFixed(6);
     setAmount(maxAmount);
@@ -893,8 +897,8 @@ export function TransferTokenForm({ title }: { title?: string }) {
 
   // Current connected chain - minimal implementation
   const currentChain = useCallback((): 'deepbrainchain' | 'bsc' | undefined => {
-    return chainId === ChainId.DBC ? 'deepbrainchain' : 
-           chainId === ChainId.BNB ? 'bsc' : undefined;
+    return chainId === ChainId.DBC ? 'deepbrainchain' :
+      chainId === ChainId.BNB ? 'bsc' : undefined;
   }, [chainId]);
 
   // Function to check USDT balance
@@ -902,10 +906,10 @@ export function TransferTokenForm({ title }: { title?: string }) {
     if (!provider || !account) {
       throw new Error('Please connect your wallet first');
     }
-    
+
     try {
       const signer = provider.getSigner();
-      
+
       // Use a more complete ERC20 ABI for compatibility
       const erc20Abi = [
         'function balanceOf(address owner) view returns (uint256)',
@@ -913,7 +917,7 @@ export function TransferTokenForm({ title }: { title?: string }) {
         'function symbol() view returns (string)',
         'function name() view returns (string)'
       ];
-      
+
       const tokenContract = new ethers.Contract(
         tokenAddress,
         erc20Abi,
@@ -931,7 +935,7 @@ export function TransferTokenForm({ title }: { title?: string }) {
 
       const balance = await tokenContract.balanceOf(account);
       console.log(`Token ${tokenAddress} raw balance: ${balance.toString()}`);
-      
+
       return ethers.utils.formatUnits(balance, decimals);
     } catch (e) {
       console.error('Failed to fetch token balance:', e);
@@ -942,18 +946,18 @@ export function TransferTokenForm({ title }: { title?: string }) {
   // Get USDT balance of the current chain
   const fetchUsdtBalance = useCallback(async () => {
     if (!provider || !account) return;
-    
+
     const currentChainName = currentChain();
     if (!currentChainName) return;
-    
+
     setIsLoadingBalance(true);
     try {
       const tokenAddress = USDT_CONTRACT_ADDRESSES[currentChainName];
       console.log(`Fetching USDT balance on ${currentChainName}, contract: ${tokenAddress}`);
-      
+
       const balance = await checkTokenBalance(tokenAddress);
       console.log(`Fetched raw balance: ${balance}`);
-      
+
       // Ensure balance is a valid number
       if (balance && !isNaN(Number(balance))) {
         setUsdtBalance(balance);
@@ -973,10 +977,10 @@ export function TransferTokenForm({ title }: { title?: string }) {
   const switchNetwork = useCallback(async (targetChain: 'deepbrainchain' | 'bsc'): Promise<boolean> => {
     try {
       if (currentChain() === targetChain) return true;
-      
+
       const targetChainId = getChainId(targetChain);
       if (!selectChain) throw new Error('Network switching not available');
-      
+
       // Ensure return value is boolean
       const success = await selectChain(targetChainId);
       return !!success;
@@ -1026,7 +1030,7 @@ export function TransferTokenForm({ title }: { title?: string }) {
   // 添加新的状态
   const [currentAllowance, setCurrentAllowance] = useState<string>('0');
   const [isRevoking, setIsRevoking] = useState<boolean>(false);
-  
+
   // 添加已知合约列表
   const KNOWN_CONTRACTS = {
     [USDT_CONTRACT_ADDRESSES.deepbrainchain]: 'DBC USDT',
@@ -1041,7 +1045,7 @@ export function TransferTokenForm({ title }: { title?: string }) {
   // 撤销授权函数
   const revokeApproval = async (tokenAddress: string, spenderAddress: string) => {
     if (!provider || !account) return;
-    
+
     try {
       setIsRevoking(true);
       const signer = provider.getSigner();
@@ -1050,11 +1054,11 @@ export function TransferTokenForm({ title }: { title?: string }) {
         ['function approve(address spender, uint256 amount) returns (bool)'],
         signer
       );
-      
+
       const revokeTx = await tokenContract.approve(spenderAddress, 0);
       setTxStatus('Revoking...');
       await revokeTx.wait();
-      
+
       setTxStatus('Approval revoked');
       setCurrentAllowance('0');
     } catch (e: any) {
@@ -1067,21 +1071,21 @@ export function TransferTokenForm({ title }: { title?: string }) {
   // 修改 checkAndApproveToken 函数
   const checkAndApproveToken = async (tokenAddress: string, spenderAddress: string, amount: string) => {
     if (!provider || !account) return false;
-    
+
     try {
       const signer = provider.getSigner(account);
       const tokenContract = new ethers.Contract(
         tokenAddress,
-        ['function approve(address spender, uint256 amount) returns (bool)', 
-         'function allowance(address owner, address spender) view returns (uint256)',
-         'function symbol() view returns (string)',
-         'function transfer(address to, uint256 amount) returns (bool)'],
+        ['function approve(address spender, uint256 amount) returns (bool)',
+          'function allowance(address owner, address spender) view returns (uint256)',
+          'function symbol() view returns (string)',
+          'function transfer(address to, uint256 amount) returns (bool)'],
         signer
       );
 
       // 获取当前授权额度
       const allowance = await tokenContract.allowance(account, spenderAddress);
-      
+
       // 如果已有足够授权，直接返回成功
       if (allowance.gte(amount)) {
         return true;
@@ -1096,7 +1100,7 @@ export function TransferTokenForm({ title }: { title?: string }) {
       // 使用精确授权金额
       const approveTx = await tokenContract.approve(spenderAddress, amount);
       await approveTx.wait();
-      
+
       return true;
     } catch (e: any) {
       console.error('Approval failed:', e);
@@ -1107,7 +1111,7 @@ export function TransferTokenForm({ title }: { title?: string }) {
   // 修改 handleClick 函数
   const handleClick = async () => {
     if (isProcessing) return;
-    
+
     if (!amount) {
       setError('Please enter transfer amount');
       return;
@@ -1136,7 +1140,7 @@ export function TransferTokenForm({ title }: { title?: string }) {
     setTxStatus('Preparing...');
     setLastTxHash('');
     setLastTxChain(sourceChain);
-    
+
     try {
       const signer = provider.getSigner();
       const tokenContract = new ethers.Contract(
@@ -1153,7 +1157,7 @@ export function TransferTokenForm({ title }: { title?: string }) {
       // Get current balance
       const balance = await tokenContract.balanceOf(account);
       const amountInWei = ethers.utils.parseUnits(amount, 18);
-      
+
       if (balance.lt(amountInWei)) {
         throw new Error('Insufficient balance');
       }
@@ -1161,7 +1165,7 @@ export function TransferTokenForm({ title }: { title?: string }) {
       // Check and approve bridge contract
       const bridgeAddress = chainMetadata[sourceChain].mailbox;
       const allowance = await tokenContract.allowance(account, bridgeAddress);
-      
+
       if (allowance.lt(amountInWei)) {
         setTxStatus('Approving...');
         const approveTx = await tokenContract.approve(bridgeAddress, amountInWei);
@@ -1175,7 +1179,7 @@ export function TransferTokenForm({ title }: { title?: string }) {
       await transferTx.wait();
 
       setTxStatus('Cross-chain transfer successful!');
-      
+
       // Delay form reset
       setTimeout(() => {
         setAmount('');
@@ -1190,10 +1194,17 @@ export function TransferTokenForm({ title }: { title?: string }) {
     }
   };
 
+  const handleConnectWallet = useCallback(() => {
+    sendAnalyticsEvent(InterfaceEventName.CONNECT_WALLET_BUTTON_CLICKED, {
+      element: InterfaceElementName.CONNECT_WALLET_BUTTON,
+    })
+    toggleAccountDrawer()
+  }, [toggleAccountDrawer])
+
   return (
     <FormWrapper>
       {title && <FormTitle>{title}</FormTitle>}
-      
+
       {/* <SecurityWarning>
         ⚠️ 安全提示：
         <ul style={{ margin: '8px 0 0 20px', padding: 0 }}>
@@ -1215,13 +1226,13 @@ export function TransferTokenForm({ title }: { title?: string }) {
               <ChainName>{chainConfigs[sourceChain].name}</ChainName>
             </ChainSelect>
           </ChainSelector>
-          
+
           <SwitchButton onClick={handleSwapChains} type="button">
             <svg viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg" width="20" height="20">
               <path d="M7.56 17.01L8.68875 15.8812L6.48375 13.6762H11.55V12.1012H6.48375L8.68875 9.89625L7.56 8.7675L3.43875 12.8887L7.56 17.01ZM13.44 12.4425L17.5612 8.32125L13.4662 4.2L12.3112 5.32875L14.5162 7.53375H9.45V9.10875H14.5162L12.3112 11.3137L13.44 12.4425ZM10.5 21C9.065 21 7.70875 20.7244 6.43125 20.1731C5.15375 19.6219 4.03813 18.8694 3.08437 17.9156C2.13062 16.9619 1.37812 15.8462 0.826875 14.5687C0.275625 13.2912 0 11.935 0 10.5C0 9.0475 0.275625 7.6825 0.826875 6.405C1.37812 5.1275 2.13062 4.01625 3.08437 3.07125C4.03813 2.12625 5.15375 1.37812 6.43125 0.826875C7.70875 0.275625 9.065 0 10.5 0C11.9525 0 13.3175 0.275625 14.595 0.826875C15.8725 1.37812 16.9837 2.12625 17.9287 3.07125C18.8738 4.01625 19.6219 5.1275 20.1731 6.405C20.7244 7.6825 21 9.0475 21 10.5C21 11.935 20.7244 13.2912 20.1731 14.5687C19.6219 15.8462 18.8738 16.9619 17.9287 17.9156C16.9837 18.8694 15.8725 19.6219 14.595 20.1731C13.3175 20.7244 11.9525 21 10.5 21ZM10.5 19.425C12.985 19.425 15.0937 18.5544 16.8262 16.8131C18.5587 15.0719 19.425 12.9675 19.425 10.5C19.425 8.015 18.5587 5.90625 16.8262 4.17375C15.0937 2.44125 12.985 1.575 10.5 1.575C8.0325 1.575 5.92812 2.44125 4.18687 4.17375C2.44563 5.90625 1.575 8.015 1.575 10.5C1.575 12.9675 2.44563 15.0719 4.18687 16.8131C5.92812 18.5544 8.0325 19.425 10.5 19.425Z" fill="currentColor"></path>
             </svg>
           </SwitchButton>
-          
+
           <ChainSelector>
             <ChainLabel>To:</ChainLabel>
             <ChainSelect as="div">
@@ -1232,77 +1243,77 @@ export function TransferTokenForm({ title }: { title?: string }) {
             </ChainSelect>
           </ChainSelector>
         </ChainSelectorContainer>
-        
+
         <InputContainer>
           <InputLabel>Amount</InputLabel>
           <div style={{ position: 'relative' }}>
             <InputField
               type="text"
               inputMode="decimal"
-              placeholder="Enter USDT amount for cross-chain transfer"
+              placeholder="Enter USDT amount"
               value={amount}
               onChange={(e) => {
                 const validatedValue = validateAmount(e.target.value, usdtBalance);
                 setAmount(validatedValue);
               }}
             />
-            <MaxButton 
-              onClick={handleMaxAmount} 
+            <MaxButton
+              onClick={handleMaxAmount}
               disabled={isLoadingBalance || !usdtBalance || parseFloat(usdtBalance) <= 0}
             >
               MAX
             </MaxButton>
           </div>
           <BalanceText>
-            Balance: 
+            Balance:
             <BalanceAmount>
-              {isLoadingBalance ? 'Loading...' : 
-                !usdtBalance || isNaN(parseFloat(usdtBalance)) 
-                  ? '0.00 USDT' 
+              {isLoadingBalance ? 'Loading...' :
+                !usdtBalance || isNaN(parseFloat(usdtBalance))
+                  ? '0.00 USDT'
                   : `${parseFloat(usdtBalance).toLocaleString(undefined, {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 6
-                    })} USDT`
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 6
+                  })} USDT`
               }
             </BalanceAmount>
           </BalanceText>
           <ContractLink>
-            Contract:
-            <a 
-              href={getContractExplorerUrl(sourceChain, USDT_CONTRACT_ADDRESSES[sourceChain])} 
-              target="_blank" 
+            DBC EVM USDT Contract:
+            <a
+              href={getContractExplorerUrl('deepbrainchain', USDT_CONTRACT_ADDRESSES['deepbrainchain'])}
+              target="_blank"
               rel="noopener noreferrer"
             >
               <ContractAddress>
-                {USDT_CONTRACT_ADDRESSES[sourceChain]}
+                {USDT_CONTRACT_ADDRESSES.deepbrainchain}
               </ContractAddress>
               <ExternalLink size={14} />
             </a>
           </ContractLink>
         </InputContainer>
-        
-        <RecipientInfo>
+
+        {account && <RecipientInfo>
           <span>Transfer to your address:</span>
           <AddressText>
-            {account ? `${account.slice(0, 6)}...${account.slice(-4)}` : 'Please connect wallet'}
+            {`${account.slice(0, 6)}...${account.slice(-4)}`}
           </AddressText>
-        </RecipientInfo>
-        
+        </RecipientInfo>}
+
         {/* Transaction status display */}
         {txStatus && (
-          <TransactionStatus 
+          <TransactionStatus
             status={
               txStatus.includes('failed') || txStatus.includes('Failed') ? 'error' :
-              txStatus.includes('success') || txStatus.includes('completed') ? 'success' : 
-              'pending'
+                txStatus.includes('success') || txStatus.includes('completed') ? 'success' :
+                  'pending'
             }
           >
             <div>{txStatus}</div>
             {lastTxHash && (
               <div>
-                Transaction Hash: <TransactionLink 
-                  href={getExplorerUrl(lastTxChain, lastTxHash)} 
-                  target="_blank" 
+                Transaction Hash: <TransactionLink
+                  href={getExplorerUrl(lastTxChain, lastTxHash)}
+                  target="_blank"
                   rel="noopener noreferrer"
                 >
                   {lastTxHash.slice(0, 6)}...{lastTxHash.slice(-4)}
@@ -1311,17 +1322,17 @@ export function TransferTokenForm({ title }: { title?: string }) {
             )}
           </TransactionStatus>
         )}
-        
+
         {/* Error message display */}
         {error && !error.includes('Transaction Hash') && <ErrorText>{error}</ErrorText>}
-        
+
         {currentAllowance !== '0' && (
           <AllowanceDisplay>
             <span>Current Allowance: {ethers.utils.formatUnits(currentAllowance, 18)} USDT</span>
             <RevokeButton
               onClick={() => revokeApproval(
-                sourceChain === 'deepbrainchain' 
-                  ? USDT_CONTRACT_ADDRESSES.deepbrainchain 
+                sourceChain === 'deepbrainchain'
+                  ? USDT_CONTRACT_ADDRESSES.deepbrainchain
                   : USDT_CONTRACT_ADDRESSES.bsc,
                 txs?.[0]?.transaction?.to || ''
               )}
@@ -1331,10 +1342,15 @@ export function TransferTokenForm({ title }: { title?: string }) {
             </RevokeButton>
           </AllowanceDisplay>
         )}
-        
-        <ActionButton onClick={handleClick} disabled={isProcessing}>
-          {isProcessing ? 'Processing...' : 'Cross-chain USDT'}
-        </ActionButton>
+
+        {
+          account ? <ActionButton onClick={handleClick} disabled={isProcessing}>
+            {isProcessing ? 'Processing...' : 'Cross-Chain USDT'}
+          </ActionButton>
+            : <ActionButton onClick={handleConnectWallet}>
+              Connect Wallet
+            </ActionButton>
+        }
       </AutoColumn>
     </FormWrapper>
   );

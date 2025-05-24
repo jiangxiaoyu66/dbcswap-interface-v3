@@ -211,7 +211,7 @@ export const PageTabs = () => {
           navigateWithBNB('/warp')
         }}
       >
-        <Trans>Warp</Trans>
+        <Trans>Cross-Chain USDT</Trans>
       </MenuItem>
       <More />
     </>
