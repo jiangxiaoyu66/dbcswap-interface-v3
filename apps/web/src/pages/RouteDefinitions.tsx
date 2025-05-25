@@ -112,7 +112,12 @@ export const routes: RouteDefinition[] = [
     path: '/',
     getTitle: () => t`DBCSwap | The native DeFi platform on DBC`,
     getElement: (args) => {
-      return args.browserRouterEnabled && args.hash ? <Navigate to={args.hash.replace('#', '')} replace /> : <Landing />
+      const location = useLocation();
+      const searchParams = new URLSearchParams(location.search);
+      if (!searchParams.has('chain')) {
+        return <Navigate to="/?chain=dbc" replace />;
+      }
+      return args.browserRouterEnabled && args.hash ? <Navigate to={args.hash.replace('#', '')} replace /> : <Landing />;
     },
   }),
   createRouteDefinition({
@@ -189,7 +194,14 @@ export const routes: RouteDefinition[] = [
   }),
   createRouteDefinition({
     path: '/swap',
-    getElement: () => <Swap />,
+    getElement: () => {
+      const location = useLocation();
+      const searchParams = new URLSearchParams(location.search);
+      if (!searchParams.has('chain')) {
+        return <Navigate to="/swap?chain=dbc" replace />;
+      }
+      return <Swap />;
+    },
     getTitle: () => SwapTitle,
   }),
   createRouteDefinition({
