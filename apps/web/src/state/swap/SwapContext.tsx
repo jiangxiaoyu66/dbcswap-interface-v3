@@ -92,6 +92,7 @@ export function SwapContextProvider({ children }: { children: React.ReactNode })
   })
   const { chainId: connectedChainId } = useWeb3React()
   const previousConnectedChainId = usePrevious(connectedChainId)
+  const derivedSwapInfo = useDerivedSwapInfo(swapState)
 
   useEffect(() => {
     const chainChanged = previousConnectedChainId && previousConnectedChainId !== connectedChainId
@@ -100,9 +101,15 @@ export function SwapContextProvider({ children }: { children: React.ReactNode })
     }
   }, [connectedChainId, previousConnectedChainId])
 
+  const contextValue = useMemo(() => ({
+    swapState,
+    setSwapState,
+    derivedSwapInfo
+  }), [swapState, derivedSwapInfo])
+
   if (!connectedChainId) {
-    return null
+    return <SwapContext.Provider value={contextValue}>{null}</SwapContext.Provider>
   }
 
-  return <SwapContext.Provider value={{ swapState, setSwapState, derivedSwapInfo: useDerivedSwapInfo(swapState) }}>{children}</SwapContext.Provider>
+  return <SwapContext.Provider value={contextValue}>{children}</SwapContext.Provider>
 }
