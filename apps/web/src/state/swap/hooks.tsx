@@ -23,7 +23,6 @@ import {
   SwapContext,
   SwapInfo,
   SwapState,
-  EMPTY_DERIVED_SWAP_INFO,
   parseIndependentFieldURLParameter,
 } from './types'
 
@@ -125,19 +124,6 @@ export function useDerivedSwapInfo(state: SwapState): SwapInfo {
   } = useSwapAndLimitContext()
   const { independentField, typedValue } = state
 
-  // 如果没有连接到链，返回空的交易信息
-  if (!account) {
-    return {
-      ...EMPTY_DERIVED_SWAP_INFO,
-      currencies: {
-        [Field.INPUT]: inputCurrency,
-        [Field.OUTPUT]: outputCurrency,
-      },
-      currencyBalances: {},
-      inputError: <Trans>Connect wallet</Trans>,
-    }
-  }
-
   const { inputTax, outputTax } = useSwapTaxes(
     inputCurrency?.isToken ? inputCurrency.address : undefined,
     outputCurrency?.isToken ? outputCurrency.address : undefined
@@ -153,6 +139,8 @@ export function useDerivedSwapInfo(state: SwapState): SwapInfo {
     () => tryParseCurrencyAmount(typedValue, (isExactIn ? inputCurrency : outputCurrency) ?? undefined),
     [inputCurrency, isExactIn, outputCurrency, typedValue]
   )
+
+
 
   const trade = useDebouncedTrade(
     isExactIn ? TradeType.EXACT_INPUT : TradeType.EXACT_OUTPUT,
