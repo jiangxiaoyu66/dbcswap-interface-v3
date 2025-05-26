@@ -967,16 +967,9 @@ export function TransferTokenForm({ title }: { title?: string }) {
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [lastTxHash, setLastTxHash] = useState<string>('');
   const [lastTxChain, setLastTxChain] = useState<'deepbrainchain' | 'bsc'>('deepbrainchain');
+  // Add USDT balance state
   const [usdtBalance, setUsdtBalance] = useState<string>('0');
   const [isLoadingBalance, setIsLoadingBalance] = useState<boolean>(false);
-  const [showPreview, setShowPreview] = useState<boolean>(false);
-  const [currentAllowance, setCurrentAllowance] = useState<string>('0');
-  const [isRevoking, setIsRevoking] = useState<boolean>(false);
-
-  // 添加费用相关状态
-  const [feeQuotes, setFeeQuotes] = useState<FeeQuotes | null>(null);
-  const [isLoadingFees, setIsLoadingFees] = useState<boolean>(false);
-  const [warpCoreInstance, setWarpCoreInstance] = useState<WarpCore | null>(null);
 
   const { provider, account, chainId } = useWeb3React<Web3Provider>();
   const selectChain = useSelectChain();
@@ -987,226 +980,60 @@ export function TransferTokenForm({ title }: { title?: string }) {
     gasLimit: '0',
     gasPrice: '0',
     totalGasFee: '0',
-    interchainGas: '0',
-    localGas: '0'
+    interchainGas: '0'
   });
-
-// 修改 initializeWarpCore 函数
-const initializeWarpCore = useCallback(async () => {
-  try {
-    const chainMetadata: any = {
-      "bsc": {
-        "blockExplorers": [{
-          "name": "BscScan",
-          "url": "https://bscscan.com",
-          "apiUrl": "https://api.bscscan.com/api",
-          "family": "etherscan"
-        }],
-        "blocks": {"confirmations": 1},
-        "chainId": 56,
-        "domainId": 56,
-        "name": "bsc",
-        "protocol": "ethereum",
-        "rpcUrls": [{"http": "https://bsc-dataseed1.bnbchain.org"}],
-        // 添加 nativeToken 配置
-        "nativeToken": {
-          "name": "BNB",
-          "symbol": "BNB", 
-          "decimals": 18
-        }
-      },
-      "deepbrainchain": {
-        "blockExplorers": [{
-          "name": "dbcscan",
-          "url": "https://www.dbcscan.io",
-          "apiUrl": "https://www.dbcscan.io/api",
-          "family": "blockscout"
-        }],
-        "blocks": {"confirmations": 1},
-        "chainId": 19880818,
-        "domainId": 19880818,
-        "name": "deepbrainchain",
-        "protocol": "ethereum",
-        "rpcUrls": [{"http": "https://rpc2.dbcwallet.io"}],
-        // 添加 nativeToken 配置
-        "nativeToken": {
-          "name": "DBC",
-          "symbol": "DBC",
-          "decimals": 18
-        }
-      }
-    };
-
-    const tokens = [
-      {
-        chainName: 'bsc',
-        standard: 'EvmHypCollateral',
-        decimals: 18,
-        symbol: 'USDT',
-        name: 'Tether USD',
-        addressOrDenom: '0xF528Aa0c86cBBbBb4288ecb8133D317DD528FD88',
-        collateralAddressOrDenom: USDT_CONTRACT_ADDRESSES.bsc,
-        connections: [
-          { token: 'ethereum|deepbrainchain|0x5155101187F8Faa1aD8AfeC7820c801870F81D52' },
-        ],
-      },
-      {
-        chainName: 'deepbrainchain',
-        standard: 'EvmHypSynthetic',
-        decimals: 18,
-        symbol: 'USDT',
-        name: 'Tether USD',
-        addressOrDenom: USDT_CONTRACT_ADDRESSES.deepbrainchain,
-        connections: [
-          { token: 'ethereum|bsc|0xF528Aa0c86cBBbBb4288ecb8133D317DD528FD88' },
-        ],
-      },
-    ];
-
-    const multiProvider = new MultiProtocolProvider(chainMetadata);
-    const warpCore = WarpCore.FromConfig(multiProvider, { tokens, options: {} });
-    
-    setWarpCoreInstance(warpCore);
-    return warpCore;
-  } catch (error) {
-    console.error('Failed to initialize WarpCore:', error);
-    return null;
-  }
-}, []);
-
-// 修改 fetchFeeQuotes 函数，添加错误处理
-const fetchFeeQuotes = useCallback(async (
-  warpCore: WarpCore,
-  destination: string,
-  sender: string,
-  amount?: string
-): Promise<FeeQuotes | null> => {
-  if (!warpCore || !destination || !sender) return null;
   
-  try {
-    console.log('Fetching fee quotes...');
+  // 修改 estimateGas 函数
+  const estimateGas = useCallback(async (transactions: any[]) => {
+    if (!provider || !transactions?.length) return;
     
-    const originToken = warpCore.tokens.find((token: any) => token.chainName === sourceChain);
-    if (!originToken) {
-      console.error('Origin token not found');
-      return null;
-    }
-
-    // 添加更详细的参数检查
-    const transferParams = {
-      originToken,
-      destination,
-      sender,
-      ...(amount && { 
-        amount: originToken.amount ? originToken.amount(ethers.utils.parseUnits(amount, 18).toString()) : undefined 
-      })
-    };
-
-    console.log('Transfer params:', transferParams);
-
-    const fees = await warpCore.estimateTransferRemoteFees(transferParams);
-    console.log('Fee quotes received:', fees);
-    return fees;
-  } catch (error) {
-    console.error('Failed to fetch fee quotes:', error);
-    // 返回默认费用而不是 null
-    return {
-      interchainQuote: {
-        amount: '0',
-        decimals: 18
-      },
-      localQuote: {
-        amount: '0', 
-        decimals: 18
+    try {
+      let totalGasLimit = BigNumber.from(0);
+      let currentGasPrice = await provider.getGasPrice();
+      
+      // 计算 local gas
+      for (const tx of transactions) {
+        const gasLimit = await provider.estimateGas({
+          from: account,
+          to: tx.transaction.to,
+          data: tx.transaction.data,
+          value: tx.transaction.value || '0x0'
+        });
+        totalGasLimit = totalGasLimit.add(gasLimit);
       }
-    };
-  }
-}, [sourceChain]);
+      
+      const totalGasFee = totalGasLimit.mul(currentGasPrice);
 
-// 修改 estimateGas 函数，改进错误处理
-const estimateGas = useCallback(async (transactions: any[], warpCore?: WarpCore) => {
-  if (!provider || !transactions?.length || !account) return;
-  
-  
-  try {
-    let localGasLimit = BigNumber.from(0);
-    let currentGasPrice = await provider.getGasPrice();
-    
-    const localGasFee = localGasLimit.mul(currentGasPrice);
-    let interchainGasFee = '0';
-
-    // 尝试使用 WarpCore 获取跨链费用
-    if (warpCore || warpCoreInstance) {
-      const coreToUse = warpCore || warpCoreInstance;
-      if (coreToUse) {
-        try {
-          const feeQuotes = await fetchFeeQuotes(coreToUse, destinationChain, account, amount);
-          if (feeQuotes && feeQuotes.interchainQuote.amount !== '0') {
-            setFeeQuotes(feeQuotes);
-            interchainGasFee = ethers.utils.formatUnits(
-              feeQuotes.interchainQuote.amount, 
-              feeQuotes.interchainQuote.decimals
-            );
-            console.log('Interchain gas fee from WarpCore:', interchainGasFee);
-          }
-        } catch (warpError) {
-          console.warn('WarpCore fee estimation failed, using fallback:', warpError);
-        }
-      }
-    }
-
-    // 如果 WarpCore 费用估算失败，使用交易 value 作为备用
-    if (interchainGasFee === '0' && transactions[0]?.transaction?.value) {
-      try {
+      // 获取 interchain gas (从交易的 value 字段)
+      let interchainGas = '0';
+      if (transactions[0]?.transaction?.value) {
         if (typeof transactions[0].transaction.value === 'object' && transactions[0].transaction.value.hex) {
-          interchainGasFee = ethers.utils.formatEther(transactions[0].transaction.value.hex);
+          interchainGas = ethers.utils.formatEther(transactions[0].transaction.value.hex);
         } else {
-          interchainGasFee = ethers.utils.formatEther(transactions[0].transaction.value);
+          interchainGas = ethers.utils.formatEther(transactions[0].transaction.value);
         }
-        console.log('Interchain gas fee from transaction value:', interchainGasFee);
-      } catch (valueError) {
-        console.warn('Failed to parse transaction value:', valueError);
-        // 使用默认估算值
-        interchainGasFee = '0.001';
+        console.log('Interchain Gas (in DBC):', interchainGas);
       }
+      
+      setGasEstimate({
+        gasLimit: totalGasLimit.toString(),
+        gasPrice: currentGasPrice.toString(),
+        totalGasFee: ethers.utils.formatEther(totalGasFee),
+        interchainGas: interchainGas
+      });
+      
+    } catch (error) {
+      console.error('Gas estimation failed:', error);
+      setError('Gas estimation failed. Please try again.');
     }
-
-    const localGasFormatted = ethers.utils.formatEther(localGasFee);
-    
-    setGasEstimate({
-      gasLimit: localGasLimit.toString(),
-      gasPrice: currentGasPrice.toString(),
-      totalGasFee: (parseFloat(localGasFormatted) + parseFloat(interchainGasFee)).toString(),
-      interchainGas: interchainGasFee,
-      localGas: localGasFormatted
-    });
-    
-  } catch (error) {
-    console.error('Gas estimation failed:', error);
-    // 设置默认值而不是显示错误
-    setGasEstimate({
-      gasLimit: '200000',
-      gasPrice: '0',
-      totalGasFee: '0.002',
-      interchainGas: '0.001',
-      localGas: '0.001'
-    });
-  } finally {
-    setIsLoadingFees(false);
-  }
-}, [provider, account, fetchFeeQuotes, warpCoreInstance, destinationChain, amount]);
-
-  // 初始化 WarpCore
-  useEffect(() => {
-    initializeWarpCore();
-  }, [initializeWarpCore]);
+  }, [provider, account, setError]);
 
   // 在交易预览中添加 useEffect
   useEffect(() => {
-    if (txs?.length && warpCoreInstance) {
-      estimateGas(txs, warpCoreInstance);
+    if (txs?.length) {
+      estimateGas(txs);
     }
-  }, [txs, estimateGas, warpCoreInstance]);
+  }, [txs, estimateGas]);
 
   // 添加 handleMaxAmount 函数
   const handleMaxAmount = useCallback(() => {
@@ -1249,7 +1076,7 @@ const estimateGas = useCallback(async (transactions: any[], warpCore?: WarpCore)
         tokenAddress,
         erc20Abi,
         signer
-      );
+      ) as TokenContract;
 
       // Call separately for better error handling
       let tokenDecimals = 18; // Default to 18 decimals
@@ -1345,49 +1172,27 @@ const estimateGas = useCallback(async (transactions: any[], warpCore?: WarpCore)
     }
   }, [account, chainId, provider, fetchUsdtBalance]);
 
-  // 添加重置状态的函数
-  const resetState = useCallback(() => {
-    setTxs(null);
-    setError('');
-    setAmount('');
-    setTxStatus('');
-    setLastTxHash('');
-    setLastTxChain('deepbrainchain');
-    setCurrentAllowance('0');
-    setFeeQuotes(null);
-    setGasEstimate({
-      gasLimit: '0',
-      gasPrice: '0',
-      totalGasFee: '0',
-      interchainGas: '0',
-      localGas: '0'
-    });
-    setShowPreview(false);
-    setIsProcessing(false);
-    setIsLoadingFees(false);
-    setIsLoadingBalance(false);
-  }, []);
-
-  // 定义 cancelPreview 函数
-  const cancelPreview = useCallback(() => {
-    resetState();
-  }, [resetState]);
-
-  // 修改 handleSwapChains 函数
+  // Handle chain switch button click - swap source chain and target chain
   const handleSwapChains = useCallback(() => {
-    resetState();
+    // Directly swap source chain and target chain
     const newSourceChain = destinationChain;
     const newDestinationChain = sourceChain;
     setSourceChain(newSourceChain);
     setDestinationChain(newDestinationChain);
-  }, [sourceChain, destinationChain, resetState]);
+  }, [sourceChain, destinationChain]);
+
+  // 添加新的状态
+  const [currentAllowance, setCurrentAllowance] = useState<string>('0');
+  const [isRevoking, setIsRevoking] = useState<boolean>(false);
+
+  // 添加已知合约列表
+  const KNOWN_CONTRACTS = {
+    [USDT_CONTRACT_ADDRESSES.deepbrainchain]: 'DBC USDT',
+    [USDT_CONTRACT_ADDRESSES.bsc]: 'BSC USDT',
+  };
 
   // 验证合约地址
   const isKnownContract = useCallback((address: string): boolean => {
-    const KNOWN_CONTRACTS = {
-      [USDT_CONTRACT_ADDRESSES.deepbrainchain]: 'DBC USDT',
-      [USDT_CONTRACT_ADDRESSES.bsc]: 'BSC USDT',
-    };
     return !!KNOWN_CONTRACTS[address];
   }, []);
 
@@ -1417,109 +1222,195 @@ const estimateGas = useCallback(async (transactions: any[], warpCore?: WarpCore)
     }
   };
 
-// 修改 prepareTransaction 函数
-const prepareTransaction = async () => {
-  setIsLoadingFees(true);
+  // 修改 checkAndApproveToken 函数
+  const checkAndApproveToken = async (tokenAddress: string, spenderAddress: string, amount: string) => {
+    if (!provider || !account) return false;
 
-  if (!amount || !account || !provider) {
-    setError('Please connect wallet and enter amount');
-    return;
-  }
+    try {
+      const signer = provider.getSigner(account);
+      const tokenContract = new ethers.Contract(
+        tokenAddress,
+        ['function approve(address spender, uint256 amount) returns (bool)',
+          'function allowance(address owner, address spender) view returns (uint256)',
+          'function symbol() view returns (string)',
+          'function transfer(address to, uint256 amount) returns (bool)'],
+        signer
+      );
 
-  if (!warpCoreInstance) {
-    setError('WarpCore not initialized. Please try again.');
-    return;
-  }
+      // 获取当前授权额度
+      const allowance = await tokenContract.allowance(account, spenderAddress);
 
-  // Reset states
-  setError('');
-  setTxs(null);
-  setShowPreview(false);
-  setFeeQuotes(null);
-  setGasEstimate({
-    gasLimit: '0',
-    gasPrice: '0',
-    totalGasFee: '0',
-    interchainGas: '0',
-    localGas: '0'
-  });
+      // 如果已有足够授权，直接返回成功
+      if (allowance.gte(amount)) {
+        return true;
+      }
+
+      // 如果之前有授权但不够，先重置为0
+      if (allowance.gt(0)) {
+        const resetTx = await tokenContract.approve(spenderAddress, 0);
+        await resetTx.wait();
+      }
+
+      // 使用精确授权金额
+      const approveTx = await tokenContract.approve(spenderAddress, amount);
+      await approveTx.wait();
+
+      return true;
+    } catch (e: any) {
+      console.error('Approval failed:', e);
+      return false;
+    }
+  };
+
+  // 添加交易预览状态
+  const [showPreview, setShowPreview] = useState<boolean>(false);
   
-  try {
-    const amountWei = ethers.utils.parseUnits(amount, 18);
-    
-    // 获取当前链的 USDT 合约地址
-    const tokenAddress = USDT_CONTRACT_ADDRESSES[sourceChain];
-    
-    // 创建代币合约实例用于检查余额和授权状态
-    const tokenContract = new ethers.Contract(
-      tokenAddress,
-      [
-        'function balanceOf(address owner) view returns (uint256)',
-        'function allowance(address owner, address spender) view returns (uint256)'
-      ],
-      provider
-    );
-
-    // 检查余额
-    const balance = await tokenContract.balanceOf(account);
-    if (balance.lt(amountWei)) {
-      setError(`Insufficient balance. You have ${ethers.utils.formatUnits(balance, 18)} USDT`);
+  // 修改 handleClick 函数为准备交易数据
+  const prepareTransaction = async () => {
+    if (!amount || !account || !provider) {
+      setError('Please connect wallet and enter amount');
       return;
     }
 
-    // Find token config
-    const originToken = warpCoreInstance.tokens.find((token: any) => token.chainName === sourceChain);
-    if (!originToken) throw new Error('Token not found');
-
-    // 获取跨链交易数据（仅用于估算，不执行）
-    const transactions = await warpCoreInstance.getTransferRemoteTxs({
-      originTokenAmount: originToken.amount(amountWei.toString()),
-      destination: destinationChain,
-      sender: account,
-      recipient: account,
+    // Reset states
+    setError('');
+    setTxs(null);
+    setShowPreview(false);
+    setGasEstimate({
+      gasLimit: '0',
+      gasPrice: '0',
+      totalGasFee: '0',
+      interchainGas: '0'
     });
-
-    console.log('=== Debug Transfer Transactions ===');
-    console.log('Full transactions object:', JSON.stringify(transactions, null, 2));
-
-    // 检查授权状态（仅用于显示，不自动授权）
-    for (const tx of transactions) {
-      if (tx.transaction && tx.transaction.to) {
-        try {
-          const allowance = await tokenContract.allowance(account, tx.transaction.to);
-          console.log(`Current allowance for spender ${tx.transaction.to}: ${ethers.utils.formatUnits(allowance, 18)}`);
-          setCurrentAllowance(allowance.toString());
-          
-          // 如果授权不足，显示警告但不阻止预览
-          if (allowance.lt(amountWei)) {
-            console.warn(`Insufficient allowance. Required: ${ethers.utils.formatUnits(amountWei, 18)}, Current: ${ethers.utils.formatUnits(allowance, 18)}`);
-          }
-        } catch (allowanceError) {
-          console.warn('Could not check allowance:', allowanceError);
+    
+    try {
+      const chainMetadata: any = {
+        "bsc": {
+          "blockExplorers": [{
+            "name": "BscScan",
+            "url": "https://bscscan.com",
+            "apiUrl": "https://api.bscscan.com/api",
+            "family": "etherscan"
+          }],
+          "blocks": {"confirmations": 1},
+          "chainId": 56,
+          "domainId": 56,
+          "name": "bsc",
+          "protocol": "ethereum",
+          "rpcUrls": [{"http": "https://bsc-dataseed1.bnbchain.org"}]
+        },
+        "deepbrainchain": {
+          "blockExplorers": [{
+            "name": "dbcscan",
+            "url": "https://www.dbcscan.io",
+            "apiUrl": "https://www.dbcscan.io/api",
+            "family": "blockscout"
+          }],
+          "blocks": {"confirmations": 1},
+          "chainId": 19880818,
+          "domainId": 19880818,
+          "name": "deepbrainchain",
+          "protocol": "ethereum",
+          "rpcUrls": [{"http": "https://rpc2.dbcwallet.io"}]
         }
-        break; // 只检查第一个交易的授权状态
-      }
-    }
+      };
 
-    setTxs(transactions);
-    await estimateGas(transactions, warpCoreInstance);
-    setShowPreview(true);
-    
-  } catch (e: any) {
-    console.error('Transaction preparation failed:', e);
-    
-    // 更详细的错误处理
-    if (e.message.includes('insufficient')) {
-      setError('Insufficient balance for this transfer.');
-    } else if (e.message.includes('network')) {
-      setError('Network error. Please check your connection and try again.');
-    } else {
+      const tokens = [
+        {
+          chainName: 'bsc',
+          standard: 'EvmHypCollateral',
+          decimals: 18,
+          symbol: 'USDT',
+          name: 'Tether USD',
+          addressOrDenom: '0xF528Aa0c86cBBbBb4288ecb8133D317DD528FD88',
+          collateralAddressOrDenom: USDT_CONTRACT_ADDRESSES.bsc,
+          connections: [
+            { token: 'ethereum|deepbrainchain|0x5155101187F8Faa1aD8AfeC7820c801870F81D52' },
+          ],
+        },
+        {
+          chainName: 'deepbrainchain',
+          standard: 'EvmHypSynthetic',
+          decimals: 18,
+          symbol: 'USDT',
+          name: 'Tether USD',
+          addressOrDenom: USDT_CONTRACT_ADDRESSES.deepbrainchain,
+          connections: [
+            { token: 'ethereum|bsc|0xF528Aa0c86cBBbBb4288ecb8133D317DD528FD88' },
+          ],
+        },
+      ];
+
+      const multiProvider = new MultiProtocolProvider(chainMetadata);
+      const warpCore = WarpCore.FromConfig(multiProvider, { tokens, options: {} });
+
+      // Find token config
+      const originToken = warpCore.tokens.find((token: any) => token.chainName === sourceChain);
+      if (!originToken) throw new Error('Token not found');
+
+      // 获取跨链交易数据
+      const transactions = await warpCore.getTransferRemoteTxs({
+        originTokenAmount: originToken.amount(ethers.utils.parseUnits(amount, 18).toString()),
+        destination: destinationChain,
+        sender: account,
+        recipient: account,
+      }) as WarpTransaction[];
+
+      // 添加调试信息
+      console.log('=== Debug Transfer Transactions ===');
+      console.log('Full transactions object:', JSON.stringify(transactions, null, 2));
+      
+      // 检查每个交易的详细信息
+      transactions.forEach((tx, index) => {
+        console.log(`\nTransaction ${index + 1}:`);
+        console.log('Type:', tx.type);
+        console.log('Transaction details:', tx.transaction);
+        
+        // 检查是否有 interchain gas 相关字段
+        const possibleGasFields = [
+          'interchainGas',
+          'interchainGasPayment',
+          'gasPayment',
+          'quoteGasPayment',
+          'gasAmount',
+          'gasData'
+        ];
+        
+        possibleGasFields.forEach(field => {
+          if ((tx as any)[field]) {
+            console.log(`Found gas field '${field}':`, (tx as any)[field]);
+          }
+          if ((tx.transaction as any)[field]) {
+            console.log(`Found gas field in transaction '${field}':`, (tx.transaction as any)[field]);
+          }
+        });
+      });
+
+      // 检查 warpCore 对象上是否有获取 interchain gas 的方法
+      console.log('\nAvailable WarpCore methods:', Object.getOwnPropertyNames(Object.getPrototypeOf(warpCore)));
+
+      // 尝试获取 quote
+      try {
+        const quote = await warpCore.quoteTransferRemote({
+          originTokenAmount: originToken.amount(ethers.utils.parseUnits(amount, 18).toString()),
+          destination: destinationChain,
+          sender: account,
+          recipient: account,
+        });
+        console.log('\nTransfer Quote:', quote);
+      } catch (quoteError) {
+        console.log('Quote fetch error:', quoteError);
+      }
+
+      setTxs(transactions);
+      await estimateGas(transactions);
+      setShowPreview(true);
+      
+    } catch (e: any) {
+      console.error('Transaction preparation failed:', e);
       setError(e?.message || 'Failed to prepare transaction');
     }
-  }
-};
-
-
+  };
 
   // 添加执行交易的函数
   const executeTransaction = async () => {
@@ -1553,6 +1444,18 @@ const prepareTransaction = async () => {
     }
   };
 
+  // 添加取消预览的函数
+  const cancelPreview = () => {
+    setShowPreview(false);
+    setTxs(null);
+    setGasEstimate({
+      gasLimit: '0',
+      gasPrice: '0',
+      totalGasFee: '0',
+      interchainGas: '0'
+    });
+  };
+
   const handleConnectWallet = useCallback(() => {
     sendAnalyticsEvent(InterfaceEventName.CONNECT_WALLET_BUTTON_CLICKED, {
       element: InterfaceElementName.CONNECT_WALLET_BUTTON,
@@ -1560,55 +1463,19 @@ const prepareTransaction = async () => {
     toggleAccountDrawer()
   }, [toggleAccountDrawer])
 
-  // 其余的 JSX 渲染部分保持不变...
-  // 在 GasPreviewContainer 中显示费用时，使用新的 gasEstimate 结构：
-
-  // 在 TransactionPreview 中的 gas 显示部分：
-  const renderGasPreview = () => {
-    if (isLoadingFees) {
-      return (
-        <GasPreviewRow>
-          <GasPreviewLabel>Loading fees...</GasPreviewLabel>
-          <GasPreviewValue>-</GasPreviewValue>
-        </GasPreviewRow>
-      );
-    }
-
-    return (
-      <>
-        {gasEstimate.localGas && parseFloat(gasEstimate.localGas) > 0 && (
-          <GasPreviewRow>
-            <GasPreviewLabel>Local Gas</GasPreviewLabel>
-            <GasPreviewValue>
-              {parseFloat(gasEstimate.localGas).toFixed(6)} {currentChain() === 'deepbrainchain' ? 'DBC' : 'BNB'}
-            </GasPreviewValue>
-          </GasPreviewRow>
-        )}
-        
-        {gasEstimate.interchainGas && parseFloat(gasEstimate.interchainGas) > 0 && (
-          <GasPreviewRow>
-            <GasPreviewLabel>Interchain Gas</GasPreviewLabel>
-            <GasPreviewValue>
-              {parseFloat(gasEstimate.interchainGas).toFixed(6)} {currentChain() === 'deepbrainchain' ? 'DBC' : 'BNB'}
-            </GasPreviewValue>
-          </GasPreviewRow>
-        )}
-
-        {gasEstimate.totalGasFee && parseFloat(gasEstimate.totalGasFee) > 0 && (
-          <GasPreviewTotal>
-            <GasPreviewLabel>Total Gas Fee</GasPreviewLabel>
-            <GasPreviewValue>
-              {parseFloat(gasEstimate.totalGasFee).toFixed(6)} {currentChain() === 'deepbrainchain' ? 'DBC' : 'BNB'}
-            </GasPreviewValue>
-          </GasPreviewTotal>
-        )}
-      </>
-    );
-  };
-
   return (
     <FormWrapper>
       {title && <FormTitle>{title}</FormTitle>}
+
+      {/* <SecurityWarning>
+        ⚠️ 安全提示：
+        <ul style={{ margin: '8px 0 0 20px', padding: 0 }}>
+          <li>请仔细验证授权地址是否为官方合约</li>
+          <li>只授权必要的使用金额，避免无限授权</li>
+          <li>交易完成后请及时撤销不需要的授权</li>
+          <li>定期检查并清理历史授权记录</li>
+        </ul>
+      </SecurityWarning> */}
 
       <AutoColumn gap="16px">
         <ChainSelectorContainer>
@@ -1722,7 +1589,7 @@ const prepareTransaction = async () => {
         {/* Error message display */}
         {error && !error.includes('Transaction Hash') && <ErrorText>{error}</ErrorText>}
 
-        {/* {currentAllowance !== '0' && (
+        {currentAllowance !== '0' && (
           <AllowanceDisplay>
             <span>Current Allowance: {ethers.utils.formatUnits(currentAllowance, 18)} USDT</span>
             <RevokeButton
@@ -1737,7 +1604,7 @@ const prepareTransaction = async () => {
               {isRevoking ? 'Revoking...' : 'Revoke Approval'}
             </RevokeButton>
           </AllowanceDisplay>
-        )} */}
+        )}
 
         {showPreview && txs ? (
           <>
@@ -1766,7 +1633,7 @@ const prepareTransaction = async () => {
                   <GasPreviewRow>
                     <GasPreviewLabel>Local Gas</GasPreviewLabel>
                     <GasPreviewValue>
-                      {parseFloat(gasEstimate.localGas).toFixed(6)} {currentChain() === 'deepbrainchain' ? 'DBC' : 'BNB'}
+                      {parseFloat(gasEstimate.totalGasFee).toFixed(6)} {currentChain() === 'deepbrainchain' ? 'DBC' : 'BNB'}
                     </GasPreviewValue>
                   </GasPreviewRow>
                   
@@ -1782,7 +1649,7 @@ const prepareTransaction = async () => {
                   <GasPreviewTotal>
                     <GasPreviewLabel>Total Gas Fee</GasPreviewLabel>
                     <GasPreviewValue>
-                      {parseFloat(gasEstimate.totalGasFee).toFixed(6)} {currentChain() === 'deepbrainchain' ? 'DBC' : 'BNB'}
+                      {(parseFloat(gasEstimate.totalGasFee) + parseFloat(gasEstimate.interchainGas || '0')).toFixed(6)} {currentChain() === 'deepbrainchain' ? 'DBC' : 'BNB'}
                     </GasPreviewValue>
                   </GasPreviewTotal>
                 </>
@@ -1800,8 +1667,8 @@ const prepareTransaction = async () => {
           </>
         ) : (
           account ? (
-            <ActionButton onClick={prepareTransaction} disabled={isLoadingFees || !amount || parseFloat(amount) <= 0}>
-              {isLoadingFees ? 'Preparing...' : 'Cross-Chain USDT'}
+            <ActionButton onClick={prepareTransaction} disabled={isProcessing || !amount || parseFloat(amount) <= 0}>
+              {isProcessing ? 'Processing...' : 'Cross-Chain USDT'}
             </ActionButton>
           ) : (
             <ActionButton onClick={handleConnectWallet}>

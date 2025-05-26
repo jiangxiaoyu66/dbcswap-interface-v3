@@ -1127,10 +1127,27 @@ const fetchFeeQuotes = useCallback(async (
 const estimateGas = useCallback(async (transactions: any[], warpCore?: WarpCore) => {
   if (!provider || !transactions?.length || !account) return;
   
+  setIsLoadingFees(true);
   
   try {
     let localGasLimit = BigNumber.from(0);
     let currentGasPrice = await provider.getGasPrice();
+    
+    // 计算本地 gas
+    for (const tx of transactions) {
+      try {
+        const gasLimit = await provider.estimateGas({
+          from: account,
+          to: tx.transaction.to,
+          data: tx.transaction.data,
+          value: tx.transaction.value || '0x0'
+        });
+        localGasLimit = localGasLimit.add(gasLimit);
+      } catch (gasError) {
+        console.warn('Gas estimation failed for transaction:', gasError);
+        localGasLimit = localGasLimit.add(BigNumber.from('200000'));
+      }
+    }
     
     const localGasFee = localGasLimit.mul(currentGasPrice);
     let interchainGasFee = '0';
@@ -1345,42 +1362,14 @@ const estimateGas = useCallback(async (transactions: any[], warpCore?: WarpCore)
     }
   }, [account, chainId, provider, fetchUsdtBalance]);
 
-  // 添加重置状态的函数
-  const resetState = useCallback(() => {
-    setTxs(null);
-    setError('');
-    setAmount('');
-    setTxStatus('');
-    setLastTxHash('');
-    setLastTxChain('deepbrainchain');
-    setCurrentAllowance('0');
-    setFeeQuotes(null);
-    setGasEstimate({
-      gasLimit: '0',
-      gasPrice: '0',
-      totalGasFee: '0',
-      interchainGas: '0',
-      localGas: '0'
-    });
-    setShowPreview(false);
-    setIsProcessing(false);
-    setIsLoadingFees(false);
-    setIsLoadingBalance(false);
-  }, []);
-
-  // 定义 cancelPreview 函数
-  const cancelPreview = useCallback(() => {
-    resetState();
-  }, [resetState]);
-
-  // 修改 handleSwapChains 函数
+  // Handle chain switch button click - swap source chain and target chain
   const handleSwapChains = useCallback(() => {
-    resetState();
+    // Directly swap source chain and target chain
     const newSourceChain = destinationChain;
     const newDestinationChain = sourceChain;
     setSourceChain(newSourceChain);
     setDestinationChain(newDestinationChain);
-  }, [sourceChain, destinationChain, resetState]);
+  }, [sourceChain, destinationChain]);
 
   // 验证合约地址
   const isKnownContract = useCallback((address: string): boolean => {
@@ -1417,109 +1406,56 @@ const estimateGas = useCallback(async (transactions: any[], warpCore?: WarpCore)
     }
   };
 
-// 修改 prepareTransaction 函数
-const prepareTransaction = async () => {
-  setIsLoadingFees(true);
-
-  if (!amount || !account || !provider) {
-    setError('Please connect wallet and enter amount');
-    return;
-  }
-
-  if (!warpCoreInstance) {
-    setError('WarpCore not initialized. Please try again.');
-    return;
-  }
-
-  // Reset states
-  setError('');
-  setTxs(null);
-  setShowPreview(false);
-  setFeeQuotes(null);
-  setGasEstimate({
-    gasLimit: '0',
-    gasPrice: '0',
-    totalGasFee: '0',
-    interchainGas: '0',
-    localGas: '0'
-  });
-  
-  try {
-    const amountWei = ethers.utils.parseUnits(amount, 18);
-    
-    // 获取当前链的 USDT 合约地址
-    const tokenAddress = USDT_CONTRACT_ADDRESSES[sourceChain];
-    
-    // 创建代币合约实例用于检查余额和授权状态
-    const tokenContract = new ethers.Contract(
-      tokenAddress,
-      [
-        'function balanceOf(address owner) view returns (uint256)',
-        'function allowance(address owner, address spender) view returns (uint256)'
-      ],
-      provider
-    );
-
-    // 检查余额
-    const balance = await tokenContract.balanceOf(account);
-    if (balance.lt(amountWei)) {
-      setError(`Insufficient balance. You have ${ethers.utils.formatUnits(balance, 18)} USDT`);
+  // 修改 prepareTransaction 函数
+  const prepareTransaction = async () => {
+    if (!amount || !account || !provider) {
+      setError('Please connect wallet and enter amount');
       return;
     }
 
-    // Find token config
-    const originToken = warpCoreInstance.tokens.find((token: any) => token.chainName === sourceChain);
-    if (!originToken) throw new Error('Token not found');
-
-    // 获取跨链交易数据（仅用于估算，不执行）
-    const transactions = await warpCoreInstance.getTransferRemoteTxs({
-      originTokenAmount: originToken.amount(amountWei.toString()),
-      destination: destinationChain,
-      sender: account,
-      recipient: account,
-    });
-
-    console.log('=== Debug Transfer Transactions ===');
-    console.log('Full transactions object:', JSON.stringify(transactions, null, 2));
-
-    // 检查授权状态（仅用于显示，不自动授权）
-    for (const tx of transactions) {
-      if (tx.transaction && tx.transaction.to) {
-        try {
-          const allowance = await tokenContract.allowance(account, tx.transaction.to);
-          console.log(`Current allowance for spender ${tx.transaction.to}: ${ethers.utils.formatUnits(allowance, 18)}`);
-          setCurrentAllowance(allowance.toString());
-          
-          // 如果授权不足，显示警告但不阻止预览
-          if (allowance.lt(amountWei)) {
-            console.warn(`Insufficient allowance. Required: ${ethers.utils.formatUnits(amountWei, 18)}, Current: ${ethers.utils.formatUnits(allowance, 18)}`);
-          }
-        } catch (allowanceError) {
-          console.warn('Could not check allowance:', allowanceError);
-        }
-        break; // 只检查第一个交易的授权状态
-      }
+    if (!warpCoreInstance) {
+      setError('WarpCore not initialized. Please try again.');
+      return;
     }
 
-    setTxs(transactions);
-    await estimateGas(transactions, warpCoreInstance);
-    setShowPreview(true);
+    // Reset states
+    setError('');
+    setTxs(null);
+    setShowPreview(false);
+    setFeeQuotes(null);
+    setGasEstimate({
+      gasLimit: '0',
+      gasPrice: '0',
+      totalGasFee: '0',
+      interchainGas: '0',
+      localGas: '0'
+    });
     
-  } catch (e: any) {
-    console.error('Transaction preparation failed:', e);
-    
-    // 更详细的错误处理
-    if (e.message.includes('insufficient')) {
-      setError('Insufficient balance for this transfer.');
-    } else if (e.message.includes('network')) {
-      setError('Network error. Please check your connection and try again.');
-    } else {
+    try {
+      // Find token config
+      const originToken = warpCoreInstance.tokens.find((token: any) => token.chainName === sourceChain);
+      if (!originToken) throw new Error('Token not found');
+
+      // 获取跨链交易数据
+      const transactions = await warpCoreInstance.getTransferRemoteTxs({
+        originTokenAmount: originToken.amount(ethers.utils.parseUnits(amount, 18).toString()),
+        destination: destinationChain,
+        sender: account,
+        recipient: account,
+      });
+
+      console.log('=== Debug Transfer Transactions ===');
+      console.log('Full transactions object:', JSON.stringify(transactions, null, 2));
+
+      setTxs(transactions);
+      await estimateGas(transactions, warpCoreInstance);
+      setShowPreview(true);
+      
+    } catch (e: any) {
+      console.error('Transaction preparation failed:', e);
       setError(e?.message || 'Failed to prepare transaction');
     }
-  }
-};
-
-
+  };
 
   // 添加执行交易的函数
   const executeTransaction = async () => {
@@ -1551,6 +1487,20 @@ const prepareTransaction = async () => {
       setError(e?.message || 'Transaction failed');
       setIsProcessing(false);
     }
+  };
+
+  // 添加取消预览的函数
+  const cancelPreview = () => {
+    setShowPreview(false);
+    setTxs(null);
+    setFeeQuotes(null);
+    setGasEstimate({
+      gasLimit: '0',
+      gasPrice: '0',
+      totalGasFee: '0',
+      interchainGas: '0',
+      localGas: '0'
+    });
   };
 
   const handleConnectWallet = useCallback(() => {
@@ -1722,7 +1672,7 @@ const prepareTransaction = async () => {
         {/* Error message display */}
         {error && !error.includes('Transaction Hash') && <ErrorText>{error}</ErrorText>}
 
-        {/* {currentAllowance !== '0' && (
+        {currentAllowance !== '0' && (
           <AllowanceDisplay>
             <span>Current Allowance: {ethers.utils.formatUnits(currentAllowance, 18)} USDT</span>
             <RevokeButton
@@ -1737,7 +1687,7 @@ const prepareTransaction = async () => {
               {isRevoking ? 'Revoking...' : 'Revoke Approval'}
             </RevokeButton>
           </AllowanceDisplay>
-        )} */}
+        )}
 
         {showPreview && txs ? (
           <>
@@ -1800,8 +1750,8 @@ const prepareTransaction = async () => {
           </>
         ) : (
           account ? (
-            <ActionButton onClick={prepareTransaction} disabled={isLoadingFees || !amount || parseFloat(amount) <= 0}>
-              {isLoadingFees ? 'Preparing...' : 'Cross-Chain USDT'}
+            <ActionButton onClick={prepareTransaction} disabled={isProcessing || !amount || parseFloat(amount) <= 0}>
+              {isProcessing ? 'Processing...' : 'Cross-Chain USDT'}
             </ActionButton>
           ) : (
             <ActionButton onClick={handleConnectWallet}>
