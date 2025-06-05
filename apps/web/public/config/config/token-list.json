@@ -47,11 +47,19 @@
       "chainId": 19880818,
       "decimals": 18,
       "logoURI": "https://xaiagent.oss-ap-northeast-2.aliyuncs.com/logo/LogoLift.png"
+    },
+    {
+      "address": "0x5155101187F8Faa1aD8AfeC7820c801870F81D52",
+      "name": "Tether USD",
+      "symbol": "USDT",
+      "chainId": 19880818,
+      "decimals": 18,
+      "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xdAC17F958D2ee523a2206206994597C13D831ec7/logo.png"
     }
   ],
   "version": {
     "major": 4,
     "minor": 1,
-    "patch": 87
+    "patch": 88
   }
 }

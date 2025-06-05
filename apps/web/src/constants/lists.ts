@@ -1,21 +1,25 @@
-const ISDEV = true
+const ISDEV = false
 // export const UBE_LIST = !ISDEV ? 'http://8.214.55.62:8028/config/config/token-list.json' : 'http://localhost:3000/config/config/token-list.json'
 // export const UBE_EXTENDED_LIST =
 //   !ISDEV ? 'http://8.214.55.62:8028/config/config/token-list.json' : 'http://localhost:3000/config/config/token-list.json'
 
 const getBaseUrl = () => {
   if (typeof window === 'undefined') return ''
-  return `${window.location.protocol}//${window.location.host}`
+  // 获取主机名
+  const host = window.location.host
+  // 如果是 localhost，强制使用 http 协议
+  const protocol = host.includes('localhost') ? 'http:' : window.location.protocol
+  console.log('protocol', protocol)
+  console.log('host', host)
+  return `${protocol}//${host}`
 }
 
-export const UBE_LIST = !ISDEV
-  ? 'https://dbcswap.io/config/config/token-list.json'
-  : `${getBaseUrl()}/config/config/token-list.json`
+// export const UBE_LIST = !ISDEV
+//   ? 'https://test.dbcswap.io/config/config/token-list.json'
+//   : `${getBaseUrl()}/config/config/token-list.json`
+export const UBE_LIST = `${getBaseUrl()}/config/config/token-list.json`
 export const UBE_EXTENDED_LIST = ''
 
-const UBESWAP_EXTRA_LIST = !ISDEV
-  ? 'https://dbcswap.io/config/config/token-list.json'
-  : `${getBaseUrl()}/config/config/token-list.json`
 
 // const UNI_UNSUPPORTED_LIST = 'https://cloudflare-ipfs.com/ipns/unsupportedtokens.uniswap.org'
 // const AAVE_LIST = 'tokenlist.aave.eth'

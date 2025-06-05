@@ -948,6 +948,31 @@ interface TokenContract extends ethers.Contract {
 export function TransferTokenForm({ title }: { title?: string }) {
   const [searchParams] = useSearchParams();
   const initialUrlSourceChain = searchParams.get('chain');
+  const { provider, account, chainId } = useWeb3React<Web3Provider>();
+
+  // 将 checkNativeTokenBalance 移动到组件内部
+  const checkNativeTokenBalance = useCallback(async (chain: 'deepbrainchain' | 'bsc'): Promise<{
+    balance: string;
+    hasEnough: boolean;
+  }> => {
+    if (!provider || !account) {
+      return { balance: '0', hasEnough: false };
+    }
+
+    try {
+      const balance = await provider.getBalance(account);
+      const minRequired = ethers.utils.parseEther('0.001'); // 设置最小需要的余额
+      const formattedBalance = ethers.utils.formatEther(balance);
+      
+      return {
+        balance: formattedBalance,
+        hasEnough: balance.gte(minRequired)
+      };
+    } catch (e) {
+      console.error('Failed to check native token balance:', e);
+      return { balance: '0', hasEnough: false };
+    }
+  }, [provider, account]);
 
   const [txs, setTxs] = useState<any>(null);
   const [error, setError] = useState<string>('');
@@ -978,7 +1003,6 @@ export function TransferTokenForm({ title }: { title?: string }) {
   const [isLoadingFees, setIsLoadingFees] = useState<boolean>(false);
   const [warpCoreInstance, setWarpCoreInstance] = useState<WarpCore | null>(null);
 
-  const { provider, account, chainId } = useWeb3React<Web3Provider>();
   const selectChain = useSelectChain();
   const [, toggleAccountDrawer] = useAccountDrawer()
 
@@ -1074,7 +1098,7 @@ const initializeWarpCore = useCallback(async () => {
   }
 }, []);
 
-// 修改 fetchFeeQuotes 函数，添加错误处理
+// 修改 fetchFeeQuotes 函数
 const fetchFeeQuotes = useCallback(async (
   warpCore: WarpCore,
   destination: string,
@@ -1084,15 +1108,19 @@ const fetchFeeQuotes = useCallback(async (
   if (!warpCore || !destination || !sender) return null;
   
   try {
-    console.log('Fetching fee quotes...');
-    
-    const originToken = warpCore.tokens.find((token: any) => token.chainName === sourceChain);
-    if (!originToken) {
-      console.error('Origin token not found');
-      return null;
+    // 先检查原生代币余额
+    const nativeTokenStatus = await checkNativeTokenBalance(sourceChain);
+    if (!nativeTokenStatus.hasEnough) {
+      const nativeToken = sourceChain === 'deepbrainchain' ? 'DBC' : 'BNB';
+      throw new Error(`Insufficient ${nativeToken} balance (${parseFloat(nativeTokenStatus.balance).toFixed(4)} ${nativeToken}) for gas fees. Please ensure you have at least 0.01 ${nativeToken} for transaction fees.`);
     }
 
-    // 添加更详细的参数检查
+    console.log('Fetching fee quotes...');
+    const originToken = warpCore.tokens.find((token: any) => token.chainName === sourceChain);
+    if (!originToken) {
+      throw new Error('Origin token not found');
+    }
+
     const transferParams = {
       originToken,
       destination,
@@ -1102,27 +1130,17 @@ const fetchFeeQuotes = useCallback(async (
       })
     };
 
-    console.log('Transfer params:', transferParams);
-
     const fees = await warpCore.estimateTransferRemoteFees(transferParams);
-    console.log('Fee quotes received:', fees);
     return fees;
-  } catch (error) {
-    // console.error('Failed to fetch fee quotes:', error);
-    setError(error.message);
-    // 返回默认费用而不是 null
-    return {
-      interchainQuote: {
-        amount: '0',
-        decimals: 18
-      },
-      localQuote: {
-        amount: '0', 
-        decimals: 18
-      }
-    };
+  } catch (error: any) {
+    // 优化错误提示
+    if (error.message.includes('insufficient funds')) {
+      const nativeToken = sourceChain === 'deepbrainchain' ? 'DBC' : 'BNB';
+      throw new Error(`Insufficient ${nativeToken} balance for gas fees. Please add more ${nativeToken} to your wallet.`);
+    }
+    throw error;
   }
-}, [sourceChain]);
+}, [provider, account, sourceChain, checkNativeTokenBalance]);
 
 // 修改 estimateGas 函数，改进错误处理
 const estimateGas = useCallback(async (transactions: any[], warpCore?: WarpCore) => {
@@ -1141,6 +1159,7 @@ const estimateGas = useCallback(async (transactions: any[], warpCore?: WarpCore)
       const coreToUse = warpCore || warpCoreInstance;
       if (coreToUse) {
         try {
+          debugger
           const feeQuotes = await fetchFeeQuotes(coreToUse, destinationChain, account, amount);
           if (feeQuotes && feeQuotes.interchainQuote.amount !== '0') {
             setFeeQuotes(feeQuotes);
@@ -1418,40 +1437,47 @@ const estimateGas = useCallback(async (transactions: any[], warpCore?: WarpCore)
     }
   };
 
-// 修改 prepareTransaction 函数
+// 修改 prepareTransaction 函数中的余额检查部分
 const prepareTransaction = async () => {
   setIsLoadingFees(true);
+  setError('');
 
   if (!amount || !account || !provider) {
     setError('Please connect wallet and enter amount');
     return;
   }
 
-  if (!warpCoreInstance) {
-    setError('WarpCore not initialized. Please try again.');
-    return;
-  }
-
-  // Reset states
-  setError('');
-  setTxs(null);
-  setShowPreview(false);
-  setFeeQuotes(null);
-  setGasEstimate({
-    gasLimit: '0',
-    gasPrice: '0',
-    totalGasFee: '0',
-    interchainGas: '0',
-    localGas: '0'
-  });
-  
   try {
+    // 先检查原生代币余额
+    const nativeTokenStatus = await checkNativeTokenBalance(sourceChain);
+    if (!nativeTokenStatus.hasEnough) {
+      const nativeToken = sourceChain === 'deepbrainchain' ? 'DBC' : 'BNB';
+      throw new Error(`Insufficient ${nativeToken} balance (${parseFloat(nativeTokenStatus.balance).toFixed(4)} ${nativeToken}) for gas fees. Please ensure you have at least 0.01 ${nativeToken} for transaction fees.`);
+    }
+
+    if (!warpCoreInstance) {
+      setError('WarpCore not initialized. Please try again.');
+      return;
+    }
+
+    // Reset states
+    setTxs(null);
+    setShowPreview(false);
+    setFeeQuotes(null);
+    setGasEstimate({
+      gasLimit: '0',
+      gasPrice: '0',
+      totalGasFee: '0',
+      interchainGas: '0',
+      localGas: '0'
+    });
+    
     const amountWei = ethers.utils.parseUnits(amount, 18);
     
     // 获取当前链的 USDT 合约地址
     const tokenAddress = USDT_CONTRACT_ADDRESSES[sourceChain];
     
-    // 创建代币合约实例用于检查余额和授权状态
+    // 创建代币合约实例用于检查余额
     const tokenContract = new ethers.Contract(
       tokenAddress,
       [
@@ -1461,10 +1487,11 @@ const prepareTransaction = async () => {
       provider
     );
 
-    // 检查余额
-    const balance = await tokenContract.balanceOf(account);
-    if (balance.lt(amountWei)) {
-      setError(`Insufficient balance. You have ${ethers.utils.formatUnits(balance, 18)} USDT`);
+    // 检查 USDT 余额
+    const tokenBalance = await tokenContract.balanceOf(account);
+    if (tokenBalance.lt(amountWei)) {
+      setError(`Insufficient USDT balance. You have ${ethers.utils.formatUnits(tokenBalance, 18)} USDT`);
+      setIsLoadingFees(false);
       return;
     }
 
@@ -1480,47 +1507,43 @@ const prepareTransaction = async () => {
       recipient: account,
     });
 
-    console.log('=== Debug Transfer Transactions ===');
-    console.log('Full transactions object:', JSON.stringify(transactions, null, 2));
+    // 先估算 gas 费用
+    await estimateGas(transactions, warpCoreInstance);
 
-    // 检查授权状态（仅用于显示，不自动授权）
+    // 检查授权状态
     for (const tx of transactions) {
       if (tx.transaction && tx.transaction.to) {
         try {
           const allowance = await tokenContract.allowance(account, tx.transaction.to);
-          console.log(`Current allowance for spender ${tx.transaction.to}: ${ethers.utils.formatUnits(allowance, 18)}`);
           setCurrentAllowance(allowance.toString());
           
-          // 如果授权不足，显示警告但不阻止预览
           if (allowance.lt(amountWei)) {
             console.warn(`Insufficient allowance. Required: ${ethers.utils.formatUnits(amountWei, 18)}, Current: ${ethers.utils.formatUnits(allowance, 18)}`);
           }
         } catch (allowanceError) {
           console.warn('Could not check allowance:', allowanceError);
         }
-        break; // 只检查第一个交易的授权状态
+        break;
       }
     }
 
     setTxs(transactions);
-    await estimateGas(transactions, warpCoreInstance);
     setShowPreview(true);
     
   } catch (e: any) {
     console.error('Transaction preparation failed:', e);
     
-    // 更详细的错误处理
     if (e.message.includes('insufficient')) {
-      setError('Insufficient balance for this transfer.');
+      setError(e.message); // 使用我们自定义的更友好的错误消息
     } else if (e.message.includes('network')) {
       setError('Network error. Please check your connection and try again.');
     } else {
       setError(e?.message || 'Failed to prepare transaction');
     }
+  } finally {
+    setIsLoadingFees(false);
   }
 };
-
-
 
   // 添加执行交易的函数
   const executeTransaction = async () => {
@@ -1549,7 +1572,7 @@ const prepareTransaction = async () => {
 
     } catch (e: any) {
       console.error('Transaction failed:', e);
-      setError(e?.data?.message||e?.message || 'Transaction failed');
+      setError(e?.message || 'Transaction failed');
       setIsProcessing(false);
     }
   };
