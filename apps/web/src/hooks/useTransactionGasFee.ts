@@ -43,12 +43,14 @@ interface GasFeeResponseLegacy extends GasFeeResponseBase {
 type TransactionLegacyFeeParams = {
   gasPrice: string
   gasLimit: string
+  type: 0 | undefined
 }
 
 type TransactionEip1559FeeParams = {
   maxFeePerGas: string
   maxPriorityFeePerGas: string
   gasLimit: string
+  type: 0
 }
 
 export interface GasFeeResult {
@@ -86,10 +88,13 @@ export function useTransactionGasFee(
             maxPriorityFeePerGas: data.maxPriorityFeePerGas[speed],
             maxFeePerGas: data.maxFeePerGas[speed],
             gasLimit: data.gasLimit,
+            type: 0 as const,
+            gasPrice: undefined
           }
         : {
             gasPrice: data.gasPrice[speed],
             gasLimit: data.gasLimit,
+            type: 0 as const,
           }
 
     return {
