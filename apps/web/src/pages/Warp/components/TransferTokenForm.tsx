@@ -18,65 +18,8 @@ import { InterfaceEventName, InterfaceElementName } from '@ubeswap/analytics-eve
 import { BigNumber } from 'ethers';
 import { ThemedText } from 'theme/components';
 
-// 添加FeeQuotes接口定义，使用any避免类型错误
-interface FeeQuotes {
-  interchainQuote: any;
-  localQuote: any;
-}
-
-
-
-// 添加验证函数
-const validateAmount = (value: string, maxAmount?: string): string => {
-  // Allow numbers and a single decimal point directly
-  if (value === '.') return '0.';
-
-  // If empty, return an empty string
-  if (!value) return '';
-
-  // Process input numbers and decimal points
-  let result = '';
-  let hasDecimal = false;
-
-  for (let i = 0; i < value.length; i++) {
-    const char = value[i];
-
-    // Allow numbers
-    if (char >= '0' && char <= '9') {
-      result += char;
-    }
-    // Allow only one decimal point
-    else if (char === '.' && !hasDecimal) {
-      result += char;
-      hasDecimal = true;
-    }
-  }
-
-  // Ensure decimal places do not exceed 18
-  if (hasDecimal) {
-    const parts = result.split('.');
-    if (parts.length === 2 && parts[1].length > 18) {
-      result = parts[0] + '.' + parts[1].slice(0, 18);
-    }
-  }
-
-  // Check max value limit
-  if (maxAmount && result) {
-    const inputValue = parseFloat(result);
-    const maxValue = parseFloat(maxAmount);
-
-    if (!isNaN(inputValue) && !isNaN(maxValue) && inputValue > maxValue) {
-      result = maxAmount;
-    }
-  }
-
-  return result;
-};
-
-
-
-
-
+// Update debug messages
+const NETWORK_SWITCH_DEBUG = true;
 
 // 简化配置
 const chainConfigs = {
@@ -211,7 +154,12 @@ const FormWrapper = styled(Column)`
   }
 `;
 
-
+const SectionTitle = styled.div`
+  font-size: 14px;
+  font-weight: 500;
+  color: ${({ theme }) => theme.neutral2};
+  margin-bottom: 8px;
+`;
 
 const ChainSelectorContainer = styled.div`
   display: flex;
@@ -306,6 +254,14 @@ const ChainName = styled.div`
   }
 `;
 
+const rotate180 = keyframes`
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(180deg);
+  }
+`;
 
 const SwitchButton = styled.button`
   background: ${({ theme }) => theme.surface2};
@@ -518,7 +474,58 @@ const ActionButton = styled(ButtonPrimary)`
   }
 `;
 
+// 添加自动切换控制的样式组件
+const AutoSwitchContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+  font-size: 14px;
+`;
 
+const SwitchLabel = styled.label`
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+`;
+
+const SwitchInput = styled.input`
+  height: 0;
+  width: 0;
+  visibility: hidden;
+  margin: 0;
+  &:checked + span {
+    background: ${({ theme }) => theme.accent1};
+  }
+  &:checked + span:after {
+    left: calc(100% - 2px);
+    transform: translateX(-100%);
+  }
+`;
+
+const SwitchSlider = styled.span`
+  cursor: pointer;
+  width: 40px;
+  height: 20px;
+  background: ${({ theme }) => theme.surface3};
+  display: block;
+  border-radius: 100px;
+  position: relative;
+  margin-left: 8px;
+  transition: 0.2s;
+  &:after {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    background: ${({ theme }) => theme.white || '#fff'};
+    border-radius: 16px;
+    transition: 0.2s;
+  }
+`;
 
 const FormTitle = styled.h2`
   font-size: 24px;
@@ -694,8 +701,184 @@ const ContractAddress = styled.span`
   }
 `;
 
+// 添加安全相关的样式组件
+const SecurityWarning = styled.div`
+  background: rgba(255, 176, 25, 0.1);
+  border: 1px solid rgba(255, 176, 25, 0.2);
+  padding: 12px;
+  border-radius: 12px;
+  margin: 12px 0;
+  font-size: 14px;
+  color: #ffa726;
+`;
 
+const AllowanceDisplay = styled.div`
+  font-size: 14px;
+  color: ${({ theme }) => theme.neutral2};
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
 
+const RevokeButton = styled.button`
+  background: ${({ theme }) => theme.critical};
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  
+  &:hover {
+    opacity: 0.8;
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
+// 添加类型定义
+interface WarpTransaction {
+  type: string;
+  transaction: {
+    to: string;
+    data: string;
+    value?: string;
+    gasLimit?: string;
+  };
+}
+
+// 在文件开头添加类型定义
+interface GasEstimate {
+  gasLimit: string;
+  gasPrice: string;
+  totalGasFee: string;
+  interchainGas: string;
+}
+
+// 处理交易对象显示的函数
+const formatTransactionData = (tx: any) => {
+  if (!tx) return '';
+
+  // 长字符串格式化（添加实际换行，不仅是软换行）
+  const formatLongString = (str: string) => {
+    if (!str || typeof str !== 'string' || str.length < 40) return str;
+    // 每30个字符添加一个实际换行
+    let formatted = '';
+    for (let i = 0; i < str.length; i += 30) {
+      formatted += str.slice(i, Math.min(i + 30, str.length));
+      if (i + 30 < str.length) {
+        formatted += '\n';
+      }
+    }
+    return formatted;
+  };
+
+  // 格式化值（如ETH值）
+  const formatValue = (value: any) => {
+    if (!value) return '0';
+    try {
+      if (typeof value === 'string' && value.startsWith('0x')) {
+        const etherValue = ethers.utils.formatEther(value);
+        return `${parseFloat(parseFloat(etherValue).toFixed(6))} ETH`;
+      } else if (value._hex) {
+        const etherValue = ethers.utils.formatEther(value._hex);
+        return `${parseFloat(parseFloat(etherValue).toFixed(6))} ETH`;
+      }
+    } catch (e) {
+      // 如果转换失败，返回原始值
+    }
+    return String(value);
+  };
+
+  // 提取关键信息，转为简化文本
+  try {
+    const txType = tx.type || 'unknown';
+    const txTo = tx.transaction?.to || 'N/A';
+    const txValue = formatValue(tx.transaction?.value);
+
+    const tokenInfo = tx.token ?
+      `Token: ${tx.token.symbol} (${tx.token.chainName})` : '';
+
+    // 构造格式化文本
+    return `Type: ${txType}\nSent to:\n${formatLongString(txTo)}\n\nAmount: ${txValue}\n${tokenInfo}`;
+  } catch (e) {
+    // 如果处理失败，返回基本JSON字符串
+    const simple = {
+      type: tx.type,
+      to: tx.transaction?.to || '',
+      value: tx.transaction?.value || '0x0'
+    };
+    return JSON.stringify(simple, null, 2);
+  }
+};
+
+// 添加验证函数
+const validateAmount = (value: string, maxAmount?: string): string => {
+  // Allow numbers and a single decimal point directly
+  if (value === '.') return '0.';
+
+  // If empty, return an empty string
+  if (!value) return '';
+
+  // Process input numbers and decimal points
+  let result = '';
+  let hasDecimal = false;
+
+  for (let i = 0; i < value.length; i++) {
+    const char = value[i];
+
+    // Allow numbers
+    if (char >= '0' && char <= '9') {
+      result += char;
+    }
+    // Allow only one decimal point
+    else if (char === '.' && !hasDecimal) {
+      result += char;
+      hasDecimal = true;
+    }
+  }
+
+  // Ensure decimal places do not exceed 18
+  if (hasDecimal) {
+    const parts = result.split('.');
+    if (parts.length === 2 && parts[1].length > 18) {
+      result = parts[0] + '.' + parts[1].slice(0, 18);
+    }
+  }
+
+  // Check max value limit
+  if (maxAmount && result) {
+    const inputValue = parseFloat(result);
+    const maxValue = parseFloat(maxAmount);
+
+    if (!isNaN(inputValue) && !isNaN(maxValue) && inputValue > maxValue) {
+      result = maxAmount;
+    }
+  }
+
+  return result;
+};
+
+// 添加防抖hook
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}
 
 // 添加 gas 预览组件样式
 const GasPreviewContainer = styled.div`
@@ -755,10 +938,16 @@ const CancelButton = styled(ActionButton)`
   }
 `;
 
-
+interface TokenContract extends ethers.Contract {
+  balanceOf(owner: string): Promise<ethers.BigNumber>;
+  decimals(): Promise<number>;
+  symbol(): Promise<string>;
+  name(): Promise<string>;
+}
 
 export function TransferTokenForm({ title }: { title?: string }) {
   const [searchParams] = useSearchParams();
+  const initialUrlSourceChain = searchParams.get('chain');
 
   const [txs, setTxs] = useState<any>(null);
   const [error, setError] = useState<string>('');
@@ -790,6 +979,7 @@ export function TransferTokenForm({ title }: { title?: string }) {
   const [warpCoreInstance, setWarpCoreInstance] = useState<WarpCore | null>(null);
 
   const { provider, account, chainId } = useWeb3React<Web3Provider>();
+  const selectChain = useSelectChain();
   const [, toggleAccountDrawer] = useAccountDrawer()
 
   // 修改 gasEstimate 状态
@@ -801,9 +991,231 @@ export function TransferTokenForm({ title }: { title?: string }) {
     localGas: '0'
   });
 
-  // 添加轮询间隔状态
-  const [isPollingBalance, setIsPollingBalance] = useState<boolean>(false);
-  const POLLING_INTERVAL = 10000; // 10秒
+// 修改 initializeWarpCore 函数
+const initializeWarpCore = useCallback(async () => {
+  try {
+    const chainMetadata: any = {
+      "bsc": {
+        "blockExplorers": [{
+          "name": "BscScan",
+          "url": "https://bscscan.com",
+          "apiUrl": "https://api.bscscan.com/api",
+          "family": "etherscan"
+        }],
+        "blocks": {"confirmations": 1},
+        "chainId": 56,
+        "domainId": 56,
+        "name": "bsc",
+        "protocol": "ethereum",
+        "rpcUrls": [{"http": "https://bsc-dataseed1.bnbchain.org"}],
+        // 添加 nativeToken 配置
+        "nativeToken": {
+          "name": "BNB",
+          "symbol": "BNB", 
+          "decimals": 18
+        }
+      },
+      "deepbrainchain": {
+        "blockExplorers": [{
+          "name": "dbcscan",
+          "url": "https://www.dbcscan.io",
+          "apiUrl": "https://www.dbcscan.io/api",
+          "family": "blockscout"
+        }],
+        "blocks": {"confirmations": 1},
+        "chainId": 19880818,
+        "domainId": 19880818,
+        "name": "deepbrainchain",
+        "protocol": "ethereum",
+        "rpcUrls": [{"http": "https://rpc2.dbcwallet.io"}],
+        // 添加 nativeToken 配置
+        "nativeToken": {
+          "name": "DBC",
+          "symbol": "DBC",
+          "decimals": 18
+        }
+      }
+    };
+
+    const tokens = [
+      {
+        chainName: 'bsc',
+        standard: 'EvmHypCollateral',
+        decimals: 18,
+        symbol: 'USDT',
+        name: 'Tether USD',
+        addressOrDenom: '0xF528Aa0c86cBBbBb4288ecb8133D317DD528FD88',
+        collateralAddressOrDenom: USDT_CONTRACT_ADDRESSES.bsc,
+        connections: [
+          { token: 'ethereum|deepbrainchain|0x5155101187F8Faa1aD8AfeC7820c801870F81D52' },
+        ],
+      },
+      {
+        chainName: 'deepbrainchain',
+        standard: 'EvmHypSynthetic',
+        decimals: 18,
+        symbol: 'USDT',
+        name: 'Tether USD',
+        addressOrDenom: USDT_CONTRACT_ADDRESSES.deepbrainchain,
+        connections: [
+          { token: 'ethereum|bsc|0xF528Aa0c86cBBbBb4288ecb8133D317DD528FD88' },
+        ],
+      },
+    ];
+
+    const multiProvider = new MultiProtocolProvider(chainMetadata);
+    const warpCore = WarpCore.FromConfig(multiProvider, { tokens, options: {} });
+    
+    setWarpCoreInstance(warpCore);
+    return warpCore;
+  } catch (error) {
+    console.error('Failed to initialize WarpCore:', error);
+    return null;
+  }
+}, []);
+
+// 修改 fetchFeeQuotes 函数，添加错误处理
+const fetchFeeQuotes = useCallback(async (
+  warpCore: WarpCore,
+  destination: string,
+  sender: string,
+  amount?: string
+): Promise<FeeQuotes | null> => {
+  if (!warpCore || !destination || !sender) return null;
+  
+  try {
+    console.log('Fetching fee quotes...');
+    
+    const originToken = warpCore.tokens.find((token: any) => token.chainName === sourceChain);
+    if (!originToken) {
+      console.error('Origin token not found');
+      return null;
+    }
+
+    // 添加更详细的参数检查
+    const transferParams = {
+      originToken,
+      destination,
+      sender,
+      ...(amount && { 
+        amount: originToken.amount ? originToken.amount(ethers.utils.parseUnits(amount, 18).toString()) : undefined 
+      })
+    };
+
+    console.log('Transfer params:', transferParams);
+
+    const fees = await warpCore.estimateTransferRemoteFees(transferParams);
+    console.log('Fee quotes received:', fees);
+    return fees;
+  } catch (error) {
+    console.error('Failed to fetch fee quotes:', error);
+    // 返回默认费用而不是 null
+    return {
+      interchainQuote: {
+        amount: '0',
+        decimals: 18
+      },
+      localQuote: {
+        amount: '0', 
+        decimals: 18
+      }
+    };
+  }
+}, [sourceChain]);
+
+// 修改 estimateGas 函数，改进错误处理
+const estimateGas = useCallback(async (transactions: any[], warpCore?: WarpCore) => {
+  if (!provider || !transactions?.length || !account) return;
+  
+  
+  try {
+    let localGasLimit = BigNumber.from(0);
+    let currentGasPrice = await provider.getGasPrice();
+    
+    const localGasFee = localGasLimit.mul(currentGasPrice);
+    let interchainGasFee = '0';
+
+    // 尝试使用 WarpCore 获取跨链费用
+    if (warpCore || warpCoreInstance) {
+      const coreToUse = warpCore || warpCoreInstance;
+      if (coreToUse) {
+        try {
+          const feeQuotes = await fetchFeeQuotes(coreToUse, destinationChain, account, amount);
+          if (feeQuotes && feeQuotes.interchainQuote.amount !== '0') {
+            setFeeQuotes(feeQuotes);
+            interchainGasFee = ethers.utils.formatUnits(
+              feeQuotes.interchainQuote.amount, 
+              feeQuotes.interchainQuote.decimals
+            );
+            console.log('Interchain gas fee from WarpCore:', interchainGasFee);
+          }
+        } catch (warpError) {
+          console.warn('WarpCore fee estimation failed, using fallback:', warpError);
+        }
+      }
+    }
+
+    // 如果 WarpCore 费用估算失败，使用交易 value 作为备用
+    if (interchainGasFee === '0' && transactions[0]?.transaction?.value) {
+      try {
+        if (typeof transactions[0].transaction.value === 'object' && transactions[0].transaction.value.hex) {
+          interchainGasFee = ethers.utils.formatEther(transactions[0].transaction.value.hex);
+        } else {
+          interchainGasFee = ethers.utils.formatEther(transactions[0].transaction.value);
+        }
+        console.log('Interchain gas fee from transaction value:', interchainGasFee);
+      } catch (valueError) {
+        console.warn('Failed to parse transaction value:', valueError);
+        // 使用默认估算值
+        interchainGasFee = '0.001';
+      }
+    }
+
+    const localGasFormatted = ethers.utils.formatEther(localGasFee);
+    
+    setGasEstimate({
+      gasLimit: localGasLimit.toString(),
+      gasPrice: currentGasPrice.toString(),
+      totalGasFee: (parseFloat(localGasFormatted) + parseFloat(interchainGasFee)).toString(),
+      interchainGas: interchainGasFee,
+      localGas: localGasFormatted
+    });
+    
+  } catch (error) {
+    console.error('Gas estimation failed:', error);
+    // 设置默认值而不是显示错误
+    setGasEstimate({
+      gasLimit: '200000',
+      gasPrice: '0',
+      totalGasFee: '0.002',
+      interchainGas: '0.001',
+      localGas: '0.001'
+    });
+  } finally {
+    setIsLoadingFees(false);
+  }
+}, [provider, account, fetchFeeQuotes, warpCoreInstance, destinationChain, amount]);
+
+  // 初始化 WarpCore
+  useEffect(() => {
+    initializeWarpCore();
+  }, [initializeWarpCore]);
+
+  // 在交易预览中添加 useEffect
+  useEffect(() => {
+    if (txs?.length && warpCoreInstance) {
+      estimateGas(txs, warpCoreInstance);
+    }
+  }, [txs, estimateGas, warpCoreInstance]);
+
+  // 添加 handleMaxAmount 函数
+  const handleMaxAmount = useCallback(() => {
+    if (!usdtBalance || isLoadingBalance) return;
+
+    // 设置最大可用余额，保留6位小数
+    const maxAmount = parseFloat(usdtBalance).toFixed(6);
+    setAmount(maxAmount);
+  }, [usdtBalance, isLoadingBalance]);
 
   // Map chain names to ChainId enum - simplified mapping
   const getChainId = useCallback((chainName: 'deepbrainchain' | 'bsc'): ChainId => {
@@ -888,742 +1300,555 @@ export function TransferTokenForm({ title }: { title?: string }) {
     }
   }, [provider, account, currentChain, checkTokenBalance]);
 
-  // 添加轮询余额的函数
-  const startPollingBalance = useCallback(() => {
-    if (isPollingBalance) return;
-    
-    setIsPollingBalance(true);
-    const intervalId = setInterval(() => {
-      if (account && provider) {
-        fetchUsdtBalance();
-      }
-    }, POLLING_INTERVAL);
-
-    // 5分钟后停止轮询
-    setTimeout(() => {
-      clearInterval(intervalId);
-      setIsPollingBalance(false);
-    }, 300000);
-
-    return () => {
-      clearInterval(intervalId);
-      setIsPollingBalance(false);
-    };
-  }, [account, provider, fetchUsdtBalance, isPollingBalance]);
-
-  // 修改 initializeWarpCore 函数
-  const initializeWarpCore = useCallback(async () => {
+  // Minimal network switch function
+  const switchNetwork = useCallback(async (targetChain: 'deepbrainchain' | 'bsc'): Promise<boolean> => {
     try {
-      const chainMetadata: any = {
-        "bsc": {
-          "blockExplorers": [{
-            "name": "BscScan",
-            "url": "https://bscscan.com",
-            "apiUrl": "https://api.bscscan.com/api",
-            "family": "etherscan"
-          }],
-          "blocks": {"confirmations": 1},
-          "chainId": 56,
-          "domainId": 56,
-          "name": "bsc",
-          "protocol": "ethereum",
-          "rpcUrls": [{"http": "https://bsc-dataseed1.bnbchain.org"}],
-          // 添加 nativeToken 配置
-          "nativeToken": {
-            "name": "BNB",
-            "symbol": "BNB", 
-            "decimals": 18
-          }
-        },
-        "deepbrainchain": {
-          "blockExplorers": [{
-            "name": "dbcscan",
-            "url": "https://www.dbcscan.io",
-            "apiUrl": "https://www.dbcscan.io/api",
-            "family": "blockscout"
-          }],
-          "blocks": {"confirmations": 1},
-          "chainId": 19880818,
-          "domainId": 19880818,
-          "name": "deepbrainchain",
-          "protocol": "ethereum",
-          "rpcUrls": [{"http": "https://rpc2.dbcwallet.io"}],
-          // 添加 nativeToken 配置
-          "nativeToken": {
-            "name": "DBC",
-            "symbol": "DBC",
-            "decimals": 18
-          }
-        }
-      };
+      if (currentChain() === targetChain) return true;
 
-      const tokens = [
-        {
-          chainName: 'bsc',
-          standard: 'EvmHypCollateral',
-          decimals: 18,
-          symbol: 'USDT',
-          name: 'Tether USD',
-          addressOrDenom: '0xF528Aa0c86cBBbBb4288ecb8133D317DD528FD88',
-          collateralAddressOrDenom: USDT_CONTRACT_ADDRESSES.bsc,
-          connections: [
-            { token: 'ethereum|deepbrainchain|0x5155101187F8Faa1aD8AfeC7820c801870F81D52' },
-          ],
-        },
-        {
-          chainName: 'deepbrainchain',
-          standard: 'EvmHypSynthetic',
-          decimals: 18,
-          symbol: 'USDT',
-          name: 'Tether USD',
-          addressOrDenom: USDT_CONTRACT_ADDRESSES.deepbrainchain,
-          connections: [
-            { token: 'ethereum|bsc|0xF528Aa0c86cBBbBb4288ecb8133D317DD528FD88' },
-          ],
-        },
-      ];
+      const targetChainId = getChainId(targetChain);
+      if (!selectChain) throw new Error('Network switching not available');
 
-      const multiProvider = new MultiProtocolProvider(chainMetadata);
-      const warpCore = WarpCore.FromConfig(multiProvider, { tokens, options: {} });
-      
-      setWarpCoreInstance(warpCore);
-      return warpCore;
+      // Ensure return value is boolean
+      const success = await selectChain(targetChainId);
+      return !!success;
     } catch (error) {
-      console.error('Failed to initialize WarpCore:', error);
-      return null;
+      console.error('Network switch failed:', error);
+      setError(`Network switch error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      return false;
     }
+  }, [currentChain, getChainId, selectChain]);
+
+  // Auto-switch to source chain
+  useEffect(() => {
+    const current = currentChain();
+    console.log('[WarpFormEffect] Initial URL chain:', initialUrlSourceChain);
+    console.log('[WarpFormEffect] Source Chain State:', sourceChain);
+    console.log('[WarpFormEffect] Current Wallet Chain:', current);
+    console.log('[WarpFormEffect] Provider available:', !!provider);
+
+    if (provider && current !== sourceChain) {
+      console.log(`[WarpFormEffect] Attempting to switch from ${current} to ${sourceChain}`);
+      switchNetwork(sourceChain)
+        .then(success => console.log(`[WarpFormEffect] Switch to ${sourceChain} success: ${success}`))
+        .catch(err => console.error(`[WarpFormEffect] Switch to ${sourceChain} failed:`, err));
+    } else {
+      console.log('[WarpFormEffect] No switch needed or provider not ready.');
+      if (provider && current === sourceChain) console.log('[WarpFormEffect] Reason: Current wallet chain matches source chain.');
+      if (!provider) console.log('[WarpFormEffect] Reason: Provider not available.');
+    }
+  }, [chainId, sourceChain, provider, currentChain, switchNetwork, initialUrlSourceChain]);
+
+  // When account or chain changes, update USDT balance
+  useEffect(() => {
+    if (account && provider) {
+      fetchUsdtBalance();
+    }
+  }, [account, chainId, provider, fetchUsdtBalance]);
+
+  // 添加重置状态的函数
+  const resetState = useCallback(() => {
+    setTxs(null);
+    setError('');
+    setAmount('');
+    setTxStatus('');
+    setLastTxHash('');
+    setLastTxChain('deepbrainchain');
+    setCurrentAllowance('0');
+    setFeeQuotes(null);
+    setGasEstimate({
+      gasLimit: '0',
+      gasPrice: '0',
+      totalGasFee: '0',
+      interchainGas: '0',
+      localGas: '0'
+    });
+    setShowPreview(false);
+    setIsProcessing(false);
+    setIsLoadingFees(false);
+    setIsLoadingBalance(false);
   }, []);
 
-  // 修改 fetchFeeQuotes 函数，添加错误处理
-  const fetchFeeQuotes = useCallback(async (
-    warpCore: WarpCore,
-    destination: string,
-    sender: string,
-    amount?: string
-  ): Promise<FeeQuotes | null> => {
-    if (!warpCore || !destination || !sender) return null;
-    
-    try {
-      console.log('Fetching fee quotes...');
-      
-      const originToken = warpCore.tokens.find((token: any) => token.chainName === sourceChain);
-      if (!originToken) {
-        console.error('Origin token not found');
-        return null;
-      }
+  // 定义 cancelPreview 函数
+  const cancelPreview = useCallback(() => {
+    resetState();
+  }, [resetState]);
 
-      // 添加更详细的参数检查
-      const transferParams = {
-        originToken,
-        destination,
-        sender,
-        ...(amount && { 
-          amount: originToken.amount ? originToken.amount(ethers.utils.parseUnits(amount, 18).toString()) : undefined 
-        })
-      };
+  // 修改 handleSwapChains 函数
+  const handleSwapChains = useCallback(() => {
+    resetState();
+    const newSourceChain = destinationChain;
+    const newDestinationChain = sourceChain;
+    setSourceChain(newSourceChain);
+    setDestinationChain(newDestinationChain);
+  }, [sourceChain, destinationChain, resetState]);
 
-      console.log('Transfer params:', transferParams);
-
-      const fees = await warpCore.estimateTransferRemoteFees(transferParams);
-      console.log('Fee quotes received:', fees);
-      return fees;
-    } catch (error) {
-      // console.error('Failed to fetch fee quotes:', error);
-      setError(error.message);
-      // 返回默认费用而不是 null
-      return {
-        interchainQuote: {
-          amount: '0',
-          decimals: 18
-        },
-        localQuote: {
-          amount: '0', 
-          decimals: 18
-        }
-      };
-    }
-  }, [sourceChain]);
-
-  // 修改 estimateGas 函数，改进错误处理
-  const estimateGas = useCallback(async (transactions: any[], warpCore?: WarpCore) => {
-    if (!provider || !transactions?.length || !account) return;
-    
-    
-    try {
-      let localGasLimit = BigNumber.from(0);
-      let currentGasPrice = await provider.getGasPrice();
-      
-      const localGasFee = localGasLimit.mul(currentGasPrice);
-      let interchainGasFee = '0';
-
-      // 尝试使用 WarpCore 获取跨链费用
-      if (warpCore || warpCoreInstance) {
-        const coreToUse = warpCore || warpCoreInstance;
-        if (coreToUse) {
-          try {
-            const feeQuotes = await fetchFeeQuotes(coreToUse, destinationChain, account, amount);
-            if (feeQuotes && feeQuotes.interchainQuote.amount !== '0') {
-              setFeeQuotes(feeQuotes);
-              interchainGasFee = ethers.utils.formatUnits(
-                feeQuotes.interchainQuote.amount, 
-                feeQuotes.interchainQuote.decimals
-              );
-              console.log('Interchain gas fee from WarpCore:', interchainGasFee);
-            }
-          } catch (warpError) {
-            console.warn('WarpCore fee estimation failed, using fallback:', warpError);
-          }
-        }
-      }
-
-      // 如果 WarpCore 费用估算失败，使用交易 value 作为备用
-      if (interchainGasFee === '0' && transactions[0]?.transaction?.value) {
-        try {
-          if (typeof transactions[0].transaction.value === 'object' && transactions[0].transaction.value.hex) {
-            interchainGasFee = ethers.utils.formatEther(transactions[0].transaction.value.hex);
-          } else {
-            interchainGasFee = ethers.utils.formatEther(transactions[0].transaction.value);
-          }
-          console.log('Interchain gas fee from transaction value:', interchainGasFee);
-        } catch (valueError) {
-          console.warn('Failed to parse transaction value:', valueError);
-          // 使用默认估算值
-          interchainGasFee = '0.001';
-        }
-      }
-
-      const localGasFormatted = ethers.utils.formatEther(localGasFee);
-      
-      setGasEstimate({
-        gasLimit: localGasLimit.toString(),
-        gasPrice: currentGasPrice.toString(),
-        totalGasFee: (parseFloat(localGasFormatted) + parseFloat(interchainGasFee)).toString(),
-        interchainGas: interchainGasFee,
-        localGas: localGasFormatted
-      });
-      
-    } catch (error) {
-      console.error('Gas estimation failed:', error);
-      // 设置默认值而不是显示错误
-      setGasEstimate({
-        gasLimit: '200000',
-        gasPrice: '0',
-        totalGasFee: '0.002',
-        interchainGas: '0.001',
-        localGas: '0.001'
-      });
-    } finally {
-      setIsLoadingFees(false);
-    }
-  }, [provider, account, fetchFeeQuotes, warpCoreInstance, destinationChain, amount]);
-
-    // 初始化 WarpCore
-    useEffect(() => {
-      initializeWarpCore();
-    }, [initializeWarpCore]);
-
-    // 在交易预览中添加 useEffect
-    useEffect(() => {
-      if (txs?.length && warpCoreInstance) {
-        estimateGas(txs, warpCoreInstance);
-      }
-    }, [txs, estimateGas, warpCoreInstance]);
-
-    // 添加 handleMaxAmount 函数
-    const handleMaxAmount = useCallback(() => {
-      if (!usdtBalance || isLoadingBalance) return;
-
-      // 设置最大可用余额，保留6位小数
-      const maxAmount = parseFloat(usdtBalance).toFixed(6);
-      setAmount(maxAmount);
-    }, [usdtBalance, isLoadingBalance]);
-
-    // 添加轮询余额的函数
-    useEffect(() => {
-      if (account && provider) {
-        fetchUsdtBalance();
-        // 每当账户或链变化时，也开始轮询
-        startPollingBalance();
-      }
-    }, [account, chainId, provider, fetchUsdtBalance, startPollingBalance]);
-
-    // 组件卸载时清理轮询
-    useEffect(() => {
-      return () => {
-        setIsPollingBalance(false);
-      };
-    }, []);
-
-    // 添加重置状态的函数
-    const resetState = useCallback(() => {
-      setTxs(null);
-      setError('');
-      setAmount('');
-      setTxStatus('');
-      setLastTxHash('');
-      setLastTxChain('deepbrainchain');
-      setCurrentAllowance('0');
-      setFeeQuotes(null);
-      setGasEstimate({
-        gasLimit: '0',
-        gasPrice: '0',
-        totalGasFee: '0',
-        interchainGas: '0',
-        localGas: '0'
-      });
-      setShowPreview(false);
-      setIsProcessing(false);
-      setIsLoadingFees(false);
-      setIsLoadingBalance(false);
-    }, []);
-
-    // 定义 cancelPreview 函数
-    const cancelPreview = useCallback(() => {
-      resetState();
-    }, [resetState]);
-
-    // 修改 handleSwapChains 函数
-    const handleSwapChains = useCallback(() => {
-      resetState();
-      const newSourceChain = destinationChain;
-      const newDestinationChain = sourceChain;
-      setSourceChain(newSourceChain);
-      setDestinationChain(newDestinationChain);
-    }, [sourceChain, destinationChain, resetState]);
-
-    // 验证合约地址
-    const isKnownContract = useCallback((address: string): boolean => {
-      const KNOWN_CONTRACTS = {
-        [USDT_CONTRACT_ADDRESSES.deepbrainchain]: 'DBC USDT',
-        [USDT_CONTRACT_ADDRESSES.bsc]: 'BSC USDT',
-      };
-      return !!KNOWN_CONTRACTS[address];
-    }, []);
-
-    // 撤销授权函数
-    const revokeApproval = async (tokenAddress: string, spenderAddress: string) => {
-      if (!provider || !account) return;
-
-      try {
-        setIsRevoking(true);
-        const signer = provider.getSigner();
-        const tokenContract = new ethers.Contract(
-          tokenAddress,
-          ['function approve(address spender, uint256 amount) returns (bool)'],
-          signer
-        );
-
-        const revokeTx = await tokenContract.approve(spenderAddress, 0);
-        setTxStatus('Revoking...');
-        await revokeTx.wait();
-
-        setTxStatus('Approval revoked');
-        setCurrentAllowance('0');
-      } catch (e: any) {
-        setError('Revoke approval failed: ' + e.message);
-      } finally {
-        setIsRevoking(false);
-      }
+  // 验证合约地址
+  const isKnownContract = useCallback((address: string): boolean => {
+    const KNOWN_CONTRACTS = {
+      [USDT_CONTRACT_ADDRESSES.deepbrainchain]: 'DBC USDT',
+      [USDT_CONTRACT_ADDRESSES.bsc]: 'BSC USDT',
     };
+    return !!KNOWN_CONTRACTS[address];
+  }, []);
 
-    // 修改 prepareTransaction 函数
-    const prepareTransaction = async () => {
-      setIsLoadingFees(true);
+  // 撤销授权函数
+  const revokeApproval = async (tokenAddress: string, spenderAddress: string) => {
+    if (!provider || !account) return;
 
-      if (!amount || !account || !provider) {
-        setError('Please connect wallet and enter amount');
-        return;
-      }
+    try {
+      setIsRevoking(true);
+      const signer = provider.getSigner();
+      const tokenContract = new ethers.Contract(
+        tokenAddress,
+        ['function approve(address spender, uint256 amount) returns (bool)'],
+        signer
+      );
 
-      if (!warpCoreInstance) {
-        setError('WarpCore not initialized. Please try again.');
-        return;
-      }
+      const revokeTx = await tokenContract.approve(spenderAddress, 0);
+      setTxStatus('Revoking...');
+      await revokeTx.wait();
 
-      // Reset states
-      setError('');
-      setTxs(null);
-      setShowPreview(false);
-      setFeeQuotes(null);
-      setGasEstimate({
-        gasLimit: '0',
-        gasPrice: '0',
-        totalGasFee: '0',
-        interchainGas: '0',
-        localGas: '0'
-      });
+      setTxStatus('Approval revoked');
+      setCurrentAllowance('0');
+    } catch (e: any) {
+      setError('Revoke approval failed: ' + e.message);
+    } finally {
+      setIsRevoking(false);
+    }
+  };
+
+// 修改 prepareTransaction 函数
+const prepareTransaction = async () => {
+  setError('');
+  setIsLoadingFees(true);
+
+  if (!amount || !account || !provider) {
+    setError('Please connect wallet and enter amount');
+    return;
+  }
+
+  if (!warpCoreInstance) {
+    setError('WarpCore not initialized. Please try again.');
+    return;
+  }
+
+  // Reset states
+  setError('');
+  setTxs(null);
+  setShowPreview(false);
+  setFeeQuotes(null);
+  setGasEstimate({
+    gasLimit: '0',
+    gasPrice: '0',
+    totalGasFee: '0',
+    interchainGas: '0',
+    localGas: '0'
+  });
+  
+  try {
+    const amountWei = ethers.utils.parseUnits(amount, 18);
+    
+    // 获取当前链的 USDT 合约地址
+    const tokenAddress = USDT_CONTRACT_ADDRESSES[sourceChain];
+    
+    // 创建代币合约实例用于检查余额和授权状态
+    const tokenContract = new ethers.Contract(
+      tokenAddress,
+      [
+        'function balanceOf(address owner) view returns (uint256)',
+        'function allowance(address owner, address spender) view returns (uint256)',
+        'function approve(address spender, uint256 amount) returns (bool)'
+      ],
+      provider
+    );
+
+    // 检查余额
+    const balance = await tokenContract.balanceOf(account);
+    if (balance.lt(amountWei)) {
+      setError(`Insufficient USDT balance. You have ${ethers.utils.formatUnits(balance, 18)} USDT`);
+      return;
+    }
+
+    // Find token config
+    const originToken = warpCoreInstance.tokens.find((token: any) => token.chainName === sourceChain);
+    if (!originToken) throw new Error('Token not found');
+
+    // 获取跨链交易数据
+    const transactions = await warpCoreInstance.getTransferRemoteTxs({
+      originTokenAmount: originToken.amount(amountWei.toString()),
+      destination: destinationChain,
+      sender: account,
+      recipient: account,
+    });
+
+    // 检查授权状态
+    if (transactions[0]?.transaction?.to) {
+      const spender = transactions[0].transaction.to;
+      const allowance = await tokenContract.allowance(account, spender);
+      setCurrentAllowance(allowance.toString());
       
-      try {
-        const amountWei = ethers.utils.parseUnits(amount, 18);
+      // 如果授权不足，显示警告
+      if (allowance.lt(amountWei)) {
+        setError(`Insufficient allowance. Please approve at least ${amount} USDT for the transfer.`);
         
-        // 获取当前链的 USDT 合约地址
-        const tokenAddress = USDT_CONTRACT_ADDRESSES[sourceChain];
+        // 添加自动授权选项
+        const signer = provider.getSigner();
+        const tokenWithSigner = tokenContract.connect(signer);
         
-        // 创建代币合约实例用于检查余额和授权状态
-        const tokenContract = new ethers.Contract(
-          tokenAddress,
-          [
-            'function balanceOf(address owner) view returns (uint256)',
-            'function allowance(address owner, address spender) view returns (uint256)'
-          ],
-          provider
-        );
-
-        // 检查余额
-        const balance = await tokenContract.balanceOf(account);
-        if (balance.lt(amountWei)) {
-          setError(`Insufficient balance. You have ${ethers.utils.formatUnits(balance, 18)} USDT`);
+        try {
+          setTxStatus('Approving USDT...');
+          const approveTx = await tokenWithSigner.approve(spender, ethers.constants.MaxUint256);
+          await approveTx.wait();
+          setTxStatus('USDT approved successfully!');
+          
+          // 更新授权额度
+          const newAllowance = await tokenContract.allowance(account, spender);
+          setCurrentAllowance(newAllowance.toString());
+        } catch (approveError: any) {
+          setError('Failed to approve USDT: ' + (approveError?.message || 'Unknown error'));
           return;
         }
+      }
+    }
 
-        // Find token config
-        const originToken = warpCoreInstance.tokens.find((token: any) => token.chainName === sourceChain);
-        if (!originToken) throw new Error('Token not found');
+    setTxs(transactions);
+    await estimateGas(transactions, warpCoreInstance);
+    setShowPreview(true);
+    
+  } catch (e: any) {
+    console.error('Transaction preparation failed:', e);
+    
+    // 更详细的错误处理
+    if (e.message.includes('insufficient')) {
+      setError('Insufficient balance for this transfer.');
+    } else if (e.message.includes('network')) {
+      setError('Network error. Please check your connection and try again.');
+    } else {
+      setError(e?.data?.message || e?.message || 'Failed to prepare transaction');
+    }
+  } finally {
+    setIsLoadingFees(false);
+  }
+};
 
-        // 获取跨链交易数据（仅用于估算，不执行）
-        const transactions = await warpCoreInstance.getTransferRemoteTxs({
-          originTokenAmount: originToken.amount(amountWei.toString()),
-          destination: destinationChain,
-          sender: account,
-          recipient: account,
-        });
 
-        console.log('=== Debug Transfer Transactions ===');
-        console.log('Full transactions object:', JSON.stringify(transactions, null, 2));
 
-        // 检查授权状态（仅用于显示，不自动授权）
-        if (transactions && transactions.length > 0) {
-          const tx = transactions[0];
-          const txData = tx.transaction as any;
-          if (txData && txData.to) {
-            try {
-              const allowance = await tokenContract.allowance(account, txData.to);
-              console.log(`Current allowance for spender ${txData.to}: ${ethers.utils.formatUnits(allowance, 18)}`);
-              setCurrentAllowance(allowance.toString());
-              
-              // 如果授权不足，显示警告但不阻止预览
-              if (allowance.lt(amountWei)) {
-                console.warn(`Insufficient allowance. Required: ${ethers.utils.formatUnits(amountWei, 18)}, Current: ${ethers.utils.formatUnits(allowance, 18)}`);
-              }
-            } catch (allowanceError) {
-              console.warn('Could not check allowance:', allowanceError);
-            }
-          }
-        }
-
-        setTxs(transactions);
-        await estimateGas(transactions, warpCoreInstance);
-        setShowPreview(true);
+  // 添加执行交易的函数
+  const executeTransaction = async () => {
+    setError('');
+    if (!txs || !provider || isProcessing) return;
+    
+    setIsProcessing(true);
+    setTxStatus('Executing transaction...');
+    
+    try {
+      const signer = provider.getSigner();
+      for (const tx of txs) {
+        setTxStatus('Executing transaction...');
+        const result = await signer.sendTransaction(tx.transaction);
+        setLastTxChain(currentChain() || 'deepbrainchain');
+        setLastTxHash(result.hash);
         
-      } catch (e: any) {
-        console.error('Transaction preparation failed:', e);
+        // 等待交易被确认并获取收据
+        const receipt = await result.wait();
         
-        // 更详细的错误处理
-        if (e.message.includes('insufficient')) {
-          setError('Insufficient balance for this transfer.');
-        } else if (e.message.includes('network')) {
-          setError('Network error. Please check your connection and try again.');
-        } else {
-          setError(e?.message || 'Failed to prepare transaction');
+        // 检查交易状态
+        if (receipt.status === 0) {
+          // 交易失败
+          throw new Error('Transaction failed. Please check if you have approved enough tokens for the transfer.');
         }
       }
-    };
 
-    const handleConnectWallet = useCallback(() => {
-      sendAnalyticsEvent(InterfaceEventName.CONNECT_WALLET_BUTTON_CLICKED, {
-        element: InterfaceElementName.CONNECT_WALLET_BUTTON,
-      })
-      toggleAccountDrawer()
-    }, [toggleAccountDrawer])
-
-    // 修改执行交易的函数
-    const executeTransaction = async () => {
-      if (!txs || !provider || isProcessing) return;
+      setTxStatus('Transfer completed!');
       
-      setIsProcessing(true);
-      setTxStatus('Executing transaction...');
+      // 交易完成后直接更新余额
+      await fetchUsdtBalance();
       
-      try {
-        const signer = provider.getSigner();
-        for (const tx of txs) {
-          setTxStatus('Executing transaction...');
-          // 使用 any 类型来避免类型检查错误
-          const txData = tx.transaction as any;
-          const result = await signer.sendTransaction(txData);
-          setLastTxChain(currentChain() || 'deepbrainchain');
-          setLastTxHash(result.hash);
-          await result.wait();
-          
-          // 交易完成后立即更新余额
-          await fetchUsdtBalance();
-          // 开始轮询余额
-          startPollingBalance();
-        }
-
-        setTxStatus('Transfer completed!');
-        setTimeout(() => {
-          setAmount('');
-          setIsProcessing(false);
-          setTxStatus('');
-          setShowPreview(false);
-        }, 3000);
-
-      } catch (e: any) {
-        console.error('Transaction failed:', e);
-        setError(e?.data?.message||e?.message || 'Transaction failed');
+      setTimeout(() => {
+        setAmount('');
         setIsProcessing(false);
+        setTxStatus('');
+        setShowPreview(false);
+      }, 3000);
+
+    } catch (e: any) {
+      console.error('Transaction failed:', e);
+      
+      // 解析错误信息
+      let errorMessage = 'Transaction failed';
+      
+      if (e.code === 'CALL_EXCEPTION') {
+        errorMessage = 'Transaction reverted. Please check if you have enough balance and have approved enough tokens.';
+      } else if (e.message.includes('user rejected')) {
+        errorMessage = 'Transaction was rejected by user.';
+      } else if (e.message.includes('insufficient funds')) {
+        errorMessage = 'Insufficient funds for gas fee.';
+      } else {
+        // 尝试从错误对象中提取更多信息
+        errorMessage = e?.data?.message || e?.message || 'Transaction failed';
       }
-    };
+      
+      setError(errorMessage);
+      setIsProcessing(false);
+    }
+  };
 
-    // 在 GasPreviewContainer 中显示费用时，使用新的 gasEstimate 结构：
+  const handleConnectWallet = useCallback(() => {
+    sendAnalyticsEvent(InterfaceEventName.CONNECT_WALLET_BUTTON_CLICKED, {
+      element: InterfaceElementName.CONNECT_WALLET_BUTTON,
+    })
+    toggleAccountDrawer()
+  }, [toggleAccountDrawer])
 
-    // 在 TransactionPreview 中的 gas 显示部分：
-    const renderGasPreview = () => {
-      if (isLoadingFees) {
-        return (
-          <GasPreviewRow>
-            <GasPreviewLabel>Loading fees...</GasPreviewLabel>
-            <GasPreviewValue>-</GasPreviewValue>
-          </GasPreviewRow>
-        );
-      }
+  // 在 GasPreviewContainer 中显示费用时，使用新的 gasEstimate 结构：
 
+  // 在 TransactionPreview 中的 gas 显示部分：
+  const renderGasPreview = () => {
+    if (isLoadingFees) {
       return (
-        <>
-          {gasEstimate.localGas && parseFloat(gasEstimate.localGas) > 0 && (
-            <GasPreviewRow>
-              <GasPreviewLabel>Local Gas</GasPreviewLabel>
-              <GasPreviewValue>
-                {parseFloat(gasEstimate.localGas).toFixed(6)} {currentChain() === 'deepbrainchain' ? 'DBC' : 'BNB'}
-              </GasPreviewValue>
-            </GasPreviewRow>
-          )}
-          
-          {gasEstimate.interchainGas && parseFloat(gasEstimate.interchainGas) > 0 && (
-            <GasPreviewRow>
-              <GasPreviewLabel>Interchain Gas</GasPreviewLabel>
-              <GasPreviewValue>
-                {parseFloat(gasEstimate.interchainGas).toFixed(6)} {currentChain() === 'deepbrainchain' ? 'DBC' : 'BNB'}
-              </GasPreviewValue>
-            </GasPreviewRow>
-          )}
-
-          {gasEstimate.totalGasFee && parseFloat(gasEstimate.totalGasFee) > 0 && (
-            <GasPreviewTotal>
-              <GasPreviewLabel>Total Gas Fee</GasPreviewLabel>
-              <GasPreviewValue>
-                {parseFloat(gasEstimate.totalGasFee).toFixed(6)} {currentChain() === 'deepbrainchain' ? 'DBC' : 'BNB'}
-              </GasPreviewValue>
-            </GasPreviewTotal>
-          )}
-        </>
+        <GasPreviewRow>
+          <GasPreviewLabel>Loading fees...</GasPreviewLabel>
+          <GasPreviewValue>-</GasPreviewValue>
+        </GasPreviewRow>
       );
-    };
+    }
 
     return (
-      <FormWrapper>
-        {title && <FormTitle>{title}</FormTitle>}
+      <>
+        {gasEstimate.localGas && parseFloat(gasEstimate.localGas) > 0 && (
+          <GasPreviewRow>
+            <GasPreviewLabel>Local Gas</GasPreviewLabel>
+            <GasPreviewValue>
+              {parseFloat(gasEstimate.localGas).toFixed(6)} {currentChain() === 'deepbrainchain' ? 'DBC' : 'BNB'}
+            </GasPreviewValue>
+          </GasPreviewRow>
+        )}
+        
+        {gasEstimate.interchainGas && parseFloat(gasEstimate.interchainGas) > 0 && (
+          <GasPreviewRow>
+            <GasPreviewLabel>Interchain Gas</GasPreviewLabel>
+            <GasPreviewValue>
+              {parseFloat(gasEstimate.interchainGas).toFixed(6)} {currentChain() === 'deepbrainchain' ? 'DBC' : 'BNB'}
+            </GasPreviewValue>
+          </GasPreviewRow>
+        )}
 
-        <AutoColumn gap="16px">
-          <ChainSelectorContainer>
-            <ChainSelector>
-              <ChainLabel>From:</ChainLabel>
-              <ChainSelect as="div">
-                <ChainIcon>
-                  <ChainLogo chainId={chainConfigs[sourceChain].chainId} size={24} />
-                </ChainIcon>
-                <ChainName>{chainConfigs[sourceChain].name}</ChainName>
-              </ChainSelect>
-            </ChainSelector>
+        {gasEstimate.totalGasFee && parseFloat(gasEstimate.totalGasFee) > 0 && (
+          <GasPreviewTotal>
+            <GasPreviewLabel>Total Gas Fee</GasPreviewLabel>
+            <GasPreviewValue>
+              {parseFloat(gasEstimate.totalGasFee).toFixed(6)} {currentChain() === 'deepbrainchain' ? 'DBC' : 'BNB'}
+            </GasPreviewValue>
+          </GasPreviewTotal>
+        )}
+      </>
+    );
+  };
 
-            <SwitchButton onClick={handleSwapChains} type="button">
-              <svg viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg" width="20" height="20">
-                <path d="M7.56 17.01L8.68875 15.8812L6.48375 13.6762H11.55V12.1012H6.48375L8.68875 9.89625L7.56 8.7675L3.43875 12.8887L7.56 17.01ZM13.44 12.4425L17.5612 8.32125L13.4662 4.2L12.3112 5.32875L14.5162 7.53375H9.45V9.10875H14.5162L12.3112 11.3137L13.44 12.4425ZM10.5 21C9.065 21 7.70875 20.7244 6.43125 20.1731C5.15375 19.6219 4.03813 18.8694 3.08437 17.9156C2.13062 16.9619 1.37812 15.8462 0.826875 14.5687C0.275625 13.2912 0 11.935 0 10.5C0 9.0475 0.275625 7.6825 0.826875 6.405C1.37812 5.1275 2.13062 4.01625 3.08437 3.07125C4.03813 2.12625 5.15375 1.37812 6.43125 0.826875C7.70875 0.275625 9.065 0 10.5 0C11.9525 0 13.3175 0.275625 14.595 0.826875C15.8725 1.37812 16.9837 2.12625 17.9287 3.07125C18.8738 4.01625 19.6219 5.1275 20.1731 6.405C20.7244 7.6825 21 9.0475 21 10.5C21 11.935 20.7244 13.2912 20.1731 14.5687C19.6219 15.8462 18.8738 16.9619 17.9287 17.9156C16.9837 18.8694 15.8725 19.6219 14.595 20.1731C13.3175 20.7244 11.9525 21 10.5 21ZM10.5 19.425C12.985 19.425 15.0937 18.5544 16.8262 16.8131C18.5587 15.0719 19.425 12.9675 19.425 10.5C19.425 8.015 18.5587 5.90625 16.8262 4.17375C15.0937 2.44125 12.985 1.575 10.5 1.575C8.0325 1.575 5.92812 2.44125 4.18687 4.17375C2.44563 5.90625 1.575 8.015 1.575 10.5C1.575 12.9675 2.44563 15.0719 4.18687 16.8131C5.92812 18.5544 8.0325 19.425 10.5 19.425Z" fill="currentColor"></path>
-              </svg>
-            </SwitchButton>
+  return (
+    <FormWrapper>
+      {title && <FormTitle>{title}</FormTitle>}
 
-            <ChainSelector>
-              <ChainLabel>To:</ChainLabel>
-              <ChainSelect as="div">
-                <ChainIcon>
-                  <ChainLogo chainId={chainConfigs[destinationChain].chainId} size={24} />
-                </ChainIcon>
-                <ChainName>{chainConfigs[destinationChain].name}</ChainName>
-              </ChainSelect>
-            </ChainSelector>
-          </ChainSelectorContainer>
+      <AutoColumn gap="16px">
+        <ChainSelectorContainer>
+          <ChainSelector>
+            <ChainLabel>From:</ChainLabel>
+            <ChainSelect as="div">
+              <ChainIcon>
+                <ChainLogo chainId={chainConfigs[sourceChain].chainId} size={24} />
+              </ChainIcon>
+              <ChainName>{chainConfigs[sourceChain].name}</ChainName>
+            </ChainSelect>
+          </ChainSelector>
 
-          <InputContainer>
-            <InputLabel>Amount</InputLabel>
-            <div style={{ position: 'relative' }}>
-              <InputField
-                type="text"
-                inputMode="decimal"
-                placeholder="Enter USDT amount"
-                value={amount}
-                onChange={(e) => {
-                  const validatedValue = validateAmount(e.target.value, usdtBalance);
-                  setAmount(validatedValue);
-                }}
-              />
-              <MaxButton
-                onClick={handleMaxAmount}
-                disabled={isLoadingBalance || !usdtBalance || parseFloat(usdtBalance) <= 0}
-              >
-                MAX
-              </MaxButton>
-            </div>
-            <BalanceText>
-              Balance:
-              <BalanceAmount>
-                {isLoadingBalance ? 'Loading...' :
-                  !usdtBalance || isNaN(parseFloat(usdtBalance))
-                    ? '0.00 USDT'
-                    : `${parseFloat(usdtBalance).toLocaleString(undefined, {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 6
-                    })} USDT`
-                }
-              </BalanceAmount>
-            </BalanceText>
-            <ContractLink>
-              DBC EVM USDT Contract:
-              <a
-                href={getContractExplorerUrl('deepbrainchain', USDT_CONTRACT_ADDRESSES['deepbrainchain'])}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <ContractAddress>
-                  {USDT_CONTRACT_ADDRESSES.deepbrainchain}
-                </ContractAddress>
-                <ExternalLink size={14} />
-              </a>
-            </ContractLink>
-          </InputContainer>
+          <SwitchButton onClick={handleSwapChains} type="button">
+            <svg viewBox="0 0 21 21" xmlns="http://www.w3.org/2000/svg" width="20" height="20">
+              <path d="M7.56 17.01L8.68875 15.8812L6.48375 13.6762H11.55V12.1012H6.48375L8.68875 9.89625L7.56 8.7675L3.43875 12.8887L7.56 17.01ZM13.44 12.4425L17.5612 8.32125L13.4662 4.2L12.3112 5.32875L14.5162 7.53375H9.45V9.10875H14.5162L12.3112 11.3137L13.44 12.4425ZM10.5 21C9.065 21 7.70875 20.7244 6.43125 20.1731C5.15375 19.6219 4.03813 18.8694 3.08437 17.9156C2.13062 16.9619 1.37812 15.8462 0.826875 14.5687C0.275625 13.2912 0 11.935 0 10.5C0 9.0475 0.275625 7.6825 0.826875 6.405C1.37812 5.1275 2.13062 4.01625 3.08437 3.07125C4.03813 2.12625 5.15375 1.37812 6.43125 0.826875C7.70875 0.275625 9.065 0 10.5 0C11.9525 0 13.3175 0.275625 14.595 0.826875C15.8725 1.37812 16.9837 2.12625 17.9287 3.07125C18.8738 4.01625 19.6219 5.1275 20.1731 6.405C20.7244 7.6825 21 9.0475 21 10.5C21 11.935 20.7244 13.2912 20.1731 14.5687C19.6219 15.8462 18.8738 16.9619 17.9287 17.9156C16.9837 18.8694 15.8725 19.6219 14.595 20.1731C13.3175 20.7244 11.9525 21 10.5 21ZM10.5 19.425C12.985 19.425 15.0937 18.5544 16.8262 16.8131C18.5587 15.0719 19.425 12.9675 19.425 10.5C19.425 8.015 18.5587 5.90625 16.8262 4.17375C15.0937 2.44125 12.985 1.575 10.5 1.575C8.0325 1.575 5.92812 2.44125 4.18687 4.17375C2.44563 5.90625 1.575 8.015 1.575 10.5C1.575 12.9675 2.44563 15.0719 4.18687 16.8131C5.92812 18.5544 8.0325 19.425 10.5 19.425Z" fill="currentColor"></path>
+            </svg>
+          </SwitchButton>
 
-          {account && <RecipientInfo>
-            <span>Transfer to your address:</span>
-            <AddressText>
-              {`${account.slice(0, 6)}...${account.slice(-4)}`}
-            </AddressText>
-          </RecipientInfo>}
+          <ChainSelector>
+            <ChainLabel>To:</ChainLabel>
+            <ChainSelect as="div">
+              <ChainIcon>
+                <ChainLogo chainId={chainConfigs[destinationChain].chainId} size={24} />
+              </ChainIcon>
+              <ChainName>{chainConfigs[destinationChain].name}</ChainName>
+            </ChainSelect>
+          </ChainSelector>
+        </ChainSelectorContainer>
 
-          {/* Transaction status display */}
-          {txStatus && (
-            <TransactionStatus
-              status={
-                txStatus.includes('failed') || txStatus.includes('Failed') ? 'error' :
-                  txStatus.includes('success') || txStatus.includes('completed') ? 'success' :
-                    'pending'
-              }
+        <InputContainer>
+          <InputLabel>Amount</InputLabel>
+          <div style={{ position: 'relative' }}>
+            <InputField
+              type="text"
+              inputMode="decimal"
+              placeholder="Enter USDT amount"
+              value={amount}
+              onChange={(e) => {
+                const validatedValue = validateAmount(e.target.value, usdtBalance);
+                setAmount(validatedValue);
+              }}
+            />
+            <MaxButton
+              onClick={handleMaxAmount}
+              disabled={isLoadingBalance || !usdtBalance || parseFloat(usdtBalance) <= 0}
             >
-              <div>{txStatus}</div>
-              {lastTxHash && (
-                <div>
-                  Transaction Hash: <TransactionLink
-                    href={getExplorerUrl(currentChain() || 'deepbrainchain', lastTxHash)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {lastTxHash.slice(0, 6)}...{lastTxHash.slice(-4)}
-                    <ExternalLink size={12} style={{ marginLeft: '4px' }} />
-                  </TransactionLink>
-                </div>
+              MAX
+            </MaxButton>
+          </div>
+          <BalanceText>
+            Balance:
+            <BalanceAmount>
+              {isLoadingBalance ? 'Loading...' :
+                !usdtBalance || isNaN(parseFloat(usdtBalance))
+                  ? '0.00 USDT'
+                  : `${parseFloat(usdtBalance).toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 6
+                  })} USDT`
+              }
+            </BalanceAmount>
+          </BalanceText>
+          <ContractLink>
+            DBC EVM USDT Contract:
+            <a
+              href={getContractExplorerUrl('deepbrainchain', USDT_CONTRACT_ADDRESSES['deepbrainchain'])}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <ContractAddress>
+                {USDT_CONTRACT_ADDRESSES.deepbrainchain}
+              </ContractAddress>
+              <ExternalLink size={14} />
+            </a>
+          </ContractLink>
+        </InputContainer>
+
+        {account && <RecipientInfo>
+          <span>Transfer to your address:</span>
+          <AddressText>
+            {`${account.slice(0, 6)}...${account.slice(-4)}`}
+          </AddressText>
+        </RecipientInfo>}
+
+        {/* Transaction status display */}
+        {txStatus && (
+          <TransactionStatus
+            status={
+              txStatus.includes('failed') || txStatus.includes('Failed') ? 'error' :
+                txStatus.includes('success') || txStatus.includes('completed') ? 'success' :
+                  'pending'
+            }
+          >
+            <div>{txStatus}</div>
+            {lastTxHash && (
+              <div>
+                Transaction Hash: <TransactionLink
+                  href={getExplorerUrl(currentChain() || 'deepbrainchain', lastTxHash)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {lastTxHash.slice(0, 6)}...{lastTxHash.slice(-4)}
+                  <ExternalLink size={12} style={{ marginLeft: '4px' }} />
+                </TransactionLink>
+              </div>
+            )}
+          </TransactionStatus>
+        )}
+
+        {/* Error message display */}
+        {error && !error.includes('Transaction Hash') && <ErrorText>{error}</ErrorText>}
+
+        {/* {currentAllowance !== '0' && (
+          <AllowanceDisplay>
+            <span>Current Allowance: {ethers.utils.formatUnits(currentAllowance, 18)} USDT</span>
+            <RevokeButton
+              onClick={() => revokeApproval(
+                sourceChain === 'deepbrainchain'
+                  ? USDT_CONTRACT_ADDRESSES.deepbrainchain
+                  : USDT_CONTRACT_ADDRESSES.bsc,
+                txs?.[0]?.transaction?.to || ''
               )}
-            </TransactionStatus>
-          )}
+              disabled={isRevoking}
+            >
+              {isRevoking ? 'Revoking...' : 'Revoke Approval'}
+            </RevokeButton>
+          </AllowanceDisplay>
+        )} */}
 
-          {/* Error message display */}
-          {error && !error.includes('Transaction Hash') && <ErrorText>{error}</ErrorText>}
+        {showPreview && txs ? (
+          <>
+            <TransactionPreview>
+              <ThemedText.SubHeaderSmall style={{ marginBottom: '1rem' }}>
+                Transaction Preview
+              </ThemedText.SubHeaderSmall>
+              
+              <GasPreviewRow>
+                <GasPreviewLabel>Amount</GasPreviewLabel>
+                <GasPreviewValue>{amount} USDT</GasPreviewValue>
+              </GasPreviewRow>
+              
+              <GasPreviewRow>
+                <GasPreviewLabel>From</GasPreviewLabel>
+                <GasPreviewValue>{chainConfigs[sourceChain].name}</GasPreviewValue>
+              </GasPreviewRow>
+              
+              <GasPreviewRow>
+                <GasPreviewLabel>To</GasPreviewLabel>
+                <GasPreviewValue>{chainConfigs[destinationChain].name}</GasPreviewValue>
+              </GasPreviewRow>
 
-          {/* {currentAllowance !== '0' && (
-            <AllowanceDisplay>
-              <span>Current Allowance: {ethers.utils.formatUnits(currentAllowance, 18)} USDT</span>
-              <RevokeButton
-                onClick={() => revokeApproval(
-                  sourceChain === 'deepbrainchain'
-                    ? USDT_CONTRACT_ADDRESSES.deepbrainchain
-                    : USDT_CONTRACT_ADDRESSES.bsc,
-                  txs?.[0]?.transaction?.to || ''
-                )}
-                disabled={isRevoking}
-              >
-                {isRevoking ? 'Revoking...' : 'Revoke Approval'}
-              </RevokeButton>
-            </AllowanceDisplay>
-          )} */}
-
-          {showPreview && txs ? (
-            <>
-              <TransactionPreview>
-                <ThemedText.SubHeaderSmall style={{ marginBottom: '1rem' }}>
-                  Transaction Preview
-                </ThemedText.SubHeaderSmall>
-                
-                <GasPreviewRow>
-                  <GasPreviewLabel>Amount</GasPreviewLabel>
-                  <GasPreviewValue>{amount} USDT</GasPreviewValue>
-                </GasPreviewRow>
-                
-                <GasPreviewRow>
-                  <GasPreviewLabel>From</GasPreviewLabel>
-                  <GasPreviewValue>{chainConfigs[sourceChain].name}</GasPreviewValue>
-                </GasPreviewRow>
-                
-                <GasPreviewRow>
-                  <GasPreviewLabel>To</GasPreviewLabel>
-                  <GasPreviewValue>{chainConfigs[destinationChain].name}</GasPreviewValue>
-                </GasPreviewRow>
-
-                {gasEstimate.totalGasFee && parseFloat(gasEstimate.totalGasFee) > 0 && (
-                  <>
+              {gasEstimate.totalGasFee && parseFloat(gasEstimate.totalGasFee) > 0 && (
+                <>
+                  <GasPreviewRow>
+                    <GasPreviewLabel>Local Gas</GasPreviewLabel>
+                    <GasPreviewValue>
+                      {parseFloat(gasEstimate.localGas).toFixed(6)} {currentChain() === 'deepbrainchain' ? 'DBC' : 'BNB'}
+                    </GasPreviewValue>
+                  </GasPreviewRow>
+                  
+                  {gasEstimate.interchainGas && parseFloat(gasEstimate.interchainGas) > 0 && (
                     <GasPreviewRow>
-                      <GasPreviewLabel>Local Gas</GasPreviewLabel>
+                      <GasPreviewLabel>Interchain Gas</GasPreviewLabel>
                       <GasPreviewValue>
-                        {parseFloat(gasEstimate.localGas).toFixed(6)} {currentChain() === 'deepbrainchain' ? 'DBC' : 'BNB'}
+                        {parseFloat(gasEstimate.interchainGas).toFixed(6)} {currentChain() === 'deepbrainchain' ? 'DBC' : 'BNB'}
                       </GasPreviewValue>
                     </GasPreviewRow>
-                    
-                    {gasEstimate.interchainGas && parseFloat(gasEstimate.interchainGas) > 0 && (
-                      <GasPreviewRow>
-                        <GasPreviewLabel>Interchain Gas</GasPreviewLabel>
-                        <GasPreviewValue>
-                          {parseFloat(gasEstimate.interchainGas).toFixed(6)} {currentChain() === 'deepbrainchain' ? 'DBC' : 'BNB'}
-                        </GasPreviewValue>
-                      </GasPreviewRow>
-                    )}
+                  )}
 
-                    <GasPreviewTotal>
-                      <GasPreviewLabel>Total Gas Fee</GasPreviewLabel>
-                      <GasPreviewValue>
-                        {parseFloat(gasEstimate.totalGasFee).toFixed(6)} {currentChain() === 'deepbrainchain' ? 'DBC' : 'BNB'}
-                      </GasPreviewValue>
-                    </GasPreviewTotal>
-                  </>
-                )}
-              </TransactionPreview>
+                  <GasPreviewTotal>
+                    <GasPreviewLabel>Total Gas Fee</GasPreviewLabel>
+                    <GasPreviewValue>
+                      {parseFloat(gasEstimate.totalGasFee).toFixed(6)} {currentChain() === 'deepbrainchain' ? 'DBC' : 'BNB'}
+                    </GasPreviewValue>
+                  </GasPreviewTotal>
+                </>
+              )}
+            </TransactionPreview>
 
-              <RowBetween style={{ gap: '1rem', marginTop: '1rem' }}>
-                <CancelButton onClick={cancelPreview} disabled={isProcessing}>
-                  Cancel
-                </CancelButton>
-                <ActionButton onClick={executeTransaction} disabled={isProcessing}>
-                  {isProcessing ? 'Processing...' : 'Confirm Transaction'}
-                </ActionButton>
-              </RowBetween>
-            </>
+            <RowBetween style={{ gap: '1rem', marginTop: '1rem' }}>
+              <CancelButton onClick={cancelPreview} disabled={isProcessing}>
+                Cancel
+              </CancelButton>
+              <ActionButton onClick={executeTransaction} disabled={isProcessing}>
+                {isProcessing ? 'Processing...' : 'Confirm Transaction'}
+              </ActionButton>
+            </RowBetween>
+          </>
+        ) : (
+          account ? (
+            <ActionButton onClick={prepareTransaction} disabled={isLoadingFees || !amount || parseFloat(amount) <= 0}>
+              {isLoadingFees ? 'Preparing...' : 'Cross-Chain USDT'}
+            </ActionButton>
           ) : (
-            account ? (
-              <ActionButton onClick={prepareTransaction} disabled={isLoadingFees || !amount || parseFloat(amount) <= 0}>
-                {isLoadingFees ? 'Preparing...' : 'Cross-Chain USDT'}
-              </ActionButton>
-            ) : (
-              <ActionButton onClick={handleConnectWallet}>
-                Connect Wallet
-              </ActionButton>
-            )
-          )}
-        </AutoColumn>
-      </FormWrapper>
-    );
-  }
+            <ActionButton onClick={handleConnectWallet}>
+              Connect Wallet
+            </ActionButton>
+          )
+        )}
+      </AutoColumn>
+    </FormWrapper>
+  );
+}
