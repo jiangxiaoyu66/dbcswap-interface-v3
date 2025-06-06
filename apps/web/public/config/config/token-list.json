@@ -10,7 +10,7 @@
   "tokens": [
     {
       "address": "0x16d83F6B17914a4e88436251589194CA5AC0f452",
-      "name": "XAIAgent Token",
+      "name": "XAIAgent",
       "symbol": "XAA",
       "chainId": 19880818,
       "decimals": 18,
@@ -18,7 +18,7 @@
     },
     {
       "address": "0x2282D5DA5f39Bb7B90cef532341FBB998A1d0965",
-      "name": "StyleID Token",
+      "name": "StyleID",
       "symbol": "STID",
       "chainId": 19880818,
       "decimals": 18,
@@ -26,7 +26,7 @@
     },
     {
       "address": "0x6f8F70C74FE7d7a61C8EAC0f35A4Ba39a51E1BEe",
-      "name": "DeepLink Token",
+      "name": "DeepLink",
       "symbol": "DLC",
       "chainId": 19880818,
       "decimals": 18,
@@ -34,7 +34,7 @@
     },
     {
       "address": "0x07D325030dA1A8c1f96C414BFFbe4fBD539CED45",
-      "name": "SuperImage Token",
+      "name": "SuperImage",
       "symbol": "SIC",
       "chainId": 19880818,
       "decimals": 18,
@@ -42,7 +42,7 @@
     },
     {
       "address": "0xD78F268291f3fe244CB965C768EDb515b529eD02",
-      "name": "LogoLift Token",
+      "name": "LogoLift",
       "symbol": "LOGO",
       "chainId": 19880818,
       "decimals": 18,

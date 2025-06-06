@@ -17,6 +17,8 @@ import { sendAnalyticsEvent } from 'analytics'
 import { InterfaceEventName, InterfaceElementName } from '@ubeswap/analytics-events'
 import { BigNumber } from 'ethers';
 import { ThemedText } from 'theme/components';
+import { isWebAndroid, isWebIOS } from 'uniswap/src/utils/platform';
+import { invokeWalletForSignature } from 'connection/WalletHelper';
 
 // Update debug messages
 const NETWORK_SWITCH_DEBUG = true;
@@ -945,6 +947,18 @@ interface TokenContract extends ethers.Contract {
   name(): Promise<string>;
 }
 
+// 定义 FeeQuotes 类型
+interface FeeQuotes {
+  interchainQuote: {
+    amount: string;
+    decimals: number;
+  };
+  localQuote: {
+    amount: string;
+    decimals: number;
+  };
+}
+
 export function TransferTokenForm({ title }: { title?: string }) {
   const [searchParams] = useSearchParams();
   const initialUrlSourceChain = searchParams.get('chain');
@@ -978,7 +992,7 @@ export function TransferTokenForm({ title }: { title?: string }) {
   const [isLoadingFees, setIsLoadingFees] = useState<boolean>(false);
   const [warpCoreInstance, setWarpCoreInstance] = useState<WarpCore | null>(null);
 
-  const { provider, account, chainId } = useWeb3React<Web3Provider>();
+  const { provider, account, chainId, connector } = useWeb3React<Web3Provider>();
   const selectChain = useSelectChain();
   const [, toggleAccountDrawer] = useAccountDrawer()
 
@@ -1106,7 +1120,18 @@ const fetchFeeQuotes = useCallback(async (
 
     const fees = await warpCore.estimateTransferRemoteFees(transferParams);
     console.log('Fee quotes received:', fees);
-    return fees;
+    
+    // 转换为我们定义的 FeeQuotes 类型
+    return {
+      interchainQuote: {
+        amount: fees.interchainQuote?.amount?.toString() || '0',
+        decimals: 18
+      },
+      localQuote: {
+        amount: fees.localQuote?.amount?.toString() || '0', 
+        decimals: 18
+      }
+    };
   } catch (error) {
     console.error('Failed to fetch fee quotes:', error);
     // 返回默认费用而不是 null
@@ -1404,6 +1429,9 @@ const estimateGas = useCallback(async (transactions: any[], warpCore?: WarpCore)
         signer
       );
 
+      // 在移动端环境下唤起钱包
+      await invokeWalletForSignature(connector, provider, account);
+
       const revokeTx = await tokenContract.approve(spenderAddress, 0);
       setTxStatus('Revoking...');
       await revokeTx.wait();
@@ -1482,8 +1510,8 @@ const prepareTransaction = async () => {
     });
 
     // 检查授权状态
-    if (transactions[0]?.transaction?.to) {
-      const spender = transactions[0].transaction.to;
+    if (transactions[0]?.transaction && typeof transactions[0].transaction === 'object' && 'to' in transactions[0].transaction) {
+      const spender = transactions[0].transaction.to as string;
       const allowance = await tokenContract.allowance(account, spender);
       setCurrentAllowance(allowance.toString());
       
@@ -1497,6 +1525,10 @@ const prepareTransaction = async () => {
         
         try {
           setTxStatus('Approving USDT...');
+          
+          // 在移动端环境下唤起钱包
+          await invokeWalletForSignature(connector, provider, account);
+          
           const approveTx = await tokenWithSigner.approve(spender, ethers.constants.MaxUint256);
           await approveTx.wait();
           setTxStatus('USDT approved successfully!');
@@ -1543,6 +1575,10 @@ const prepareTransaction = async () => {
     
     try {
       const signer = provider.getSigner();
+      
+      // 在移动端环境下唤起钱包
+      await invokeWalletForSignature(connector, provider, account);
+      
       for (const tx of txs) {
         setTxStatus('Executing transaction...');
         const result = await signer.sendTransaction(tx.transaction);
