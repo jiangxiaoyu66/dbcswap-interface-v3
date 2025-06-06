@@ -19,6 +19,7 @@ export function SwapAndLimitContextProvider({
 }>) {
   const { chainId: connectedChainId } = useWeb3React()
   const [currentTab, setCurrentTab] = useState<SwapTab>(SwapTab.Swap)
+  const [isChainSwitching, setIsChainSwitching] = useState(false)
 
   const [currencyState, setCurrencyState] = useState<CurrencyState>({
     inputCurrency: initialInputCurrency,
@@ -35,6 +36,14 @@ export function SwapAndLimitContextProvider({
 
   const previousConnectedChainId = usePrevious(connectedChainId)
   const previousPrefilledState = usePrevious(prefilledState)
+
+  useEffect(() => {
+    if (chainId && connectedChainId !== chainId) {
+      setIsChainSwitching(true)
+      return
+    }
+    setIsChainSwitching(false)
+  }, [chainId, connectedChainId])
 
   useEffect(() => {
     const combinedCurrencyState = { ...currencyState, ...prefilledState }
@@ -66,8 +75,13 @@ export function SwapAndLimitContextProvider({
       setCurrentTab,
       prefilledState,
       chainId,
+      isChainSwitching,
     }
-  }, [currencyState, setCurrencyState, currentTab, setCurrentTab, prefilledState, chainId])
+  }, [currencyState, setCurrencyState, currentTab, setCurrentTab, prefilledState, chainId, isChainSwitching])
+
+  if (isChainSwitching) {
+    return <div>正在切换到目标链...</div>
+  }
 
   return <SwapAndLimitContext.Provider value={value}>{children}</SwapAndLimitContext.Provider>
 }
@@ -76,8 +90,6 @@ export function SwapContextProvider({ children }: { children: React.ReactNode })
   const [swapState, setSwapState] = useState<SwapState>({
     ...initialSwapState,
   })
-  const derivedSwapInfo = useDerivedSwapInfo(swapState)
-
   const { chainId: connectedChainId } = useWeb3React()
   const previousConnectedChainId = usePrevious(connectedChainId)
 
@@ -88,5 +100,9 @@ export function SwapContextProvider({ children }: { children: React.ReactNode })
     }
   }, [connectedChainId, previousConnectedChainId])
 
-  return <SwapContext.Provider value={{ swapState, setSwapState, derivedSwapInfo }}>{children}</SwapContext.Provider>
+  if (!connectedChainId) {
+    return null
+  }
+
+  return <SwapContext.Provider value={{ swapState, setSwapState, derivedSwapInfo: useDerivedSwapInfo(swapState) }}>{children}</SwapContext.Provider>
 }

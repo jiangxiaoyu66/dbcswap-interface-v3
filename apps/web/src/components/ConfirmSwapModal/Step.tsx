@@ -177,11 +177,11 @@ export function Step({ stepStatus, stepDetails }: { stepStatus: StepStatus; step
             stepDetails={stepDetails}
             isTimeRemaining={secondsRemaining === null || secondsRemaining > 0}
           />
-          {stepStatus === StepStatus.ACTIVE && stepDetails.learnMoreLinkHref && (
+          {/* {stepStatus === StepStatus.ACTIVE && stepDetails.learnMoreLinkHref && (
             <StyledExternalLink href={stepDetails.learnMoreLinkHref || ''}>
               {stepDetails.learnMoreLinkText}
             </StyledExternalLink>
-          )}
+          )} */}
         </Column>
       </Row>
       {secondsRemaining !== null && <Timer secondsRemaining={secondsRemaining} />}

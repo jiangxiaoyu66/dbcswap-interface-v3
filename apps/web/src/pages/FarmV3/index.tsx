@@ -527,21 +527,21 @@ export default function FarmV3() {
           <div>
             <p>
               This website-hosted user interface (this &quot;Interface&quot;) is an open source frontend software portal
-              to the Ubeswap protocol, a decentralized and community-driven collection of blockchain-enabled smart
-              contracts and tools (the &quot;Ubeswap Protocol&quot;). This Interface and the Ubeswap Protocol are made
+              to the DBCSwap protocol, a decentralized and community-driven collection of blockchain-enabled smart
+              contracts and tools (the &quot;DBCSwap Protocol&quot;). This Interface and the DBCSwap Protocol are made
               available by QW3 Labs, however all transactions conducted on the protocol are run by related
-              permissionless smart contracts. As the Interface is open-sourced and the Ubeswap Protocol and its related
+              permissionless smart contracts. As the Interface is open-sourced and the DBCSwap Protocol and its related
               smart contracts are accessible by any user, entity or third party, there are a number of third party web
-              and mobile user-interfaces that allow for interaction with the Ubeswap Protocol.
+              and mobile user-interfaces that allow for interaction with the DBCSwap Protocol.
             </p>
             <p>
               THIS INTERFACE AND THE UBESWAP PROTOCOL ARE PROVIDED &quot;AS IS&quot;, AT YOUR OWN RISK, AND WITHOUT
-              WARRANTIES OF ANY KIND. QW3 Labs, does not provide, own, or control the Ubeswap Protocol or any
+              WARRANTIES OF ANY KIND. QW3 Labs, does not provide, own, or control the DBCSwap Protocol or any
               transactions conducted on the protocol or via related smart contracts. By using or accessing this
-              Interface or the Ubeswap Protocol and related smart contracts, you agree that no developer or entity
-              involved in creating, deploying or maintaining this Interface or the Ubeswap Protocol will be liable for
+              Interface or the DBCSwap Protocol and related smart contracts, you agree that no developer or entity
+              involved in creating, deploying or maintaining this Interface or the DBCSwap Protocol will be liable for
               any claims or damages whatsoever associated with your use, inability to use, or your interaction with
-              other users of, this Interface or the Ubeswap Protocol, including any direct, indirect, incidental,
+              other users of, this Interface or the DBCSwap Protocol, including any direct, indirect, incidental,
               special, exemplary, punitive or consequential damages, or loss of profits, digital assets, tokens, or
               anything else of value.
             </p>

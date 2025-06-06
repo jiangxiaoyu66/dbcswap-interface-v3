@@ -69,9 +69,46 @@ const CELO_ADDRESSES: ChainAddresses = {
   mixedRouteQuoterV1Address: '0x1f34a843832044A085bB9cAe48cc7294D5478FAA',
 }
 
+
+const DBC_ADDRESSES: ChainAddresses | any = {
+  "v3CoreFactoryAddress": "0x34A7E09D8810d2d8620700f82b471879223F1628",
+  "multicallAddress": "0xB6De1eDDC64aEFBCCf8B910d320ab03585E7a0a2",
+  "quoterAddress": "0xE9d6828536807721317754a13F1624AA8164b2Be",
+  // "multicall2Address": "0xB6De1eDDC64aEFBCCf8B910d320ab03585E7a0a2",
+  // "proxyAdminAddress": "0xAaffa0Ab0419BE44B838ccCE64e2884283BF5e4F",
+  "tickLensAddress": "0xb2402c70eF790435b71b169825A714434d8E4c71",
+  // "nftDescriptorLibraryAddressV1_3_0": "0x2C528C1985cfed7918cC15854B08934197Fd64DC",
+  // "nonfungibleTokenPositionDescriptorAddressV1_3_0": "0x829D068ac6c8D229abb87FAE0528d6A8CCcE8E88",
+  // "descriptorProxyAddress": "0x15cdaFBBE654CAc11622aa83cDCb38542357A7b3",
+  "nonfungiblePositionManagerAddress": "0xfCE792dd602fA70143e43e7556e8a92D762bA9FC",
+  "v3MigratorAddress": "0xF89F7E6526074C977cD40f7566fA29eF16DbcA4b",
+  // "v3StakerAddress": "0x349762bdF5C1444FFE6A2228f1A488b69EE897D0",
+  "quoterV2Address": "0xE9d6828536807721317754a13F1624AA8164b2Be",
+  // "swapRouter02": "0x0348B9867862Aa638df274F0F861a677E0462Ea1"
+}
+
+// BSC (BNB Chain) 地址配置
+ const BNB_ADDRESSES: ChainAddresses = {
+  v3CoreFactoryAddress: '0xdB1d10011AD0Ff90774D0C6Bb92e5C5c8b4461F7',
+  multicallAddress: '0x963Df249eD09c358A4819E39d9Cd5736c3087184',
+  quoterAddress: '0x78D78E420Da98ad378D7799bE8f4AF69033EB077',
+  v3MigratorAddress: '0x32681814957e0C13117ddc0c2aba232b5c9e760f',
+  nonfungiblePositionManagerAddress: '0x7b8A01B39D58278b5DE7e48c8449c9f4F5170613',
+  tickLensAddress: '0xD9270014D396281579760619CCf4c3af0501A47C',
+  swapRouter02Address: '0xB971eF87ede563556b2ED4b1C0b0019111Dd85d2',
+
+  // v4PoolManagerAddress: '0x28e2ea090877bf75740558f6bfb36a5ffee9e9df',
+  // v4PositionManagerAddress: '0x7a4a5c919ae2541aed11041a1aeee68f1287f95b',
+  // v4StateView: '0xd13dd3d6e93f276fafc9db9e6bb47c1180aee0c4',
+  // v4QuoterAddress: '0x9f75dd27d6664c475b90e105573e550ff69437b0',
+}
+
+
 export const CHAIN_TO_ADDRESSES_MAP: Record<SupportedChainsType, ChainAddresses> = {
   [ChainId.CELO]: CELO_ADDRESSES,
   [ChainId.CELO_ALFAJORES]: CELO_ADDRESSES,
+  [ChainId.DBC]: DBC_ADDRESSES,
+  [ChainId.BNB]: BNB_ADDRESSES,
 }
 
 /* V3 Contract Addresses */
@@ -136,6 +173,7 @@ export const QUOTER_ADDRESSES: AddressMap = {
 }
 
 export const NONFUNGIBLE_POSITION_MANAGER_ADDRESSES: AddressMap = {
+
   ...SUPPORTED_CHAINS.reduce<AddressMap>((memo, chainId) => {
     const nonfungiblePositionManagerAddress = CHAIN_TO_ADDRESSES_MAP[chainId].nonfungiblePositionManagerAddress
     if (nonfungiblePositionManagerAddress) {
@@ -181,7 +219,7 @@ export const SWAP_ROUTER_02_ADDRESSES = (chainId: number) => {
 
 export const UNIVERSAL_ROUTER_ADDRESS = (chainId: number) => {
   if (SUPPORTED_CHAINS.includes(chainId)) {
-    return '0x3C255DED9B25f0BFB4EF1D14234BD2514d7A7A0d'
+    return '0x615b6bb562565224E2b810Dc0277ed0777e149E8'
   }
   return ''
 }
@@ -205,3 +243,4 @@ export const OLD_UBE_ROMULUS_ADDRESSES: AddressMap = {
 export const UBE_VOTABLE_STAKE_ADDRESSES: AddressMap = {
   [ChainId.CELO]: '0x388D611A57Ac15dCC1B937f287E5E908Ba5ff5c9',
 }
+

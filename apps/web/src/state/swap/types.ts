@@ -80,6 +80,7 @@ type SwapAndLimitContextType = {
   // The chainId of the page/context - can be different from the connected Chain ID if the
   // page is displaying content for a different chain
   chainId?: ChainId
+  isChainSwitching: boolean
 }
 
 export const SwapAndLimitContext = createContext<SwapAndLimitContextType>({
@@ -95,6 +96,7 @@ export const SwapAndLimitContext = createContext<SwapAndLimitContextType>({
   chainId: ChainId.CELO,
   currentTab: SwapTab.Swap,
   setCurrentTab: () => undefined,
+  isChainSwitching: false,
 })
 
 export interface SerializedCurrencyState {

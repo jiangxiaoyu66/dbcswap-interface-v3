@@ -1,0 +1,31 @@
+{
+  "name": "DBCSwap",
+  "logoURI": "https://raw.githubusercontent.com/ubeswap/default-token-list/master/logo.svg",
+  "keywords": ["deepchain"],
+  "timestamp": "2024-11-25T08:43:31.145Z",
+  "tokens": [ 
+     {
+    "address": "0x18386F368e7C211E84324337fA8f62d5093272E1",
+    "name": "DGC",
+    "symbol": "DGC",
+    "chainId": 19880818,
+    "decimals": 18,
+    "logoURI": "https://raw.githubusercontent.com/ubeswap/default-token-list/master/assets/asset_UBE.png"
+  },
+  {
+    "address": "0x624EB4E6e8A9ED8CC31b4Bb8d5532C27118A77CB",
+    "name": "SIC",
+    "symbol": "SIC",
+    "chainId": 19880818,
+    "decimals": 18,
+    "logoURI": "https://raw.githubusercontent.com/ubeswap/default-token-list/master/bnb-logo.png"
+  }
+
+
+],
+  "version": {
+    "major": 4,
+    "minor": 1,
+    "patch": 69
+  }
+}

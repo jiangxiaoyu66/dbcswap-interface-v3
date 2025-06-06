@@ -64,16 +64,16 @@ const ConnectWalletButton = styled(ButtonPrimary)`
 
 function getProfilePageTitle(account: string | undefined, ENSName: string | null | undefined): string {
   if (!account) {
-    return t`NFT collection on Ubeswap`
+    return t`NFT collection on DBCSwap`
   }
 
   if (!ENSName) {
-    return t(`NFT collection on Ubeswap - {{address}}`, {
+    return t(`NFT collection on DBCSwap - {{address}}`, {
       address: shortenAddress(account),
     })
   }
 
-  return t(`{{name}}'s NFT collection on Ubeswap`, {
+  return t(`{{name}}'s NFT collection on DBCSwap`, {
     name: ENSName,
   })
 }

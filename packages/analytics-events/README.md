@@ -1,4 +1,4 @@
-# Ubeswap Analytics Events
+# DBCSwap Analytics Events
 
 This package contains constants and definitions that is used with `@ubeswap/analytics`.
 This is forked from `@uniswap/analytics-events`

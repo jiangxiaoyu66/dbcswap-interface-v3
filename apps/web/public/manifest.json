@@ -3,7 +3,7 @@
   "display": "standalone",
   "homepage_url": "https://app.ubeswap.org",
   "providedBy": {
-    "name": "Ubeswap",
+    "name": "DBCSwap",
     "url": "https://ubeswap.org"
   },
   "icons": [
@@ -21,10 +21,10 @@
     }
   ],
   "orientation": "portrait",
-  "name": "Ubeswap",
-  "description": "Swap or provide liquidity on the Ubeswap Protocol",
+  "name": "DBCSwap",
+  "description": "Swap or provide liquidity on the DBCSwap Protocol",
   "iconPath": "./images/icon-ube.svg",
-  "short_name": "Ubeswap",
+  "short_name": "DBCSwap",
   "start_url": ".",
   "theme_color": "#8878c3"
 }

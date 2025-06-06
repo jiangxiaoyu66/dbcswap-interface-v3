@@ -96,8 +96,8 @@ const EarnHeader = () => {
     <BannerContainer>
       <BannerMainArea>
         <HeaderContainer>
-          Ubeswap Earn
-          <HeaderDetails>Earn yield by providing liquidity on Celo Network</HeaderDetails>
+          DBCSwap Earn
+          <HeaderDetails>Earn yield by providing liquidity on DBC Network</HeaderDetails>
         </HeaderContainer>
         <Image src={earnBannerUrl} />
       </BannerMainArea>

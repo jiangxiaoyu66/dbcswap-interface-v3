@@ -53,6 +53,7 @@ function useTryActivation() {
 
             onSuccess()
           } catch (error) {
+            console.error('error', error, didUserReject(connection, error))
             // Gracefully handles errors from the user rejecting a connection attempt
             if (didUserReject(connection, error)) {
               trace.setStatus('cancelled')

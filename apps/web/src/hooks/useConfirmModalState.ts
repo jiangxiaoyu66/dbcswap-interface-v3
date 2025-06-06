@@ -49,14 +49,14 @@ export function useConfirmModalState({
   const [pendingModalSteps, setPendingModalSteps] = useState<PendingConfirmModalState[]>([])
   const { formatCurrencyAmount } = useFormatter()
 
-  // This is a function instead of a memoized value because we do _not_ want it to update as the allowance changes.
-  // For example, if the user needs to complete 3 steps initially, we should always show 3 step indicators
-  // at the bottom of the modal, even after they complete steps 1 and 2.
+  // 2. 生成所需步骤的函数
   const generateRequiredSteps = useCallback(() => {
     const steps: PendingConfirmModalState[] = []
+    // 2.1 如果需要wrap（例如ETH转WETH），添加wrap步骤
     if (trade.fillType === TradeFillType.UniswapX && trade.wrapInfo.needsWrap) {
       steps.push(ConfirmModalState.WRAPPING)
     }
+    // 2.2 如果需要重置代币授权，添加重置步骤
     if (
       allowance.state === AllowanceState.REQUIRED &&
       allowance.needsSetupApproval &&
@@ -65,12 +65,15 @@ export function useConfirmModalState({
     ) {
       steps.push(ConfirmModalState.RESETTING_TOKEN_ALLOWANCE)
     }
+    // 2.3 如果需要设置授权，添加授权步骤
     if (allowance.state === AllowanceState.REQUIRED && allowance.needsSetupApproval) {
       steps.push(ConfirmModalState.APPROVING_TOKEN)
     }
+    // 2.4 如果需要签名许可，添加签名步骤
     if (allowance.state === AllowanceState.REQUIRED && allowance.needsPermitSignature) {
       steps.push(ConfirmModalState.PERMITTING)
     }
+    // 2.5 最后添加确认交易步骤
     steps.push(ConfirmModalState.PENDING_CONFIRMATION)
     return steps
   }, [allowance, trade])
@@ -138,6 +141,8 @@ export function useConfirmModalState({
         case ConfirmModalState.PENDING_CONFIRMATION:
           setConfirmModalState(ConfirmModalState.PENDING_CONFIRMATION)
           try {
+            // 这里是核心swap执行方法
+            // onSwap 是从外部传入的实际执行swap的函数
             onSwap()
           } catch (e) {
             catchUserReject(e, PendingModalError.CONFIRMATION_ERROR)
@@ -161,11 +166,16 @@ export function useConfirmModalState({
     ]
   )
 
+  // 1. swap的入口函数
   const startSwapFlow = useCallback(() => {
+    // 1.1 获取所需的所有步骤
     const steps = generateRequiredSteps()
+    // 1.2 设置待处理的模态框步骤
     setPendingModalSteps(steps)
+    // 1.3 执行第一个步骤
     performStep(steps[0])
   }, [generateRequiredSteps, performStep])
+
 
   const previousSetupApprovalNeeded = usePrevious(
     allowance.state === AllowanceState.REQUIRED ? allowance.needsSetupApproval : undefined

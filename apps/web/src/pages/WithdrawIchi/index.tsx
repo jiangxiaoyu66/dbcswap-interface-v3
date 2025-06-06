@@ -186,7 +186,7 @@ function WithdrawIchi() {
 
     try {
       setAttemptingTxn(true)
-      const dex = SupportedDex.Ubeswap
+      const dex = SupportedDex.DBCSwap
       const txnDetails = await withdraw(account, vaultTokenAmount.toExact(), vaultAddress, provider, dex)
       setTxHash(txnDetails.hash)
       addTransaction(txnDetails, {

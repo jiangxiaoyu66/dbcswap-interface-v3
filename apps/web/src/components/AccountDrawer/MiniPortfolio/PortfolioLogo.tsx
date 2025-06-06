@@ -168,7 +168,7 @@ function SquareL2Logo({ chainId }: { chainId: ChainId }) {
 
   return (
     <L2LogoContainer>
-      <ChainLogo fillContainer={true} chainId={chainId} />
+      <ChainLogo fillContainer={true} chainId={chainId} style={{ borderRadius: '8px' }} />
     </L2LogoContainer>
   )
 }
@@ -181,7 +181,7 @@ export function PortfolioLogo(props: PortfolioLogoProps) {
   return (
     <LogoContainer style={props.style}>
       {getLogo(props)}
-      <SquareL2Logo chainId={props.chainId} />
+      {/* <SquareL2Logo chainId={props.chainId} /> */}
     </LogoContainer>
   )
 }

@@ -8,6 +8,7 @@ import { tickToPrice } from '../utils/priceTickConversions'
 import { SqrtPriceMath } from '../utils/sqrtPriceMath'
 import { TickMath } from '../utils/tickMath'
 import { Pool } from './pool'
+import { WRAPPED_NATIVE_CURRENCY } from '@ubeswap/smart-order-router/src/util/chains'
 
 interface PositionConstructorArgs {
   pool: Pool
@@ -256,6 +257,20 @@ export class Position {
    * the current price for the pool
    */
   public get mintAmounts(): Readonly<{ amount0: JSBI; amount1: JSBI }> {
+
+    // 判断token0和token1是否为原生token
+    const isToken0Native = this.pool.token0.isNative
+    const isToken1Native = this.pool.token1.isNative
+    console.log("WRAPPED_NATIVE_CURRENCY", WRAPPED_NATIVE_CURRENCY);
+    const WRAPPED_NATIVE = WRAPPED_NATIVE_CURRENCY[this.pool.token0.chainId]
+    const isToken0WrappedNative = this.pool.token0.address === WRAPPED_NATIVE.address
+    const isToken1WrappedNative = this.pool.token1.address === WRAPPED_NATIVE.address
+    // 判断是否为000结尾
+    const isTokenAmountEndWithZeros = (amount: JSBI): boolean => {
+      return JSBI.equal(JSBI.remainder(amount, JSBI.BigInt(1000)), JSBI.BigInt(0))
+    }
+
+
     if (this._mintAmounts === null) {
       if (this.pool.tickCurrent < this.tickLower) {
         return {
@@ -268,20 +283,38 @@ export class Position {
           amount1: ZERO,
         }
       } else if (this.pool.tickCurrent < this.tickUpper) {
-        return {
-          amount0: SqrtPriceMath.getAmount0Delta(
-            this.pool.sqrtRatioX96,
-            TickMath.getSqrtRatioAtTick(this.tickUpper),
-            this.liquidity,
-            true
-          ),
-          amount1: SqrtPriceMath.getAmount1Delta(
-            TickMath.getSqrtRatioAtTick(this.tickLower),
-            this.pool.sqrtRatioX96,
-            this.liquidity,
-            true
-          ),
+        const amount1 = SqrtPriceMath.getAmount1Delta(
+          TickMath.getSqrtRatioAtTick(this.tickLower),
+          this.pool.sqrtRatioX96,
+          this.liquidity,
+          true
+        )
+        const amount0 = SqrtPriceMath.getAmount0Delta(
+          this.pool.sqrtRatioX96,
+          TickMath.getSqrtRatioAtTick(this.tickUpper),
+          this.liquidity,
+          true
+        )
+
+
+        const result = {
+          amount0: (isToken0WrappedNative && !isTokenAmountEndWithZeros(amount0)) ? JSBI.multiply(
+            JSBI.divide(amount0, JSBI.BigInt(1000)),
+            JSBI.BigInt(1000)
+          ) : amount0,
+          amount1: (isToken1WrappedNative && !isTokenAmountEndWithZeros(amount1)) ? JSBI.multiply(
+            JSBI.divide(amount1, JSBI.BigInt(1000)),
+            JSBI.BigInt(1000)
+          ) : amount1,
         }
+        console.log('Debug case 2: lower tick <= current tick < upper tick', {
+          amount0: result.amount0.toString(),
+          amount1: result.amount1.toString()
+        })
+
+ 
+
+        return result
       } else {
         return {
           amount0: ZERO,

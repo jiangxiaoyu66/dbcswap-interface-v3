@@ -8,12 +8,12 @@ import client from '../client'
 
 function formatTitleName(symbol: string | undefined, name: string | undefined) {
   if (symbol) {
-    return 'Get ' + symbol + ' on Ubeswap'
+    return 'Get ' + symbol + ' on DBCSwap'
   }
   if (name) {
-    return 'Get ' + name + ' on Ubeswap'
+    return 'Get ' + name + ' on DBCSwap'
   }
-  return 'View Token on Ubeswap'
+  return 'View Token on DBCSwap'
 }
 
 const convertTokenAddress = (networkName: string, tokenAddress: string) => {

@@ -38,7 +38,7 @@
 //
 //   return (
 //     <Container>
-//       <Trans>Ubeswap available in: </Trans>
+//       <Trans>DBCSwap available in: </Trans>
 //       <StyledInternalLink onClick={onClick} to={to}>
 //         {LOCALE_LABEL[targetLocale]}
 //       </StyledInternalLink>

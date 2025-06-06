@@ -1,7 +1,7 @@
 {
   "name": "@ubeswap/smart-order-router",
   "version": "0.0.0",
-  "description": "Ubeswap Smart Order Router",
+  "description": "DBCSwap Smart Order Router",
   "license": "GPL",
   "publishConfig": {
     "access": "public"

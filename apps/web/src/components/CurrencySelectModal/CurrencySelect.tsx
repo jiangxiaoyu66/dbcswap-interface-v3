@@ -56,6 +56,8 @@ export function CurrencySelect({
   const isLoading = currencies.filter((curr) => !curr).length > 0
 
   const allCurrencyRows = useMemo(() => {
+    console.log('allCurrencyRows', currencies)
+
     return currencies.map((curr) => new CurrencyListRow(curr || undefined))
   }, [currencies])
 

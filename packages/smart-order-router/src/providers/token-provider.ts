@@ -426,6 +426,22 @@ export const USDC_BASE = new Token(
   'USD Base Coin'
 )
 
+export const DGC_DBC = new Token(
+  ChainId.DBC,
+  '0x18386F368e7C211E84324337fA8f62d5093272E1',
+  18,
+  'DGC',
+  'DGC'
+)
+
+export const SIC_DBC = new Token(
+  ChainId.DBC,
+  '0x07D325030dA1A8c1f96C414BFFbe4fBD539CED45', // SIC token 的合约地址
+  18, // decimals
+  'SIC', // symbol
+  'SIC' // name
+)
+
 // Base Goerli Tokens
 export const USDC_BASE_GOERLI = new Token(
   ChainId.BASE_GOERLI,

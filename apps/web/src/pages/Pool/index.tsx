@@ -25,6 +25,7 @@ import { PositionDetails } from 'types/position'
 import { ProtocolVersion } from 'uniswap/src/data/graphql/uniswap-data-api/__generated__/types-and-hooks'
 // import CTACards from './CTACards'
 import { LoadingRows } from './styled'
+import { Link } from 'react-router-dom'
 
 const PageWrapper = styled(AutoColumn)`
   padding: 68px 8px 0px;
@@ -288,9 +289,9 @@ export default function Pool() {
                 <ThemedText.LargeHeader>
                   <Trans>Positions</Trans>
                 </ThemedText.LargeHeader>
-                <PoolVersionMenu protocolVersion={ProtocolVersion.V3} />
+                {/* <PoolVersionMenu protocolVersion={ProtocolVersion.V3} /> */}
               </Row>
-              <ButtonRow>
+              {/* <ButtonRow>
                 {networkSupportsV2 && (
                   <PoolMenu
                     modal={ApplicationModal.POOL_OVERVIEW_OPTIONS}
@@ -316,6 +317,16 @@ export default function Pool() {
                     </ResponsiveButtonPrimary>
                   )}
                 />
+              </ButtonRow> */}
+
+              <ButtonRow>
+                <ResponsiveButtonPrimary
+                  as={Link}
+                  to="/add"
+                  data-cy="join-pool-button"
+                >
+                  + <Trans>New position</Trans>
+                </ResponsiveButtonPrimary>
               </ButtonRow>
             </TitleRow>
 

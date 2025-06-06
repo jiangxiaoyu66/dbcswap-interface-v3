@@ -24,17 +24,7 @@ function isAppUniswapStagingOrg({ hostname }: { hostname: string }): boolean {
 }
 
 export function isBrowserRouterEnabled(): boolean {
-  if (isProductionEnv()) {
-    if (
-      isAppUniswapOrg(window.location) ||
-      isAppUniswapStagingOrg(window.location) ||
-      isLocalhost(window.location) // cypress tests
-    ) {
-      return true
-    }
-    return false // production builds *not* served through our domains or localhost, eg IPFS
-  }
-  return true // local dev builds
+  return true // 始终使用 BrowserRouter
 }
 
 function isLocalhost({ hostname }: { hostname: string }): boolean {

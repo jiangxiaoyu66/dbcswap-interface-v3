@@ -39,11 +39,11 @@ describe('Token details', () => {
 
     // Info section should have description of token & relevant links
     cy.get(getTestSelector('token-details-info-section')).should('exist')
-    cy.contains('UBE is the governance token for Ubeswap').should('exist')
+    cy.contains('UBE is the governance token for DBCSwap').should('exist')
     cy.get(getTestSelector('token-details-info-links')).within(() => {
       cy.contains('Celoscan').should('have.attr', 'href').and('include', `celoscan.io/token/${UBE_ADDRESS}`)
       cy.contains('Website').should('have.attr', 'href').and('include', 'ubeswap.org')
-      cy.contains('Twitter').should('have.attr', 'href').and('include', 'x.com/Ubeswap')
+      cy.contains('Twitter').should('have.attr', 'href').and('include', 'x.com/DBCSwap')
     })
 
     // Contract address should be displayed

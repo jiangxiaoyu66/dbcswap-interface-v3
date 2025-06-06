@@ -57,6 +57,7 @@ function ValueWrapper({ children, lineItem, labelHovered, syncing }: ValueWrappe
 
 export function DetailLineItem({ LineItem, syncing }: { LineItem: LineItemData; syncing?: boolean }) {
   const [labelHovered, hoverProps] = useHoverProps()
+  console.log('DetailLineItem LineItem', LineItem, syncing)
   return (
     <RowBetween>
       <LabelText {...hoverProps} hasTooltip={!!LineItem.TooltipBody} data-testid="swap-li-label">

@@ -1,4 +1,4 @@
-# Ubeswap Web Interface
+# DBCSwap Web Interface
 
 ## Running the interface locally
 

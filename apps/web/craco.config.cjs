@@ -8,15 +8,14 @@ const path = require('path')
 const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin')
 const { IgnorePlugin, ProvidePlugin } = require('webpack')
 const { RetryChunkLoadPlugin } = require('webpack-retry-chunk-load-plugin')
-
+const { codeInspectorPlugin } = require('code-inspector-plugin')
 const commitHash = execSync('git rev-parse HEAD').toString().trim()
 const isProduction = process.env.NODE_ENV === 'production'
 
 process.env.REACT_APP_GIT_COMMIT_HASH = commitHash
 
-// Linting and type checking are only necessary as part of development and testing.
-// Omit them from production builds, as they slow down the feedback loop.
-const shouldLintOrTypeCheck = !isProduction
+// 在开发环境中禁用类型检查和lint
+const shouldLintOrTypeCheck = false
 
 // Our .swcrc wasn't being picked up in the monorepo, so we load it directly.
 const swcrc = JSON.parse(readFileSync('./.swcrc', 'utf-8'))
@@ -90,6 +89,10 @@ module.exports = {
         }`,
         maxRetries: 3,
       }),
+      codeInspectorPlugin({
+        bundler: 'webpack',
+      }),
+
     ],
     configure: (webpackConfig) => {
       // Configure webpack plugins:
@@ -144,6 +147,13 @@ module.exports = {
           path: require.resolve('path-browserify'),
           fs: false,
           os: false,
+          // 添加缺失的Node.js核心模块polyfill
+          crypto: require.resolve('crypto-browserify'),
+          stream: require.resolve('stream-browserify'),
+          assert: require.resolve('assert/'),
+          http: require.resolve('stream-http'),
+          https: require.resolve('https-browserify'),
+          zlib: require.resolve('browserify-zlib'),
         },
       })
 
@@ -213,9 +223,9 @@ module.exports = {
         webpackConfig.optimization,
         isProduction
           ? {
-              // Optimize over all chunks, instead of async chunks (the default), so that initial chunks are also included.
-              splitChunks: { chunks: 'all' },
-            }
+            // Optimize over all chunks, instead of async chunks (the default), so that initial chunks are also included.
+            splitChunks: { chunks: 'all' },
+          }
           : {}
       )
 

@@ -184,7 +184,7 @@ export function toV2LiquidityToken([tokenA, tokenB]: [Token, Token]): Token {
     computePairAddress({ factoryAddress: V2_FACTORY_ADDRESSES[tokenA.chainId], tokenA, tokenB }),
     18,
     'ULP',
-    'Ubeswap LP Token'
+    'DBCSwap LP Token'
   )
 }
 

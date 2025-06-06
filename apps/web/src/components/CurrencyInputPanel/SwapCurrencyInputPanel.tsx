@@ -29,7 +29,7 @@ import DoubleCurrencyLogo from '../DoubleLogo'
 import { RowBetween, RowFixed } from '../Row'
 import CurrencySearchModal from '../SearchModal/CurrencySearchModal'
 import { FiatValue } from './FiatValue'
-import { formatCurrencySymbol } from './utils'
+import { formatCurrencyName, formatCurrencySymbol } from './utils'
 
 export const InputPanel = styled.div<{ hideInput?: boolean }>`
   ${flexColumnNoWrap};
@@ -66,7 +66,7 @@ interface CurrencySelectProps {
   animateShake?: boolean
 }
 
-export const CurrencySelect = styled(ButtonGray)<CurrencySelectProps>`
+export const CurrencySelect = styled(ButtonGray) <CurrencySelectProps>`
   align-items: center;
   background-color: ${({ selected, theme }) => (selected ? theme.surface1 : theme.accent1)};
   opacity: ${({ disabled }) => (!disabled ? 1 : 0.4)};
@@ -176,7 +176,7 @@ const Aligner = styled.span`
   width: 100%;
 `
 
-const StyledDropDown = styled(DropDown)<{ selected: boolean }>`
+const StyledDropDown = styled(DropDown) <{ selected: boolean }>`
   margin: 0 0.25rem 0 0.35rem;
   height: 35%;
   margin-left: 8px;
@@ -225,7 +225,10 @@ interface SwapCurrencyInputPanelProps {
   pair?: Pair | null
   hideInput?: boolean
   otherCurrency?: Currency | null
-  fiatValue?: { data?: number; isLoading: boolean }
+  fiatValue?: {
+    data?: number;  // 法币价值
+    isLoading: boolean
+  }
   priceImpact?: Percent
   id: string
   renderBalance?: (amount: CurrencyAmount<Currency>) => ReactNode
@@ -361,7 +364,7 @@ const SwapCurrencyInputPanel = forwardRef<HTMLInputElement, SwapCurrencyInputPan
                           className="token-symbol-container"
                           active={Boolean(currency && currency.symbol)}
                         >
-                          {currency ? formatCurrencySymbol(currency) : <Trans>Select token</Trans>}
+                          {currency ? formatCurrencyName(currency) : <Trans>Select token</Trans>}
                         </StyledTokenName>
                       )}
                     </RowFixed>
@@ -376,7 +379,13 @@ const SwapCurrencyInputPanel = forwardRef<HTMLInputElement, SwapCurrencyInputPan
               <RowBetween>
                 <LoadingOpacityContainer $loading={loading}>
                   {fiatValue && (
-                    <FiatValue fiatValue={fiatValue} priceImpact={priceImpact} testId={`fiat-value-${id}`} />
+                    <>
+                      <FiatValue
+                        fiatValue={fiatValue}
+                        priceImpact={priceImpact}
+                        testId={`fiat-value-${id}`}
+                      />
+                    </>
                   )}
                 </LoadingOpacityContainer>
                 {account ? (

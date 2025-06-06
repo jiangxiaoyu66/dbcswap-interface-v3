@@ -124,22 +124,25 @@ const AccountDrawerWrapper = styled.div<{ open: boolean }>`
 `
 
 const CloseIcon = styled(ChevronsRight).attrs({ size: 24 })`
-  stroke: ${({ theme }) => theme.neutral2};
+  stroke: ${({ theme }) => theme.neutral1};
+  // stroke-width: 2;
 `
 
 const CloseDrawer = styled.div`
   ${ClickableStyle}
   cursor: pointer;
   height: 100%;
-  // When the drawer is not hovered, the icon should be 18px from the edge of the sidebar.
   padding: 24px calc(18px + ${DRAWER_OFFSET}) 24px 14px;
   border-radius: 20px 0 0 20px;
+  background-color: ${({ theme }) => theme.surface3};
+  display: flex;
+  align-items: center;
   transition: ${({ theme }) =>
     `${theme.transition.duration.medium} ${theme.transition.timing.ease} background-color, ${theme.transition.duration.medium} ${theme.transition.timing.ease} margin`};
   &:hover {
-    z-index: -1;
+    z-index: 1;
     margin: 0 -8px 0 0;
-    background-color: ${({ theme }) => theme.deprecated_stateOverlayHover};
+    background-color: ${({ theme }) => theme.surface4};
   }
   @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
     display: none;

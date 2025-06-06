@@ -62,7 +62,7 @@ export function SubmittedView({
         {children}
         {chainId && hash && (
           <ExternalLink href={explorerLink} style={{ marginLeft: '4px' }}>
-            <ThemedText.DeprecatedSubHeader>{t('View transaction on Celo Explorer')}</ThemedText.DeprecatedSubHeader>
+            <ThemedText.DeprecatedSubHeader>{t('View transaction on DBC Explorer')}</ThemedText.DeprecatedSubHeader>
           </ExternalLink>
         )}
       </AutoColumn>

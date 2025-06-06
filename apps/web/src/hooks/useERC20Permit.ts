@@ -36,10 +36,10 @@ const PERMITTABLE_TOKENS: {
     [DAI.address]: { type: PermitType.ALLOWED, name: 'Dai Stablecoin', version: '1' },
   },
   [ChainId.CELO]: {
-    [UBE[ChainId.CELO].address]: { type: PermitType.AMOUNT, name: 'Ubeswap' },
+    [UBE[ChainId.CELO].address]: { type: PermitType.AMOUNT, name: 'DBCSwap' },
   },
   [ChainId.CELO_ALFAJORES]: {
-    [UBE[ChainId.CELO_ALFAJORES].address]: { type: PermitType.AMOUNT, name: 'Ubeswap' },
+    [UBE[ChainId.CELO_ALFAJORES].address]: { type: PermitType.AMOUNT, name: 'DBCSwap' },
   },
 }
 

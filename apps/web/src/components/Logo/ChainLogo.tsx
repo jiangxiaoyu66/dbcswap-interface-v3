@@ -8,6 +8,7 @@ import { useIsDarkMode } from 'theme/components/ThemeToggle'
 import { ReactComponent as arbitrum } from './ChainSymbols/arbitrum.svg'
 import { ReactComponent as avax } from './ChainSymbols/avax.svg'
 import { ReactComponent as base } from './ChainSymbols/base.svg'
+import { ReactComponent as dbc }  from './ChainSymbols/dbc.svg'
 import { ReactComponent as blast } from './ChainSymbols/blast.svg'
 import { ReactComponent as blastLight } from './ChainSymbols/blast_light.svg'
 import { ReactComponent as bnb } from './ChainSymbols/bnb.svg'
@@ -95,6 +96,12 @@ export function getChainUI(chainId: ChainId, darkMode: boolean): ChainUI | undef
             bgColor: 'rgba(252, 252, 3, 0.16)',
             textColor: 'rgba(17, 20, 12, 1)',
           }
+    case ChainId.DBC:
+      return {
+        Symbol: dbc,
+        bgColor: '',
+        textColor: '#0052FF',
+      }
     default:
       return undefined
   }
@@ -139,8 +146,8 @@ export function ChainLogo({
       data-testid={testId}
     >
       <title id="titleID">{`${label} logo`}</title>
-      <rect rx={borderRadius} fill={surface2} width={iconSize} height={iconSize} />
-      <rect rx={borderRadius} fill={bgColor} width={iconSize} height={iconSize} />
+      {/* <rect rx={borderRadius} fill={surface2} width={iconSize} height={iconSize} /> */}
+      {/* <rect rx={borderRadius} fill={bgColor} width={iconSize} height={iconSize} /> */}
       <Symbol width={iconSize} height={iconSize} />
     </svg>
   )

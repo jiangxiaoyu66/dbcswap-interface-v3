@@ -38,6 +38,7 @@ type RawV2SubgraphPool = {
 const SUBGRAPH_URL_BY_CHAIN: { [chainId in ChainId]?: string } = {
   [ChainId.MAINNET]: 'https://api.thegraph.com/subgraphs/name/ianlapham/uniswap-v2-dev',
   [ChainId.CELO]: 'https://interface-gateway.ubeswap.org/v1/v2-subgraph-proxy',
+  [ChainId.DBC]: 'https://dbcswap.io/subgraph/name/ianlapham/dbcswap-v3-mainnet',
 }
 
 const threshold = 0.025
@@ -138,7 +139,7 @@ export class V2SubgraphProvider implements IV2SubgraphProvider {
             )
           } while (pairsPage.length > 0)*/
 
-          const res = await fetch('https://raw.githubusercontent.com/Ubeswap/static/main/ubeswap-v2-pools.json')
+          const res = await fetch('https://raw.githubusercontent.com/DBCSwap/static/main/ubeswap-v2-pools.json')
           return (await res.json()) as RawV2SubgraphPool[]
         }
 

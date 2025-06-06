@@ -39,7 +39,7 @@ export const KNOWN_ADDRESSES: Record<
     abi?: object[]
   }
 > = {
-  // Ubeswap
+  // DBCSwap
   // https://docs.ubeswap.org/code-and-contracts/contract-addresses
   '0x71e26d0E519D14591b9dE9a0fE9513A398101490': {
     name: 'UBE Token',
@@ -57,27 +57,27 @@ export const KNOWN_ADDRESSES: Record<
     name: 'Release UBE',
   },
   '0x62d5b84bE28a183aBB507E125B384122D2C25fAE': {
-    name: 'Ubeswap Factory',
+    name: 'DBCSwap Factory',
   },
   '0x9Ee3600543eCcc85020D6bc77EB553d1747a65D2': {
-    name: 'Ubeswap Pool Manager',
+    name: 'DBCSwap Pool Manager',
   },
   '0x1BDB37DAA42E37bFCa4C5536AcF93b1173588981': {
-    name: 'Ubeswap Executive Timelock',
+    name: 'DBCSwap Executive Timelock',
   },
   '0x177B042b284dD9B830d4eb179695bCC14044fD1A': {
-    name: 'Ubeswap Community Timelock',
+    name: 'DBCSwap Community Timelock',
   },
   '0xC45Cc58205132Fe29e0F96BAA3f4FA2BD88cD6D9': {
-    name: 'Ubeswap Celo Reserve Timelock',
+    name: 'DBCSwap Celo Reserve Timelock',
   },
   '0x489AAc7Cb9A3B233e4a289Ec92284C8d83d49c6f': {
-    name: 'Ubeswap Founding Operator',
+    name: 'DBCSwap Founding Operator',
   },
   '0x97A9681612482A22b7877afbF8430EDC76159Cae': {
-    name: 'Ubeswap Governance Fees Timelock',
+    name: 'DBCSwap Governance Fees Timelock',
   },
   '0xB58DA472Fd4ba76696DbF8Ba3cC23580C26093dA': {
-    name: 'Ubeswap Multisig 1',
+    name: 'DBCSwap Multisig 1',
   },
 }

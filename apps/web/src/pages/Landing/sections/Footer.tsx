@@ -8,7 +8,7 @@ import { ExternalLink } from 'theme/components'
 
 import { Wiggle } from '../components/animations'
 import { Body1, Box, H3 } from '../components/Generics'
-import { Discord, Github, Twitter } from '../components/Icons'
+import { Discord, Github, Telegram, Twitter } from '../components/Icons'
 
 const SocialIcon = styled(Wiggle)`
   flex: 0;
@@ -89,20 +89,21 @@ export function Socials({ iconSize }: { iconSize?: string }) {
   return (
     <Box gap="24px" onClick={onClickBox}>
       <SocialIcon $hoverColor="#00C32B">
-        <StyledExternalLink href="https://github.com/Ubeswap">
+        <StyledExternalLink href="https://github.com/DeepBrainChain/DBCSwap-Interface">
           <Github size={iconSize} fill="inherit" />
         </StyledExternalLink>
       </SocialIcon>
       <SocialIcon $hoverColor="#20BAFF">
-        <StyledExternalLink href="https://twitter.com/Ubeswap">
+        <StyledExternalLink href="https://x.com/DeepBrainChain">
           <Twitter size={iconSize} fill="inherit" />
         </StyledExternalLink>
       </SocialIcon>
       <SocialIcon $hoverColor="#5F51FF">
-        <StyledExternalLink href="https://discord.com/invite/zZkUXCMPGP">
-          <Discord size={iconSize} fill="inherit" />
+        <StyledExternalLink href="https://t.me/DeepBrainChainGlobal">
+          <Telegram size={iconSize} fill="inherit" />
         </StyledExternalLink>
       </SocialIcon>
+      
     </Box>
   )
 }
@@ -118,7 +119,7 @@ export function Footer() {
           <Box direction="column" height="100%" gap="64px">
             <Box direction="column" gap="10px">
               <H3>© 2024</H3>
-              <H3>Ubeswap</H3>
+              <H3>DBCSwap</H3>
             </Box>
             <HideWhenSmall>
               <Socials />

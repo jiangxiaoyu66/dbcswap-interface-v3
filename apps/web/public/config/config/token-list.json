@@ -1,0 +1,65 @@
+{
+  "name": "DBCSwap",
+  "logoURI": "https://dbcswap.io/favicon.png",
+  "keywords": [
+    "deepchain",
+    "defi",
+    "dex"
+  ],
+  "timestamp": "2025-01-02T08:43:31.145Z",
+  "tokens": [
+    {
+      "address": "0x16d83F6B17914a4e88436251589194CA5AC0f452",
+      "name": "XAIAgent Token",
+      "symbol": "XAA",
+      "chainId": 19880818,
+      "decimals": 18,
+      "logoURI": "https://app.xaiagent.io/favicon.ico"
+    },
+    {
+      "address": "0x2282D5DA5f39Bb7B90cef532341FBB998A1d0965",
+      "name": "StyleID Token",
+      "symbol": "STID",
+      "chainId": 19880818,
+      "decimals": 18,
+      "logoURI": "http://xaiagent.oss-ap-northeast-2.aliyuncs.com/logo/StyleID.png"
+    },
+    {
+      "address": "0x6f8F70C74FE7d7a61C8EAC0f35A4Ba39a51E1BEe",
+      "name": "DeepLink Token",
+      "symbol": "DLC",
+      "chainId": 19880818,
+      "decimals": 18,
+      "logoURI": "https://www.deeplink.cloud/deeplink.ico"
+    },
+    {
+      "address": "0x07D325030dA1A8c1f96C414BFFbe4fBD539CED45",
+      "name": "SuperImage Token",
+      "symbol": "SIC",
+      "chainId": 19880818,
+      "decimals": 18,
+      "logoURI": "https://app.superimage.ai/static/logo.svg"
+    },
+    {
+      "address": "0xD78F268291f3fe244CB965C768EDb515b529eD02",
+      "name": "LogoLift Token",
+      "symbol": "LOGO",
+      "chainId": 19880818,
+      "decimals": 18,
+      "logoURI": "https://xaiagent.oss-ap-northeast-2.aliyuncs.com/logo/LogoLift.png"
+    },
+    {
+      "address": "0x5155101187F8Faa1aD8AfeC7820c801870F81D52",
+      "name": "Tether USD",
+      "symbol": "USDT",
+      "chainId": 19880818,
+      "decimals": 18,
+      "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xdAC17F958D2ee523a2206206994597C13D831ec7/logo.png"
+    }
+  ],
+  "version": {
+    "major": 4,
+    "minor": 1,
+    "patch": 88
+  }
+}

@@ -11,6 +11,7 @@ export enum ConnectionType {
   GNOSIS_SAFE = 'GNOSIS_SAFE',
   EIP_6963_INJECTED = 'EIP_6963_INJECTED',
   VALORA = 'VALORA',
+  OKX_WALLET = 'OKX_WALLET',
 }
 
 export interface ProviderInfo {

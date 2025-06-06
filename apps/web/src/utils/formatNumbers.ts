@@ -563,6 +563,7 @@ interface FormatCurrencyAmountOptions {
   conversionRate?: number
 }
 
+// 输入currency, 输出另一货币数据
 function formatCurrencyAmount({
   amount,
   type = NumberType.TokenNonTx,

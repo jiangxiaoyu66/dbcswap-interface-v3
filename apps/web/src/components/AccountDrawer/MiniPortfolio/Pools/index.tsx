@@ -30,7 +30,7 @@ import { useFeeValues } from './hooks'
 import useMultiChainPositions from './useMultiChainPositions'
 
 /**
- * Takes an array of PositionInfo objects (format used by the Ubeswap gql API).
+ * Takes an array of PositionInfo objects (format used by the DBCSwap gql API).
  * The hook access PositionInfo.details (format used by the NFT position contract),
  * filters the PositionDetails data for malicious content,
  * and then returns the original data in its original format.
@@ -56,7 +56,8 @@ export default function Pools({ account }: { account: string }) {
   const { positions, loading } = useMultiChainPositions(account)
   const filteredPositions = useFilterPossiblyMaliciousPositionInfo(positions)
   const [showClosed, toggleShowClosed] = useReducer((showClosed) => !showClosed, false)
-  const [showV2, toggleShowV2] = useReducer((show) => !show, true)
+  // 注释掉 V2 开关
+  // const [showV2, toggleShowV2] = useReducer((show) => !show, true)
 
   const [openPositions, closedPositions] = useMemo(() => {
     const openPositions: PositionInfo[] = []
@@ -74,20 +75,18 @@ export default function Pools({ account }: { account: string }) {
 
   const toggleWalletDrawer = useToggleAccountDrawer()
 
+  // 注释掉所有 V2 相关的 hooks 调用
+  /*
   const trackedTokenPairs = useTrackedTokenPairs()
   const tokenPairsWithLiquidityTokens = useMemo(
     () => trackedTokenPairs.map((tokens) => ({ liquidityToken: toV2LiquidityToken(tokens), tokens })),
     [trackedTokenPairs]
   )
-
   const liquidityTokens = useMemo(
     () => tokenPairsWithLiquidityTokens.map((tpwlt) => tpwlt.liquidityToken),
     [tokenPairsWithLiquidityTokens]
   )
-
   const [v2PairsBalances] = useTokenBalancesWithLoadingIndicator(account ?? undefined, liquidityTokens)
-
-  // fetch the reserves for all V2 pools in which the user has a balance
   const liquidityTokensWithBalances = useMemo(
     () =>
       tokenPairsWithLiquidityTokens.filter(({ liquidityToken }) =>
@@ -95,9 +94,9 @@ export default function Pools({ account }: { account: string }) {
       ),
     [tokenPairsWithLiquidityTokens, v2PairsBalances]
   )
-
   const v2Pairs = useV2Pairs(liquidityTokensWithBalances.map(({ tokens }) => tokens))
   const allV2PairsWithLiquidity = v2Pairs.map(([, pair]) => pair).filter((v2Pair): v2Pair is Pair => Boolean(v2Pair))
+  */
 
   if (!filteredPositions || loading) {
     return <PortfolioSkeleton />
@@ -115,6 +114,8 @@ export default function Pools({ account }: { account: string }) {
           positionInfo={positionInfo}
         />
       ))}
+
+      {/* 注释掉 V2 交易对列表组件
       <ExpandoRow
         title={t`V2 Pairs`}
         isExpanded={showV2}
@@ -128,6 +129,8 @@ export default function Pools({ account }: { account: string }) {
           ></V2PairListItem>
         ))}
       </ExpandoRow>
+      */}
+
       <ExpandoRow
         title={t`Closed Positions`}
         isExpanded={showClosed}
@@ -187,13 +190,13 @@ function V2PairListItem({ pair }: { pair: Pair }) {
   const totalPoolTokens = useTotalSupply(pair.liquidityToken)
   const [token0Deposited, token1Deposited] =
     !!pair &&
-    !!totalPoolTokens &&
-    !!userPoolBalance &&
-    JSBI.greaterThanOrEqual(totalPoolTokens.quotient, userPoolBalance.quotient)
+      !!totalPoolTokens &&
+      !!userPoolBalance &&
+      JSBI.greaterThanOrEqual(totalPoolTokens.quotient, userPoolBalance.quotient)
       ? [
-          pair.getLiquidityValue(pair.token0, totalPoolTokens, userPoolBalance, false),
-          pair.getLiquidityValue(pair.token1, totalPoolTokens, userPoolBalance, false),
-        ]
+        pair.getLiquidityValue(pair.token0, totalPoolTokens, userPoolBalance, false),
+        pair.getLiquidityValue(pair.token1, totalPoolTokens, userPoolBalance, false),
+      ]
       : [undefined, undefined]
 
   const navigate = useNavigate()
@@ -301,6 +304,16 @@ function PositionListItem({ positionInfo }: { positionInfo: PositionInfo }) {
         descriptor={<ThemedText.BodySmall>{`${pool.fee / BIPS_BASE}%`}</ThemedText.BodySmall>}
         right={
           <>
+
+
+            <Row justify="flex-end">
+              <ThemedText.BodySmall color="neutral2">
+                {closed ? t`Closed` : inRange ? t`In range` : t`Out of range`}
+              </ThemedText.BodySmall>
+              <ActiveDot closed={closed} outOfRange={!inRange} />
+            </Row>
+
+
             <MouseoverTooltip
               placement="left"
               text={
@@ -316,19 +329,15 @@ function PositionListItem({ positionInfo }: { positionInfo: PositionInfo }) {
               }
             >
               <ThemedText.SubHeader>
-                {formatNumber({
-                  input: (liquidityValue ?? 0) + (feeValue ?? 0),
-                  type: NumberType.PortfolioBalance,
-                })}
+                <div style={{ visibility: 'hidden' }}>
+                  {formatNumber({
+                    input: (liquidityValue ?? 0) + (feeValue ?? 0),
+                    type: NumberType.PortfolioBalance,
+                  })}
+                </div>
+
               </ThemedText.SubHeader>
             </MouseoverTooltip>
-
-            <Row justify="flex-end">
-              <ThemedText.BodySmall color="neutral2">
-                {closed ? t`Closed` : inRange ? t`In range` : t`Out of range`}
-              </ThemedText.BodySmall>
-              <ActiveDot closed={closed} outOfRange={!inRange} />
-            </Row>
           </>
         }
       />

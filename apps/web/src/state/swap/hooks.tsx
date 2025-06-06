@@ -140,6 +140,8 @@ export function useDerivedSwapInfo(state: SwapState): SwapInfo {
     [inputCurrency, isExactIn, outputCurrency, typedValue]
   )
 
+
+
   const trade = useDebouncedTrade(
     isExactIn ? TradeType.EXACT_INPUT : TradeType.EXACT_OUTPUT,
     parsedAmount,
@@ -256,7 +258,7 @@ export function queryParametersToCurrencyState(parsedQs: ParsedQs): SerializedCu
 
   if (inputCurrency === '' && outputCurrency === '' && independentField === Field.INPUT) {
     // Defaults to having the native currency selected
-    inputCurrency = 'ETH'
+    inputCurrency = ''
   } else if (inputCurrency === outputCurrency) {
     // clear output if identical
     outputCurrency = ''

@@ -14,11 +14,11 @@ describe('RouterLabel', () => {
 
   it('renders correct label for classic trade with client routing', () => {
     render(<RouterLabel trade={TEST_TRADE_EXACT_INPUT} />)
-    expect(screen.getByText('Ubeswap Client')).toBeInTheDocument()
+    expect(screen.getByText('DBCSwap Client')).toBeInTheDocument()
   })
 
   it('renders correct label for classic trade with API routing', () => {
     render(<RouterLabel trade={TEST_TRADE_EXACT_INPUT_API} />)
-    expect(screen.getByText('Ubeswap API')).toBeInTheDocument()
+    expect(screen.getByText('DBCSwap API')).toBeInTheDocument()
   })
 })

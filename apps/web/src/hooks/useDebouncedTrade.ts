@@ -80,7 +80,7 @@ export function useDebouncedTrade(
     const weth = WRAPPED_NATIVE_CURRENCY[chainId]
     return Boolean(
       (amountSpecified.currency.isNative && weth?.equals(otherCurrency)) ||
-        (otherCurrency.isNative && weth?.equals(amountSpecified.currency))
+      (otherCurrency.isNative && weth?.equals(amountSpecified.currency))
     )
   }, [amountSpecified, chainId, otherCurrency])
 
@@ -99,6 +99,23 @@ export function useDebouncedTrade(
     inputTax,
     outputTax
   )
+
+  if (previewTradeResult.state === TradeState.VALID) {
+    console.log("previewTradeResult:", previewTradeResult,
+
+
+      skipPreviewTradeFetch,
+      tradeType,
+      amountSpecified,
+      otherCurrency,
+      inputTax,
+      outputTax
+    );
+  }
+
+
+
+
   const routingApiTradeResult = useRoutingAPITrade(
     skipRoutingFetch,
     tradeType,
@@ -109,6 +126,19 @@ export function useDebouncedTrade(
     inputTax,
     outputTax
   )
+
+  if (routingApiTradeResult.state === TradeState.VALID) {
+    console.log("routingApiTradeResult:", routingApiTradeResult,
+      skipRoutingFetch,
+      tradeType,
+      amountSpecified,
+      otherCurrency,
+      routerPreferenceOverride ?? routerPreference,
+      account,
+      inputTax,
+      outputTax
+    );
+  }
 
   return previewTradeResult.currentTrade && !routingApiTradeResult.currentTrade
     ? previewTradeResult

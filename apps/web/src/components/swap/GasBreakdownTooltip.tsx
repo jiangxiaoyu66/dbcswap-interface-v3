@@ -80,9 +80,9 @@ function NetworkCostDescription({ native }: { native: Currency }) {
       <Trans>
         Network cost is paid in {{ sym: native.symbol }} on the {{ chainName }} network in order to transact.
       </Trans>{' '}
-      <ExternalLink href="https://support.ubeswap.org/hc/en-us/articles/8370337377805-What-is-a-network-fee-">
+      {/* <ExternalLink href="https://support.ubeswap.org/hc/en-us/articles/8370337377805-What-is-a-network-fee-">
         <Trans>Learn more</Trans>
-      </ExternalLink>
+      </ExternalLink> */}
     </ThemedText.LabelMicro>
   )
 }

@@ -165,7 +165,7 @@ async function fetchMetadata(incentiveId: string, _ipfsHash: string): Promise<Me
     return
   }
   let data = {
-    platform: 'Ubeswap',
+    platform: 'DBCSwap',
     farmContract: '0xA6E9069CB055a425Eb41D185b740B22Ec8f51853',
     chainId: 42220,
     incentiveId,

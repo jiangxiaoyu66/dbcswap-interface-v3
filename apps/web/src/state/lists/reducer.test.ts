@@ -399,7 +399,7 @@ describe('list reducer', () => {
       it('each of those initialized lists is empty', () => {
         const byUrl = store.getState().byUrl
         Object.entries(byUrl)
-          // We don't expect the Ubeswap default list to be prepopulated
+          // We don't expect the DBCSwap default list to be prepopulated
           .filter(([url]) => url !== 'https://unpkg.com/@ubeswap/default-token-list@latest/ubeswap.token-list.json')
           .forEach(([, state]) => {
             expect(state).toEqual({

@@ -1,7 +1,7 @@
 import { style } from '@vanilla-extract/css'
 
 import { subhead } from '../../nft/css/common.css'
-import { sprinkles, vars } from '../../nft/css/sprinkles.css'
+import { sprinkles, vars, breakpoints } from '../../nft/css/sprinkles.css'
 
 export const logoContainer = style([
   sprinkles({
@@ -16,6 +16,20 @@ export const logoContainer = style([
     ':hover': {
       transform: 'rotate(-5deg)',
     },
+    '@media': {
+      [`screen and (max-width: ${breakpoints.md - 1}px)`]: {
+        marginRight: '0px',
+        gap: "unset"
+      },
+      [`screen and (min-width: ${breakpoints.md}px)`]: {
+        marginRight: '12px',
+        gap: "4px"
+      },
+      [`screen and (min-width: ${breakpoints.lg}px)`]: {
+        marginRight: '24px',
+        gap: "8px"
+      }
+    }
   },
 ])
 
@@ -84,6 +98,7 @@ const baseMenuItem = style([
   {
     lineHeight: '22px',
     textDecoration: 'none',
+    whiteSpace: 'nowrap',
     ':hover': {
       background: vars.color.lightGrayOverlay,
     },

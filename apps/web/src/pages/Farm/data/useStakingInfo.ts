@@ -77,7 +77,7 @@ export default function useStakingInfo(pairToFilterBy?: Pair | null, stakingAddr
             : ube
 
           // get the LP token
-          const liquidityToken = new Token(chainId, poolInfo.stakingToken, 18, 'ULP', 'Ubeswap LP Token')
+          const liquidityToken = new Token(chainId, poolInfo.stakingToken, 18, 'ULP', 'DBCSwap LP Token')
 
           // check for account, if no account set to 0
           const stakedAmount = CurrencyAmount.fromRawAmount(liquidityToken, JSBI.BigInt(balanceState?.result?.[0] ?? 0))

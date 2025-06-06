@@ -14,6 +14,7 @@ import SettingsTab from '../Settings'
 // import SwapBuyFiatButton from './SwapBuyFiatButton'
 import { SwapTab } from './constants'
 import { SwapHeaderTabButton } from './styled'
+import { ButtonPrimary } from 'components/Button'
 
 const StyledSwapHeader = styled(RowBetween)`
   margin-bottom: 12px;
@@ -21,7 +22,7 @@ const StyledSwapHeader = styled(RowBetween)`
   color: ${({ theme }) => theme.neutral2};
 `
 
-const HeaderButtonContainer = styled(RowFixed)<{ compact: boolean }>`
+const HeaderButtonContainer = styled(RowFixed) <{ compact: boolean }>`
   gap: ${({ compact }) => (compact ? 0 : 16)}px;
 
   ${SwapHeaderTabButton} {
@@ -35,6 +36,25 @@ const PathnameToTab: { [key: string]: SwapTab } = {
   '/limit': SwapTab.Limit,
 }
 
+const BuyDBCButtonMobile = styled(ButtonPrimary)`
+  @media (min-width: 769px) {
+    display: none;
+  }
+  background: ${({ theme }) => theme.accent1};
+  padding: 8px 16px;
+  border-radius: 16px;
+  height: 36px;
+  font-size: 15px;
+  font-weight: 500;
+  width: auto;
+  min-width: 120px;
+  border: none;
+  
+  &:hover {
+    opacity: 0.8;
+  }
+`
+
 export default function SwapHeader({ compact, syncTabToUrl }: { compact: boolean; syncTabToUrl: boolean }) {
   const limitsEnabled = useFeatureFlag(FeatureFlags.LimitsEnabled)
   const sendEnabled = useFeatureFlag(FeatureFlags.SendEnabled) && !isIFramed()
@@ -44,6 +64,7 @@ export default function SwapHeader({ compact, syncTabToUrl }: { compact: boolean
   } = useSwapContext()
   const { pathname } = useLocation()
   const navigate = useNavigate()
+  const showBuyButton = !pathname.startsWith('/buy-dbc')
 
   useEffect(() => {
     if (PathnameToTab[pathname] === SwapTab.Limit && (!limitsEnabled || chainId !== ChainId.MAINNET)) {
@@ -107,11 +128,23 @@ export default function SwapHeader({ compact, syncTabToUrl }: { compact: boolean
         )}
         {/* <SwapBuyFiatButton /> */}
       </HeaderButtonContainer>
-      {currentTab === SwapTab.Swap && (
-        <RowFixed>
-          <SettingsTab autoSlippage={autoSlippage} chainId={chainId} compact={compact} trade={trade.trade} />
-        </RowFixed>
-      )}
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        {showBuyButton && (
+          <BuyDBCButtonMobile onClick={() => navigate('/buy-dbc')}>
+            <Trans>Buy DBC</Trans>
+          </BuyDBCButtonMobile>
+        )}
+
+        {currentTab === SwapTab.Swap && (
+          <RowFixed>
+            <SettingsTab autoSlippage={autoSlippage} chainId={chainId} compact={compact} trade={trade.trade} />
+          </RowFixed>
+        )}
+      </div>
+
+
+
     </StyledSwapHeader>
   )
 }

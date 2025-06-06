@@ -1,6 +1,6 @@
 {
   "name": "@ubeswap/analytics-events",
-  "description": "Ubeswap analytics events",
+  "description": "DBCSwap analytics events",
   "version": "0.0.0",
   "license": "MIT",
   "publishConfig": {

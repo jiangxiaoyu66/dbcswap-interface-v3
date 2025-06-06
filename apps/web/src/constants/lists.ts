@@ -1,10 +1,29 @@
-export const UBE_LIST = 'https://unpkg.com/@ubeswap/default-token-list@latest/ubeswap.token-list.json'
-export const UBE_EXTENDED_LIST =
-  'https://unpkg.com/@ubeswap/default-token-list@latest/ubeswap-experimental.token-list.json'
-const UBESWAP_EXTRA_LIST = 'https://raw.githubusercontent.com/Ubeswap/static/main/ube-extra-tokens.json'
+const ISDEV = false
+// export const UBE_LIST = !ISDEV ? 'http://8.214.55.62:8028/config/config/token-list.json' : 'http://localhost:3000/config/config/token-list.json'
+// export const UBE_EXTENDED_LIST =
+//   !ISDEV ? 'http://8.214.55.62:8028/config/config/token-list.json' : 'http://localhost:3000/config/config/token-list.json'
+
+const getBaseUrl = () => {
+  if (typeof window === 'undefined') return ''
+  // 获取主机名
+  const host = window.location.host
+  // 如果是 localhost，强制使用 http 协议
+  const protocol = host.includes('localhost') ? 'http:' : window.location.protocol
+  console.log('protocol', protocol)
+  console.log('host', host)
+  return `${protocol}//${host}`
+}
+
+// export const UBE_LIST = !ISDEV
+//   ? 'https://test.dbcswap.io/config/config/token-list.json'
+//   : `${getBaseUrl()}/config/config/token-list.json`
+export const UBE_LIST = `${getBaseUrl()}/config/config/token-list.json`
+export const UBE_EXTENDED_LIST = ''
+
+
 // const UNI_UNSUPPORTED_LIST = 'https://cloudflare-ipfs.com/ipns/unsupportedtokens.uniswap.org'
 // const AAVE_LIST = 'tokenlist.aave.eth'
-const BA_LIST = 'https://raw.githubusercontent.com/The-Blockchain-Association/sec-notice-list/master/ba-sec-list.json'
+const BA_LIST = ''
 // TODO(WEB-2282): Re-enable CMC list once we have a better solution for handling large lists.
 // const CMC_ALL_LIST = 'https://s3.coinmarketcap.com/generated/dex/tokens/eth-tokens-all.json'
 // const COINGECKO_LIST = 'https://tokens.coingecko.com/uniswap/all.json'
@@ -34,8 +53,8 @@ export const UNSUPPORTED_LIST_URLS: string[] = [BA_LIST /*, UNI_UNSUPPORTED_LIST
 // default lists to be 'active' aka searched across
 export const DEFAULT_ACTIVE_LIST_URLS: string[] = [UBE_LIST]
 export const DEFAULT_INACTIVE_LIST_URLS: string[] = [
-  UBE_EXTENDED_LIST,
-  UBESWAP_EXTRA_LIST,
+  // UBE_EXTENDED_LIST,
+  // UBESWAP_EXTRA_LIST,
   // COMPOUND_LIST,
   // AAVE_LIST,
   // //  CMC_ALL_LIST,
@@ -56,7 +75,7 @@ export const DEFAULT_INACTIVE_LIST_URLS: string[] = [
   // PLASMA_BNB_LIST,
   // AVALANCHE_LIST,
   // BASE_LIST,
-  ...UNSUPPORTED_LIST_URLS,
+  // ...UNSUPPORTED_LIST_URLS,
 ]
 
 export const DEFAULT_LIST_OF_LISTS: string[] = [...DEFAULT_ACTIVE_LIST_URLS, ...DEFAULT_INACTIVE_LIST_URLS]

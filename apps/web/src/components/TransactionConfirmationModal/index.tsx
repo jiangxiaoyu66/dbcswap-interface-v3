@@ -315,20 +315,23 @@ export default function TransactionConfirmationModal({
 }: ConfirmationModalProps) {
   const { chainId } = useWeb3React()
 
+  const handleDismiss = useCallback(() => {
+    onDismiss()
+  }, [onDismiss])
+
   if (!chainId) return null
 
-  // confirmation screen
   return (
-    <Modal isOpen={isOpen} $scrollOverlay={true} onDismiss={onDismiss} maxHeight={90}>
+    <Modal isOpen={isOpen} $scrollOverlay={true} onDismiss={handleDismiss} maxHeight={90}>
       {isL2ChainId(chainId) && (hash || attemptingTxn) ? (
-        <L2Content chainId={chainId} hash={hash} onDismiss={onDismiss} pendingText={pendingText} />
+        <L2Content chainId={chainId} hash={hash} onDismiss={handleDismiss} pendingText={pendingText} />
       ) : attemptingTxn ? (
-        <ConfirmationPendingContent onDismiss={onDismiss} pendingText={pendingText} />
+        <ConfirmationPendingContent onDismiss={handleDismiss} pendingText={pendingText} />
       ) : hash ? (
         <TransactionSubmittedContent
           chainId={chainId}
           hash={hash}
-          onDismiss={onDismiss}
+          onDismiss={handleDismiss}
           currencyToAdd={currencyToAdd}
         />
       ) : (

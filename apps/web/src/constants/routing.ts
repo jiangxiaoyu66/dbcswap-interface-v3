@@ -127,7 +127,7 @@ export const COMMON_BASES: ChainCurrencyList = {
     CUSD_CELO_ALFAJORES,
     CEUR_CELO_ALFAJORES,
   ],
-
+  // [ChainId.DBC]: [nativeOnChain(ChainId.DBC), ],
   [ChainId.BNB]: [nativeOnChain(ChainId.BNB), DAI_BSC, USDC_BSC, USDT_BSC, ETH_BSC, BTC_BSC, BUSD_BSC],
 
   [ChainId.AVALANCHE]: [
@@ -137,6 +137,7 @@ export const COMMON_BASES: ChainCurrencyList = {
     USDT_AVALANCHE,
     WETH_AVALANCHE,
   ],
+  [ChainId.DBC]: [nativeOnChain(ChainId.DBC)],
 }
 
 // used to construct the list of all pairs we consider by default in the frontend

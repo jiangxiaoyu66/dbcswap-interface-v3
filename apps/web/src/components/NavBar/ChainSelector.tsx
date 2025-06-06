@@ -11,7 +11,7 @@ import useSelectChain from 'hooks/useSelectChain'
 import useSyncChainQuery from 'hooks/useSyncChainQuery'
 import { t } from 'i18n'
 import { useAtomValue } from 'jotai/utils'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState, useEffect } from 'react'
 import { AlertTriangle } from 'react-feather'
 import { css, useTheme } from 'styled-components'
 import { getSupportedChainIdsFromWalletConnectSession } from 'utils/getSupportedChainIdsFromWalletConnectSession'
@@ -19,7 +19,7 @@ import { getSupportedChainIdsFromWalletConnectSession } from 'utils/getSupported
 import { DropdownSelector, StyledMenuContent } from 'components/DropdownSelector'
 import ChainSelectorRow from './ChainSelectorRow'
 
-const NETWORK_SELECTOR_CHAINS = [ChainId.CELO, ChainId.CELO_ALFAJORES]
+const NETWORK_SELECTOR_CHAINS = [ChainId.DBC, ChainId.BNB]
 
 const StyledDropdownButton = css`
   display: flex;
@@ -97,9 +97,12 @@ export const ChainSelector = ({ leftAlign }: { leftAlign?: boolean }) => {
     [selectChain, setIsOpen]
   )
 
-  if (!chainId) {
-    return null
-  }
+  useEffect(() => {
+    // console.log('chainId', chainId, NETWORK_SELECTOR_CHAINS)
+    if (chainId && !NETWORK_SELECTOR_CHAINS.includes(chainId)) {
+      onSelectChain(NETWORK_SELECTOR_CHAINS[0])
+    }
+  }, [chainId, onSelectChain])
 
   const isSupported = !!info
 
@@ -107,6 +110,13 @@ export const ChainSelector = ({ leftAlign }: { leftAlign?: boolean }) => {
     ${leftAlign ? 'left: 0;' : 'right: 0;'}
     ${styledMobileMenuCss};
   `
+
+  // 仅在下拉菜单中显示DBC链，过滤掉BNB链
+  const filteredSupportedChains = supportedChains.filter(chain => chain === ChainId.DBC)
+  const filteredUnsupportedChains = unsupportedChains.filter(chain => chain === ChainId.DBC)
+
+  // 安全的chainId，用于ChainLogo组件
+  const safeChainId = chainId ?? ChainId.DBC
 
   return (
     <DropdownSelector
@@ -116,7 +126,7 @@ export const ChainSelector = ({ leftAlign }: { leftAlign?: boolean }) => {
         !isSupported ? (
           <AlertTriangle size={20} color={theme.neutral2} />
         ) : (
-          <ChainLogo chainId={chainId} size={20} testId="chain-selector-logo" />
+          <ChainLogo chainId={safeChainId as ChainId} size={20} style={{ borderRadius: '3px' }} testId="chain-selector-logo" />
         )
       }
       tooltipText={isSupported ? undefined : t`Your wallet's current network is unsupported.`}
@@ -124,7 +134,7 @@ export const ChainSelector = ({ leftAlign }: { leftAlign?: boolean }) => {
       optionsContainerTestId="chain-selector-options"
       internalMenuItems={
         <>
-          {supportedChains.map((selectorChain) => (
+          {filteredSupportedChains.map((selectorChain) => (
             <ChainSelectorRow
               disabled={!walletSupportsChain.includes(selectorChain)}
               onSelectChain={onSelectChain}
@@ -133,7 +143,7 @@ export const ChainSelector = ({ leftAlign }: { leftAlign?: boolean }) => {
               isPending={selectorChain === pendingChainId}
             />
           ))}
-          {unsupportedChains.map((selectorChain) => (
+          {filteredUnsupportedChains.map((selectorChain) => (
             <ChainSelectorRow
               disabled
               onSelectChain={() => undefined}

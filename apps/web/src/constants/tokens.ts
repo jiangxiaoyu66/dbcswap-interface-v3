@@ -262,13 +262,13 @@ export const DAI_AVALANCHE = new Token(
 )
 
 export const UBE: { [chainId: number]: Token } = {
-  [ChainId.CELO]: new Token(ChainId.CELO, UBE_ADDRESSES[ChainId.CELO], 18, 'UBE', 'Ubeswap'),
+  [ChainId.CELO]: new Token(ChainId.CELO, UBE_ADDRESSES[ChainId.CELO], 18, 'UBE', 'DBCSwap'),
   [ChainId.CELO_ALFAJORES]: new Token(
     ChainId.CELO_ALFAJORES,
     UBE_ADDRESSES[ChainId.CELO_ALFAJORES],
     18,
     'UBE',
-    'Ubeswap'
+    'DBCSwap'
   ),
 }
 
@@ -361,6 +361,8 @@ export const WRAPPED_NATIVE_CURRENCY: { [chainId: number]: Token | undefined } =
     'Wrapped AVAX'
   ),
   [ChainId.BLAST]: new Token(ChainId.BLAST, '0x4300000000000000000000000000000000000004', 18, 'WETH', 'Wrapped Ether'),
+
+  [ChainId.DBC]: new Token(ChainId.DBC, '0xD7EA4Da7794c7d09bceab4A21a6910D9114Bc936', 18, 'WDBC', 'Wrapped DBC'),
 }
 
 export function isCelo(chainId: number): chainId is ChainId.CELO | ChainId.CELO_ALFAJORES {
@@ -478,7 +480,12 @@ export function nativeOnChain(chainId: number): NativeCurrency | Token {
     nativeCurrency = new BscNativeCurrency(chainId)
   } else if (isAvalanche(chainId)) {
     nativeCurrency = new AvaxNativeCurrency(chainId)
-  } else {
+  }
+
+  else if (chainId === ChainId.DBC) {
+    nativeCurrency = new DBCNativeCurrency(chainId)
+  }
+  else {
     nativeCurrency = ExtendedEther.onChain(chainId)
   }
   return (cachedNativeCurrency[chainId] = nativeCurrency)
@@ -527,6 +534,8 @@ const STABLECOINS: { [chainId in ChainId]: Token[] } = {
   [ChainId.ZORA]: [],
   [ChainId.ROOTSTOCK]: [],
   [ChainId.BLAST]: [USDB_BLAST],
+  [ChainId.DBC]: [],
+  [ChainId.DBCTEST]: [],
 }
 
 export function isStablecoin(currency?: Currency): boolean {
@@ -537,3 +546,44 @@ export function isStablecoin(currency?: Currency): boolean {
 
 export const UNKNOWN_TOKEN_SYMBOL = 'UNKNOWN'
 export const UNKNOWN_TOKEN_NAME = 'Unknown Token'
+
+
+
+export function isDBC(chainId: number): chainId is ChainId.DBC {
+  return chainId === ChainId.DBC
+}
+export class DBCNativeCurrency extends NativeCurrency {
+  equals(other: Currency): boolean {
+    return other.isNative && other.chainId === this.chainId
+  }
+  get wrapped(): Token {
+    if (!isDBC(this.chainId)) throw new Error('Not DBC')
+    // return this as unknown as Token // 直接使用原生币，不需要 wrapped 版本
+    const wrapped = WRAPPED_NATIVE_CURRENCY[this.chainId]
+    invariant(wrapped instanceof Token)
+    return wrapped
+  }
+  public constructor(chainId: number) {
+    if (!isDBC(chainId)) throw new Error('Not DBC')
+    super(chainId, 18, 'DBC', 'DBC') // 默认填入WDBC
+  }
+}
+
+
+// class BscNativeCurrency extends NativeCurrency {
+//   equals(other: Currency): boolean {
+//     return other.isNative && other.chainId === this.chainId
+//   }
+
+//   get wrapped(): Token {
+//     if (!isBsc(this.chainId)) throw new Error('Not bnb')
+//     const wrapped = WRAPPED_NATIVE_CURRENCY[this.chainId]
+//     invariant(wrapped instanceof Token)
+//     return wrapped
+//   }
+
+//   public constructor(chainId: number) {
+//     if (!isBsc(chainId)) throw new Error('Not bnb')
+//     super(chainId, 18, 'BNB', 'BNB')
+//   }
+// }

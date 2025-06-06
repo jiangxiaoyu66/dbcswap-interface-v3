@@ -52,7 +52,7 @@ const AssetPage = () => {
     <>
       <Helmet>
         <title>
-          {asset.name ?? ''} {asset.name ? '|' : ''} {collection.collectionName ?? t`Explore NFTs`} on Ubeswap
+          {asset.name ?? ''} {asset.name ? '|' : ''} {collection.collectionName ?? t`Explore NFTs`} on DBCSwap
         </title>
       </Helmet>
       <Trace

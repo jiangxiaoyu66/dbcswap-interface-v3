@@ -39,7 +39,7 @@ const Wrapper = styled.div({
 })
 
 const VOTABLE_STAKING_REWARDS_ADDRESS = '0xCe74d14163deb82af57f253108F7E5699e62116d'
-const OLD_UBE = new Token(ChainId.CELO, '0x00Be915B9dCf56a3CBE739D9B9c202ca692409EC', 18, 'old-UBE', 'Ubeswap (Old)')
+const OLD_UBE = new Token(ChainId.CELO, '0x00Be915B9dCf56a3CBE739D9B9c202ca692409EC', 18, 'old-UBE', 'DBCSwap (Old)')
 
 export const OldStake: React.FC = () => {
   const { account, chainId, provider } = useWeb3React()

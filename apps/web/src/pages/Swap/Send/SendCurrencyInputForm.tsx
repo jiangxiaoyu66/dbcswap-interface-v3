@@ -251,7 +251,10 @@ export default function SendCurrencyInputForm({
     type: NumberType.TokenNonTx,
   })
 
-  const fiatBalanceValue = useUSDPrice(currencyBalance, inputCurrency)
+  const fiatBalanceValue = {
+    data: 1,
+    isLoading: false,
+  }
   const displayValue = inputInFiat ? exactAmountFiat : exactAmountToken
   const hiddenObserver = useResizeObserver<HTMLElement>()
   const [postWidthAdjustedDisplayValue, setPostWidthAdjustedDisplayValue] = useState('')

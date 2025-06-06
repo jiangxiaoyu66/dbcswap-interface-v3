@@ -921,11 +921,6 @@ export class AlphaRouter implements IRouter<AlphaRouterConfig>, ISwapToRatio<Alp
     const tokenIn = currencyIn.wrapped
     const tokenOut = currencyOut.wrapped
 
-    console.log('chainId', this.chainId)
-    console.log('pair', `${tokenIn.symbol}/${tokenOut.symbol}`)
-    console.log('tokenIn', tokenIn.address)
-    console.log('tokenOut', tokenOut.address)
-    console.log('tradeType', tradeType === TradeType.EXACT_INPUT ? 'ExactIn' : 'ExactOut')
 
     metric.putMetric(`QuoteRequestedForChain${this.chainId}`, 1, MetricLoggerUnit.Count)
 
@@ -946,11 +941,10 @@ export class AlphaRouter implements IRouter<AlphaRouterConfig>, ISwapToRatio<Alp
       { blockNumber }
     )
 
-    console.log('routingConfig', JSON.stringify(routingConfig))
 
-    if (routingConfig.debugRouting) {
-      console.log(`Finalized routing config is ${JSON.stringify(routingConfig)}`)
-    }
+    // if (routingConfig.debugRouting) {
+    //   console.log(`Finalized routing config is ${JSON.stringify(routingConfig)}`)
+    // }
 
     const gasPriceWei = await this.getGasPriceWei()
 
@@ -976,7 +970,6 @@ export class AlphaRouter implements IRouter<AlphaRouterConfig>, ISwapToRatio<Alp
       routingConfig.overwriteCacheMode ??
       (await this.routeCachingProvider?.getCacheMode(this.chainId, amount, quoteToken, tradeType, protocols))
 
-    console.log('cacheMode', cacheMode)
 
     // Fetch CachedRoutes
     let cachedRoutes: CachedRoutes | undefined
@@ -1000,34 +993,10 @@ export class AlphaRouter implements IRouter<AlphaRouterConfig>, ISwapToRatio<Alp
 
     if (cacheMode && routingConfig.useCachedRoutes && cacheMode !== CacheMode.Darkmode && !cachedRoutes) {
       metric.putMetric(`GetCachedRoute_miss_${cacheMode}`, 1, MetricLoggerUnit.Count)
-      console.log(
-        {
-          tokenIn: tokenIn.symbol,
-          tokenInAddress: tokenIn.address,
-          tokenOut: tokenOut.symbol,
-          tokenOutAddress: tokenOut.address,
-          cacheMode,
-          amount: amount.toExact(),
-          chainId: this.chainId,
-          tradeType: this.tradeTypeStr(tradeType),
-        },
-        `GetCachedRoute miss ${cacheMode} for ${this.tokenPairSymbolTradeTypeChainId(tokenIn, tokenOut, tradeType)}`
-      )
+  
     } else if (cachedRoutes && routingConfig.useCachedRoutes) {
       metric.putMetric(`GetCachedRoute_hit_${cacheMode}`, 1, MetricLoggerUnit.Count)
-      console.log(
-        {
-          tokenIn: tokenIn.symbol,
-          tokenInAddress: tokenIn.address,
-          tokenOut: tokenOut.symbol,
-          tokenOutAddress: tokenOut.address,
-          cacheMode,
-          amount: amount.toExact(),
-          chainId: this.chainId,
-          tradeType: this.tradeTypeStr(tradeType),
-        },
-        `GetCachedRoute hit ${cacheMode} for ${this.tokenPairSymbolTradeTypeChainId(tokenIn, tokenOut, tradeType)}`
-      )
+    
     }
 
     let swapRouteFromCachePromise: Promise<BestSwapRoute | null> = Promise.resolve(null)
@@ -1071,11 +1040,9 @@ export class AlphaRouter implements IRouter<AlphaRouterConfig>, ISwapToRatio<Alp
     let swapRouteRaw: BestSwapRoute | null
     let hitsCachedRoute = false
     if (cacheMode === CacheMode.Livemode && swapRouteFromCache) {
-      console.log(`CacheMode is ${cacheMode}, and we are using swapRoute from cache`)
       hitsCachedRoute = true
       swapRouteRaw = swapRouteFromCache
     } else {
-      console.log(`CacheMode is ${cacheMode}, and we are using materialized swapRoute`)
       swapRouteRaw = swapRouteFromChain
     }
 
@@ -1424,7 +1391,7 @@ export class AlphaRouter implements IRouter<AlphaRouterConfig>, ISwapToRatio<Alp
 
     let v3CandidatePoolsPromise: Promise<V3CandidatePools | undefined> = Promise.resolve(undefined)
     if (v3ProtocolSpecified || noProtocolsSpecified || (shouldQueryMixedProtocol && mixedProtocolAllowed)) {
-      console.log('V3333333333333333')
+      console.log('V3333333333333333', v3ProtocolSpecified, noProtocolsSpecified, shouldQueryMixedProtocol, mixedProtocolAllowed)
       v3CandidatePoolsPromise = getV3CandidatePools({
         tokenIn,
         tokenOut,
@@ -1664,6 +1631,7 @@ export class AlphaRouter implements IRouter<AlphaRouterConfig>, ISwapToRatio<Alp
     const nativeAmountTokenV3PoolPromise = !amountToken.equals(nativeCurrency)
       ? getHighestLiquidityV3NativePool(amountToken, this.v3PoolProvider, providerConfig)
       : Promise.resolve(null)
+
 
     const [usdPool, nativeQuoteTokenV3Pool, nativeAmountTokenV3Pool] = await Promise.all([
       usdPoolPromise,

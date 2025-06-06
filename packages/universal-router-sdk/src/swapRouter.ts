@@ -117,10 +117,10 @@ export abstract class SwapRouter {
   }
 
   /**
-   * @deprecated in favor of swapCallParameters. Update before next major version 2.0.0
-   * This version does not work correctly for Seaport ERC20->NFT purchases
-   * Produces the on-chain method name to call and the hex encoded parameters to pass as arguments for a given swap.
-   * @param trades to produce call parameters for
+   * @deprecated 推荐使用 swapCallParameters 替代。在 2.0.0 主版本更新前请更新
+   * 这个版本对 Seaport ERC20->NFT 购买不能正确工作
+   * 为给定的交换生成链上方法名称和十六进制编码的参数。
+   * @param trades 需要生成调用参数的交易
    */
   public static swapNFTCallParameters(trades: SupportedNFTTrade[], config: SwapRouterConfig = {}): MethodParameters {
     const planner = new RoutePlanner()
@@ -138,10 +138,10 @@ export abstract class SwapRouter {
   }
 
   /**
-   * @deprecated in favor of swapCallParameters. Update before next major version 2.0.0
-   * Produces the on-chain method name to call and the hex encoded parameters to pass as arguments for a given trade.
-   * @param trades to produce call parameters for
-   * @param options options for the call parameters
+   * @deprecated 推荐使用 swapCallParameters 替代。在 2.0.0 主版本更新前请更新
+   * 为给定的交易生成链上方法名称和十六进制编码的参数。
+   * @param trades 需要生成调用参数的交易
+   * @param options 调用参数的选项
    */
   public static swapERC20CallParameters(
     trades: RouterTrade<Currency, Currency, TradeType>,
@@ -170,10 +170,10 @@ export abstract class SwapRouter {
   }
 
   /**
-   * Encodes a planned route into a method name and parameters for the Router contract.
-   * @param planner the planned route
-   * @param nativeCurrencyValue the native currency value of the planned route
-   * @param config the router config
+   * 将计划好的路由编码为路由合约的方法名称和参数。
+   * @param planner 计划好的路由
+   * @param nativeCurrencyValue 计划路由的原生货币价值
+   * @param config 路由配置
    */
   private static encodePlan(
     planner: RoutePlanner,

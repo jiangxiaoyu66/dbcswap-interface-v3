@@ -185,7 +185,7 @@ const Collection = () => {
     <>
       <Helmet>
         <title>
-          {t(`Buy, sell & trade {{name}} on Ubeswap`, {
+          {t(`Buy, sell & trade {{name}} on DBCSwap`, {
             name: collectionStats.name,
           })}
         </title>

@@ -25,7 +25,7 @@ describe('Universal search bar', () => {
     getSearchBar().clear().type('ube')
 
     cy.get(getTestSelector(`searchbar-token-row-ETHEREUM-${UBE_ADDRESS}`))
-      .should('contain.text', 'Ubeswap')
+      .should('contain.text', 'DBCSwap')
       .and('contain.text', 'UBE')
       .and('contain.text', '$')
       .and('contain.text', '%')

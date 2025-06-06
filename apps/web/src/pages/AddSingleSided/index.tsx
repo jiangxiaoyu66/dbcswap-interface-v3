@@ -224,7 +224,7 @@ function AddSingleSided() {
 
     try {
       setAttemptingTxn(true)
-      const dex = SupportedDex.Ubeswap
+      const dex = SupportedDex.DBCSwap
       const info = await getIchiVaultInfo(42220, dex, vaultAddress)
       const txnDetails = info.allowTokenA
         ? await deposit(

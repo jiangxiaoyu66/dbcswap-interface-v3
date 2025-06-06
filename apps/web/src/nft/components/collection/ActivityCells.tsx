@@ -236,7 +236,7 @@ const renderEventIcon = (eventType: NftActivityType) => {
 
 const openEtherscanLinkInNewTab = (e: MouseEvent, transactionHash: string) => {
   e.preventDefault()
-  window.open(`https://etherscan.io/tx/${transactionHash}`, '_blank', 'noopener,noreferrer')
+  window.open(`https://test.dbcscan.io/tx/${transactionHash}`, '_blank', 'noopener,noreferrer')
 }
 
 const ExternalLinkIcon = ({ transactionHash }: { transactionHash: string }) => (

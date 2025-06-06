@@ -29,6 +29,7 @@ yarn-error.log*
 # local env files
 .env
 .env.defaults.local
+.env.production
 
 # turbo
 .turbo
@@ -53,4 +54,6 @@ packages/uniswap/src/i18n/locales/@types/resources.d.ts
 # Vercel
 .vercel
 
-.specstory
+
+.specstory/*
+

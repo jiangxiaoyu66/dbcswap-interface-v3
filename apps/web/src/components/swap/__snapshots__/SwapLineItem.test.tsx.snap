@@ -1604,7 +1604,7 @@ exports[`SwapLineItem.tsx exact input 1`] = `
                 <div
                   class="c20 css-142zc9n"
                 >
-                  Ubeswap Client
+                  DBCSwap Client
                 </div>
               </div>
             </div>
@@ -2654,7 +2654,7 @@ exports[`SwapLineItem.tsx exact input api 1`] = `
                 <div
                   class="c20 css-142zc9n"
                 >
-                  Ubeswap API
+                  DBCSwap API
                 </div>
               </div>
             </div>
@@ -3704,7 +3704,7 @@ exports[`SwapLineItem.tsx exact output 1`] = `
                 <div
                   class="c20 css-142zc9n"
                 >
-                  Ubeswap Client
+                  DBCSwap Client
                 </div>
               </div>
             </div>
@@ -4555,7 +4555,7 @@ exports[`SwapLineItem.tsx fee on buy 1`] = `
               <div
                 class="c11 css-obwv3p"
               >
-                Some tokens take a fee when they are bought or sold, which is set by the token issuer. Ubeswap does not receive any of these fees.
+                Some tokens take a fee when they are bought or sold, which is set by the token issuer. DBCSwap does not receive any of these fees.
                 <a
                   class="c15"
                   href="https://support.ubeswap.org/hc/en-us/articles/18673568523789-What-is-a-token-fee-"
@@ -4807,7 +4807,7 @@ exports[`SwapLineItem.tsx fee on buy 1`] = `
                 <div
                   class="c20 css-142zc9n"
                 >
-                  Ubeswap API
+                  DBCSwap API
                 </div>
               </div>
             </div>
@@ -5658,7 +5658,7 @@ exports[`SwapLineItem.tsx fee on sell 1`] = `
               <div
                 class="c11 css-obwv3p"
               >
-                Some tokens take a fee when they are bought or sold, which is set by the token issuer. Ubeswap does not receive any of these fees.
+                Some tokens take a fee when they are bought or sold, which is set by the token issuer. DBCSwap does not receive any of these fees.
                 <a
                   class="c15"
                   href="https://support.ubeswap.org/hc/en-us/articles/18673568523789-What-is-a-token-fee-"
@@ -5910,7 +5910,7 @@ exports[`SwapLineItem.tsx fee on sell 1`] = `
                 <div
                   class="c20 css-142zc9n"
                 >
-                  Ubeswap API
+                  DBCSwap API
                 </div>
               </div>
             </div>
