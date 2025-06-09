@@ -104,6 +104,7 @@
     "https://*.twnodes.com",
     "https://unpkg.com/@rive-app/canvas@2.8.3/rive.wasm",
     "https://us-central1-uniswap-mobile.cloudfunctions.net/",
+    "https://us-central1-uniswap-mobile.cloudfunctions.net/signMoonpayLinkV2",
     "https://vercel.com",
     "https://vercel.live/",
     "https://www.gemini.com",
@@ -128,7 +129,15 @@
     "https://rpc.ankr.com",
     "https://bsc.drpc.org",
     "https://bscrpc.com",
-    "https://rpc.dbcwallet.io/"
+    "https://rpc.dbcwallet.io/",
+    "https://web3.mytokenpocket.vip/",
+    "https://antimev.bsc.blockrazor.xyz/",
+    "https://*.blockrazor.xyz",
+    "https://*.binance.org",
+    "https://*.bnbchain.org",
+    "https://*.moonpay.com",
+    "https://963df249ed09c358a4819e39d9cd5736c3087184.xyz",
+    "https://55d398326f99059ff775485246999027b3197955.xyz"
   ],
   "workerSrc": [
     "'self'",
