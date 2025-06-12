@@ -38,7 +38,7 @@
       "symbol": "SIC",
       "chainId": 19880818,
       "decimals": 18,
-      "logoURI": "https://app.superimage.ai/static/logo.svg"
+      "logoURI": "https://www.superimage.ai/app/static/logo.svg"
     },
     {
       "address": "0xD78F268291f3fe244CB965C768EDb515b529eD02",
@@ -60,6 +60,6 @@
   "version": {
     "major": 4,
     "minor": 1,
-    "patch": 89
+    "patch": 90
   }
 }

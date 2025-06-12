@@ -64,6 +64,10 @@ const getAppUrl = () => {
   return 'https://dbcswap.io';
 };
 
+// WalletConnect Project ID
+// 使用一个有效的项目ID，这个ID需要在WalletConnect Cloud注册
+const WALLET_CONNECT_PROJECT_ID = 'b4e41353f250958b0c77472ed603222a';
+
 // Avoid testing for the best URL by only passing a single URL per chain.
 // Otherwise, WC will not initialize until all URLs have been tested (see getBestUrl in web3-react).
 const WC_RPC_URLS = Object.entries(APP_RPC_URLS).reduce(
@@ -258,16 +262,16 @@ export const openWallet = (uri: string, web3Data?: { connector?: any; provider?:
       console.log('Trying location.href with deep link');
       window.location.href = deepLink;
       
-      // // 如果第一个格式失败，尝试备用格式
-      // setTimeout(() => {
-      //   console.log('Trying backup deep link format');
-      //   window.location.href = backupDeepLink;
+      // 如果第一个格式失败，尝试备用格式
+      setTimeout(() => {
+        console.log('Trying backup deep link format');
+        window.location.href = backupDeepLink;
         
-      //   // 如果所有自动打开方式都失败,提示用户手动打开
-      //   setTimeout(() => {
-      //     console.log('Unable to open wallet automatically, please open manually');
-      //   }, 1500);
-      // }, 1500);
+        // 如果所有自动打开方式都失败,提示用户手动打开
+        setTimeout(() => {
+          console.log('Unable to open wallet automatically, please open manually');
+        }, 1500);
+      }, 1500);
     } catch (error) {
       console.error('Failed to open wallet:', error);
     }
@@ -286,28 +290,22 @@ export class WalletConnectV2 extends WalletConnect {
   }: Omit<WalletConnectConstructorArgs, 'options'> & { defaultChainId: number; qrcode?: boolean }) {
     const darkmode = Boolean(window.matchMedia('(prefers-color-scheme: dark)'))
     
-    // 检查 projectId
-    const projectId = process.env.REACT_APP_WALLET_CONNECT_PROJECT_ID;
-    if (!projectId) {
-      console.error('WalletConnect projectId is missing!');
-      throw new Error('WalletConnect configuration error: Missing projectId');
-    }
-    
     console.log('Initializing WalletConnect with config:', {
-      projectId,
+      projectId: WALLET_CONNECT_PROJECT_ID,
       defaultChainId,
       appUrl: getAppUrl(),
-      isMobile: isWebIOS || isWebAndroid
+      isMobile: isWebIOS || isWebAndroid,
+      domain: window.location.hostname
     });
     
     super({
       actions,
       options: {
-        projectId: projectId,
+        projectId: WALLET_CONNECT_PROJECT_ID,
         chains: [defaultChainId],
         metadata: {
           name: 'DBCSwap',
-          description: 'The interface for DBCSwap, a decentralized exchange and automated market maker protocol for Celo assets.',
+          description: 'The interface for DBCSwap, a decentralized exchange and automated market maker protocol for DBC assets.',
           url: getAppUrl(),
           icons: [`${getAppUrl()}/favicon.png`],
         },
@@ -316,19 +314,12 @@ export class WalletConnectV2 extends WalletConnect {
         rpcMap: WC_RPC_URLS,
         optionalMethods: ['eth_signTypedData', 'eth_signTypedData_v4', 'eth_sign'],
         qrModalOptions: {
-          desktopWallets: undefined,
           enableExplorer: true,
-          explorerExcludedWalletIds: undefined,
-          explorerRecommendedWalletIds: undefined,
-          mobileWallets: undefined,
-          privacyPolicyUrl: undefined,
-          termsOfServiceUrl: undefined,
           themeMode: darkmode ? 'dark' : 'light',
           themeVariables: {
             '--wcm-font-family': '"Inter custom", sans-serif',
             '--wcm-z-index': Z_INDEX.modal.toString(),
           },
-          walletImages: undefined,
         },
       },
       onError: (error) => {
@@ -376,10 +367,6 @@ export class WalletConnectV2 extends WalletConnect {
       if (isWebIOS || isWebAndroid) {
         console.log('Opening mobile wallet with URI');
         openWallet(uri);
-      } else if (process.env.NODE_ENV === 'development') {
-        // 在开发环境下，显示二维码和调试信息
-        console.log('Development mode - QR code URI:', uri);
-        this.events.emit('show_qr_code', uri);
       }
     });
   }
