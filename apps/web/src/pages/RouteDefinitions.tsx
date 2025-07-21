@@ -45,7 +45,7 @@ const ClaimNewPact = lazy(() => import('pages/ClaimNewPact'))
 const RedirectEarn = lazy(() => import('pages/Earn/redirects'))
 const FarmV3 = lazy(() => import('pages/FarmV3'))
 const Debug = lazy(() => import('pages/Debug'))
-const Warp = lazy(() => import('pages/Warp'))
+// const Warp = lazy(() => import('pages/Warp'))
 
 // this is the same svg defined in assets/images/blue-loader.svg
 // it is defined here because the remote asset may not have had time to load when this file is executing
@@ -397,15 +397,15 @@ export const routes: RouteDefinition[] = [
     path: '/debug',
     getElement: () => <Debug />,
   }),
-  createRouteDefinition({
-    path: '/warp',
-    getTitle: () => t`Warp on DBCSwap`,
-    getElement: () => (
-      <Suspense fallback={<LazyLoadSpinner />}>
-        <Warp />
-      </Suspense>
-    ),
-  }),
+  // createRouteDefinition({
+  //   path: '/warp',
+  //   getTitle: () => t`Warp on DBCSwap`,
+  //   getElement: () => (
+  //     <Suspense fallback={<LazyLoadSpinner />}>
+  //       <Warp />
+  //     </Suspense>
+  //   ),
+  // }),
   createRouteDefinition({ path: '*', getElement: () => <Navigate to="/not-found" replace /> }),
   createRouteDefinition({ path: '/not-found', getElement: () => <NotFound /> }),
 ]

@@ -177,8 +177,8 @@ export const PageTabs = () => {
           <Trans>Pool</Trans>
         </MenuItem>
       </Box>
-      <MenuItem 
-        href="/warp" 
+      {/* <MenuItem
+        href="/warp"
         isActive={pathname.startsWith('/warp')}
         onClick={(e) => {
           e.preventDefault()
@@ -186,7 +186,7 @@ export const PageTabs = () => {
         }}
       >
         <Trans>Cross-Chain USDT</Trans>
-      </MenuItem>
+      </MenuItem> */}
       <More />
     </>
   )
