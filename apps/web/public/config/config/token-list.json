@@ -55,6 +55,15 @@
       "chainId": 19880818,
       "decimals": 18,
       "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xdAC17F958D2ee523a2206206994597C13D831ec7/logo.png"
+    },
+    {
+      "address": "0x0BB579513DeAB87a247FB0CA8Eff32AeAcA2Bd40",
+      "name": "LifeGuard",
+      "symbol": "LGUARD",
+      "chainId": 19880818,
+      "decimals": 18,
+      "logoURI": "https://xaiagent.oss-ap-northeast-2.aliyuncs.com/chat/1752921514271_vfch49t.png"
+
     }
   ],
   "version": {
