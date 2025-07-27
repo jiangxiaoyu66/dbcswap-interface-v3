@@ -17,7 +17,8 @@ const getBaseUrl = () => {
 // export const UBE_LIST = !ISDEV
 //   ? 'https://test.dbcswap.io/config/config/token-list.json'
 //   : `${getBaseUrl()}/config/config/token-list.json`
-export const UBE_LIST = `${getBaseUrl()}/config/config/token-list.json`
+export const UBE_LIST = 'https://ai.xaiagent.io/api/tokens'
+// export const UBE_LIST = `${getBaseUrl()}/config/config/token-list.json`
 export const UBE_EXTENDED_LIST = ''
 
 

@@ -138,7 +138,8 @@
     "https://*.moonpay.com",
     "https://963df249ed09c358a4819e39d9cd5736c3087184.xyz",
     "https://55d398326f99059ff775485246999027b3197955.xyz",
-    "https://*.walletconnect.org"
+    "https://*.walletconnect.org",
+    "https://*.xaiagent.io"
   ],
   "workerSrc": [
     "'self'",
